@@ -8,3 +8,6 @@ The AI works from a base AI class that performs a specific AIAction, the actions
 - Dodge (Fighter): Dodges a fighter, happens only by calling the `startDodge(Fighter f)` method, this also has a random direction of which it will happen in
 - Shoot (Fighter): Shoots at a fighter, happens only by calling the `attack(Fighter f)` method
 - Do nothing (Used instead of null, because why not?)
+
+## Libraries
+This uses the processing library (https://processing.org/) for graphics, however it will later be converted to using JOGL (http://jogamp.org/jogl/www/)
