@@ -35,7 +35,7 @@ public class FightingGame extends PApplet {
 		AIFighter f2 = new AIFighter(instance);
 		f2.pos = new PVector(2, 0);
 		f1.pos = new PVector(-2, 0);
-		//f2.attack(f1);
+		f2.attack(f1);
 	}
 	public void setup() {
 		if (DEBUG_MODE)

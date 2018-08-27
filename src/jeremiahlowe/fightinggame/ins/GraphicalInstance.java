@@ -1,6 +1,7 @@
 package jeremiahlowe.fightinggame.ins;
 
 import jeremiahlowe.fightinggame.ui.IDrawable;
+import jeremiahlowe.fightinggame.ui.IStatistic;
 import jeremiahlowe.fightinggame.ui.Statistics;
 import jeremiahlowe.fightinggame.ui.IStatistic.ITextStatistic;
 import jeremiahlowe.fightinggame.util.SafeArrayList;
@@ -70,5 +71,16 @@ public abstract class GraphicalInstance extends Instance{
 				return new String[] {drws, phys, slvl};
 			}
 		};
+	}
+
+	public boolean addStatistic(IStatistic stat) {
+		if(statistics != null)
+			return statistics.addStatistic(stat);
+		return false;
+	}
+	public boolean removeStatistic(IStatistic stat) {
+		if(statistics != null)
+			return statistics.removeStatistic(stat);
+		return false;
 	}
 }
