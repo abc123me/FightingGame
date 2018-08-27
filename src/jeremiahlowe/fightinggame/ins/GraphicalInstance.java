@@ -72,7 +72,6 @@ public abstract class GraphicalInstance extends Instance{
 			}
 		};
 	}
-
 	public boolean addStatistic(IStatistic stat) {
 		if(statistics != null)
 			return statistics.addStatistic(stat);

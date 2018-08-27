@@ -1,42 +1,33 @@
-package jeremiahlowe.fightinggame;
+package jeremiahlowe.fightinggame.client;
 
-import jeremiahlowe.fightinggame.ai.AIFighter;
+import jeremiahlowe.fightinggame.Player;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
-import jeremiahlowe.fightinggame.ins.SingleplayerInstance;
-import jeremiahlowe.fightinggame.util.Color;
 import jeremiahlowe.fightinggame.util.Viewport;
 import processing.core.PApplet;
 import processing.core.PVector;
 import processing.event.MouseEvent;
 
-public class FightingGame extends PApplet {
+public class FightingGameClient extends PApplet {
 	public static boolean DEBUG_MODE = false;
 
 	public static void main(String[] args) {
-		DEBUG_MODE = false;
-		main(FightingGame.class, args);
+		DEBUG_MODE = true;
+		main(FightingGameClient.class, args);
 	}
-
-	Player player;
-	float worldSize = 10;
-	float timeWarp = 1f;
-
-	public GraphicalInstance instance;
-
+	
+	public float worldSize = 10;
+	
+	private GameClientInstance instance;
+	private Player player;
+	
 	@Override
 	public void settings() {
 		size(500, 500);
-		instance = new SingleplayerInstance(this);
+		instance = new GameClientInstance(this);
 		instance.screen = new Viewport(width, -height, width / 2, height / 2);
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
 		player = new Player(instance);
-		player.pos = new PVector(0, 2);
-		player.color = Color.YELLOW;
-		AIFighter f1 = new AIFighter(instance);
-		AIFighter f2 = new AIFighter(instance);
-		f2.pos = new PVector(2, 0);
-		f1.pos = new PVector(-2, 0);
-		f2.attack(f1);
+		instance.localPlayer = player;
 	}
 	@Override
 	public void setup() {
@@ -46,16 +37,15 @@ public class FightingGame extends PApplet {
 	}
 	@Override
 	public void draw() {
-		instance.world.x = player.pos.x;
-		instance.world.y = player.pos.y;
 		background(255);
-		instance.physicsUpdate((1 / frameRate) * timeWarp);
+		instance.physicsUpdate((1 / frameRate));
 		instance.drawAll(this);
 	}
-
+	
 	@Override
 	public void mouseMoved() {
 		player.setLookPosition(instance.screen.transform(new PVector(mouseX, mouseY), instance.world));
+		instance.sendPos("player_look", player.keys);
 	}
 	@Override
 	public void mousePressed() {
@@ -68,6 +58,7 @@ public class FightingGame extends PApplet {
 	@Override
 	public void mouseDragged() {
 		player.setLookPosition(instance.screen.transform(new PVector(mouseX, mouseY), instance.world));
+		instance.sendPos("player_look", player.keys);
 		player.shoot();
 	}
 	@Override
@@ -98,6 +89,7 @@ public class FightingGame extends PApplet {
 			instance.statistics.decrStatLevel();
 		if (k == ' ')
 			player.shooting = true;
+		instance.sendPos("player_keys", player.keys);
 	}
 	@Override
 	public void keyReleased() {
@@ -110,5 +102,6 @@ public class FightingGame extends PApplet {
 			player.keys.x = 0;
 		if (k == ' ')
 			player.shooting = false;
+		instance.sendPos("player_keys", player.keys);
 	}
 }

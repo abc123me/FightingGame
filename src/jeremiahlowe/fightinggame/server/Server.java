@@ -32,20 +32,18 @@ public class Server extends Thread{
 	public void run() {
 		ServerSocket servsock = createServerSocket();
 		if(servsock == null) return;
+		System.out.println("Server started!");
 		while(!Thread.interrupted()) {
 			try {
+				System.out.println("Waiting for a client!");
 				Socket csock = servsock.accept();
+				System.out.println("Accepted client from: " + csock.getInetAddress());
 				ClientWrapper cw = new ClientWrapper(csock);
 				ClientListenerThread clt = new ClientListenerThread(cw);
 				clientListenerThreads.add(clt);
 				clt.start();
-				if(debugPrinting)
-					System.out.println("Accepted client from: " + csock.getInetAddress());
 			} catch (IOException e) {
-				if(debugPrinting) {
-					System.err.println("Failed to accept client: " + e);
-					e.printStackTrace();
-				}
+				System.err.println("Failed to accept client: " + e);
 			}
 		}
 		try {servsock.close();}
