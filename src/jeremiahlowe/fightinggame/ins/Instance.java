@@ -1,5 +1,6 @@
-package jeremiahlowe.fightinggame;
+package jeremiahlowe.fightinggame.ins;
 
+import jeremiahlowe.fightinggame.PhysicsObject;
 import jeremiahlowe.fightinggame.ui.IDrawable;
 import jeremiahlowe.fightinggame.ui.Statistics;
 import jeremiahlowe.fightinggame.util.SafeArrayList;

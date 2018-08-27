@@ -1,6 +1,6 @@
 package jeremiahlowe.fightinggame.ui;
 
-import jeremiahlowe.fightinggame.Instance;
+import jeremiahlowe.fightinggame.ins.Instance;
 import processing.core.PApplet;
 
 public interface IStatistic {

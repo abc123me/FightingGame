@@ -1,9 +1,9 @@
 package jeremiahlowe.fightinggame.ai;
 
 import jeremiahlowe.fightinggame.Fighter;
-import jeremiahlowe.fightinggame.Instance;
 import jeremiahlowe.fightinggame.PhysicsObject;
 import jeremiahlowe.fightinggame.Player;
+import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.util.Math;
 import processing.core.PApplet;
 import processing.core.PVector;

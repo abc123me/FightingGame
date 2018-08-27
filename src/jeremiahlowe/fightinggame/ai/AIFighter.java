@@ -2,7 +2,7 @@ package jeremiahlowe.fightinggame.ai;
 
 import jeremiahlowe.fightinggame.Bullet;
 import jeremiahlowe.fightinggame.Fighter;
-import jeremiahlowe.fightinggame.Instance;
+import jeremiahlowe.fightinggame.ins.Instance;
 import processing.core.PVector;
 
 public class AIFighter extends AIFighterBase{

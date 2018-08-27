@@ -1,7 +1,7 @@
 package jeremiahlowe.fightinggame.ui;
 
 import jeremiahlowe.fightinggame.Bullet;
-import jeremiahlowe.fightinggame.Instance;
+import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.util.SafeArrayList;
 import processing.core.PApplet;
 

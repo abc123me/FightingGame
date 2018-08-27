@@ -2,7 +2,7 @@ package jeremiahlowe.fightinggame.ui;
 
 import java.util.Comparator;
 
-import jeremiahlowe.fightinggame.Instance;
+import jeremiahlowe.fightinggame.ins.Instance;
 import processing.core.PApplet;
 
 public interface IDrawable{

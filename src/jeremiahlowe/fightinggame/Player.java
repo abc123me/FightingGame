@@ -1,5 +1,6 @@
 package jeremiahlowe.fightinggame;
 
+import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.util.Math;
 import processing.core.PVector;
 

@@ -1,5 +1,6 @@
 package jeremiahlowe.fightinggame;
 
+import jeremiahlowe.fightinggame.ins.Instance;
 import processing.core.PApplet;
 import processing.core.PVector;
 

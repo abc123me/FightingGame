@@ -1,5 +1,6 @@
 package jeremiahlowe.fightinggame;
 
+import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.ui.IDrawable;
 import jeremiahlowe.fightinggame.util.Color;
 import processing.core.PApplet;
