@@ -5,11 +5,12 @@ import jeremiahlowe.fightinggame.PhysicsObject;
 import jeremiahlowe.fightinggame.Player;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ins.Instance;
+import jeremiahlowe.fightinggame.ui.IStatistic.IDrawableStatistic;
 import jeremiahlowe.fightinggame.util.Math;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-public abstract class AIFighterBase extends Player{
+public abstract class AIFighterBase extends Player implements IDrawableStatistic{
 	public float fov = 0;
 	public float lerpSpeed = Math.PI * 1.5f;
 	
@@ -26,6 +27,9 @@ public abstract class AIFighterBase extends Player{
 		action = new AIAction();
 		action.to = null;
 		fov = Math.PI / 4;
+		setChaseDistance(2);
+		if(instance instanceof GraphicalInstance) 
+			((GraphicalInstance) instance).addStatistic(this);
 	}
 
 	public void lookAround() {
@@ -78,20 +82,19 @@ public abstract class AIFighterBase extends Player{
 			keys = new PVector();
 			float a = angleTo(action.to.pos);
 			setLookRotation(a);
-			if (PVector.sub(pos, action.to.pos).magSq() > chaseDist2) {
+			if (Math.dist2(pos, action.to.pos) > chaseDist2) {
 				setAction(new AIAction(EAIActionType.Chase, action.to));
 				return;
 			}
 		}
 		if (action.type == EAIActionType.Chase) {
 			speedBoost = 1.5f;
-			PVector dir = PVector.sub(action.to.pos, pos);
-			if (dir.magSq() < (chaseDist2 - chaseDist2 / 4)) {
+			if (Math.dist2(pos, action.to.pos) < (chaseDist2 - chaseDist2 / 4)) {
 				setAction(new AIAction(EAIActionType.ShootAt, action.to));
 				return;
 			}
-			keys = new PVector(1, 0);
-			setLookRotation(dir.heading());
+			keys = new PVector(0, 1);
+			setLookRotation(PVector.sub(action.to.pos, pos).heading());
 		}
 		if (action.type == EAIActionType.Dodge) {
 			shooting = false;
@@ -182,16 +185,21 @@ public abstract class AIFighterBase extends Player{
 	}
 	@Override
 	public void draw(PApplet a, GraphicalInstance i) {
-		if (i.statistics.level > 2) {
-			PVector tx = PVector.fromAngle(fovTop()).mult(100).add(pos);
-			PVector bx = PVector.fromAngle(fovBot()).mult(100).add(pos);
-			tx = i.world.transform(tx, i.screen);
-			bx = i.world.transform(bx, i.screen);
-			a.stroke(a.color(255, 200, 0));
-			PVector p = i.world.transform(pos, i.screen);
-			a.line(p.x, p.y, tx.x, tx.y);
-			a.line(p.x, p.y, bx.x, bx.y);
-		}
 		super.draw(a, i);
+	}
+	@Override
+	public void drawStatistic(PApplet a, GraphicalInstance i) {
+		PVector tx = PVector.fromAngle(fovTop()).mult(100).add(pos);
+		PVector bx = PVector.fromAngle(fovBot()).mult(100).add(pos);
+		tx = i.world.transform(tx, i.screen);
+		bx = i.world.transform(bx, i.screen);
+		a.stroke(a.color(255, 200, 0));
+		PVector p = i.world.transform(pos, i.screen);
+		a.line(p.x, p.y, tx.x, tx.y);
+		a.line(p.x, p.y, bx.x, bx.y);
+	}
+	@Override
+	public int getLevel() {
+		return 3;
 	}
 }

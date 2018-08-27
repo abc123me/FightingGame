@@ -10,7 +10,7 @@ public class AIFighter extends AIFighterBase{
 		super(instance);
 		keys = new PVector();
 		speedBoost = 1.0f;
-		setChaseDistance(100);
+		setChaseDistance(2.5f);
 	}
 
 	@Override
