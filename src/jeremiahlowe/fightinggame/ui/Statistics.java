@@ -1,57 +1,85 @@
 package jeremiahlowe.fightinggame.ui;
 
-import jeremiahlowe.fightinggame.Bullet;
-import jeremiahlowe.fightinggame.ins.Instance;
+import java.util.Comparator;
+
+import jeremiahlowe.fightinggame.ins.GraphicalInstance;
+import jeremiahlowe.fightinggame.ui.IStatistic.*;
 import jeremiahlowe.fightinggame.util.SafeArrayList;
 import processing.core.PApplet;
 
 public class Statistics implements IDrawable {
 	public int level = 0;
-	public Bullet lastBullet;
+	
+	private SafeArrayList<IStatistic> stats;
+	
+	private static final Comparator<IStatistic> statCmp;
+	static {
+		statCmp = new Comparator<IStatistic>() {
+			@Override
+			public int compare(IStatistic a, IStatistic b) {
+				int al = a.getLevel(), bl = b.getLevel();
+				if(al > bl) return 1;
+				if(al < bl) return -1;
+				return 0;
+			}
+		};
+	}
+	
+	public Statistics() {
+		stats = new SafeArrayList<IStatistic>(statCmp);
+	}
 
 	public void incrStatLevel() {
-		if (level < 3)
+		if (level < 100)
 			level++;
 	}
 	public void decrStatLevel() {
 		if (level > 0)
 			level--;
 	}
-	private void drawNoVP(PApplet p, Instance i) {
-		if (level < 0)
-			return;
-		p.stroke(0);
-		p.fill(0);
-		float y = 0, h = p.textAscent();
-		p.text(String.format("FPS: %.3f (%d)", p.frameRate, level), 0, y += h);
-		if (level < 1)
-			return;
-		y = textQueue(p, 0, y, h, "Drawables: %d %s %s", i.getPhysicsObjects());
-		y = textQueue(p, 0, y, h, "Physx Objs: %d %s %s", i.getDrawables());
-		if (level < 2)
-			return;
-		if (lastBullet != null && lastBullet.enabled()) {
-			p.text("Last shot: " + lastBullet.getParent(), 0, y += h);
-			p.text("Time left: " + lastBullet.timeLeft(), 0, y += h);
-		}
-	}
-	private float textQueue(PApplet p, float x, float y, float h, String t, SafeArrayList<?> q) {
-		int ta = q.removeQueueSize(), tr = q.addQueueSize();
-		String pa = ta > 0 ? "-" + ta : "", pr = tr > 0 ? "+" + tr : "";
-		p.text(String.format(t, q.size(), pa, pr), x, y += h);
-		return y;
-	}
 	
 	@Override
-	public void draw(PApplet p, Instance i) {
-		drawNoVP(p, i);
+	public void draw(PApplet p, GraphicalInstance gi) {
+		p.stroke(0); p.fill(0);
+		stats.update();
+		float x = 0, y = 0, h = p.textAscent();
+		for(int i = stats.size() - 1; i >= 0; i--) {
+			IStatistic stat = stats.get(i);
+			if(stat == null)
+				continue;
+			int l = stat.getLevel();
+			if(l > level)
+				continue;
+			if(stat instanceof ITextStatistic) {
+				ITextStatistic tstat = (ITextStatistic) stat;
+				String t = tstat.getHeader();
+				if(t != null) {
+					p.text(t, x, y += h);
+					x += 10;
+				}
+				for(String s : tstat.getStatisticText())
+					if(s != null)
+						p.text(s, x, y += h);
+				if(t != null) 
+					x -= 10;
+			}
+			else if(stat instanceof IDrawableStatistic) 
+				((IDrawableStatistic) stat).drawStatistic(p, gi);
+		}
 	}
 	@Override
 	public int getDrawPriority() {
-		return Instance.STATISTICS_DRAW_PRIORITY;
+		return GraphicalInstance.STATISTICS_DRAW_PRIORITY;
 	}
 	@Override
 	public boolean enabled() {
 		return level > 0;
+	}
+
+	public boolean addStatistic(IStatistic stat) {
+		return stats.add(stat);
+	}
+	public boolean removeStatistic(IStatistic stat) {
+		return stats.remove(stat);
 	}
 }

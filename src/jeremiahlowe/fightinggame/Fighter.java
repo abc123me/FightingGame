@@ -1,5 +1,6 @@
 package jeremiahlowe.fightinggame;
 
+import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.ui.IDrawable;
 import jeremiahlowe.fightinggame.util.Color;
@@ -28,7 +29,8 @@ public class Fighter extends PhysicsObject implements IDrawable {
 		look = new PVector();
 		size = 1;
 		if (addSelf) {
-			instance.addDrawable(this);
+			if(instance instanceof GraphicalInstance)
+				((GraphicalInstance) instance).addDrawable(this);
 			instance.addPhysicsObject(this);
 		}
 		this.instance = instance;
@@ -60,14 +62,15 @@ public class Fighter extends PhysicsObject implements IDrawable {
 	public void destroy() {
 		alive = false;
 		instance.removePhysicsObject(this);
-		instance.removeDrawable(this);
+		if(instance instanceof GraphicalInstance)
+			((GraphicalInstance) instance).removeDrawable(this);
 	}
 	@Override
 	public int getDrawPriority() {
-		return Instance.FIGHTER_DRAW_PRIORITY;
+		return GraphicalInstance.FIGHTER_DRAW_PRIORITY;
 	}
 	@Override
-	public void draw(PApplet p, Instance i) {
+	public void draw(PApplet p, GraphicalInstance i) {
 		p.stroke(p.color(255, 0, 0));
 		PVector rpos = i.world.transform(pos, i.screen);
 		PVector lpos = i.world.transform(getLookVector(1000).add(pos), i.screen);

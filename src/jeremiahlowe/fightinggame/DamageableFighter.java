@@ -1,5 +1,6 @@
 package jeremiahlowe.fightinggame;
 
+import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ins.Instance;
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -42,7 +43,7 @@ public class DamageableFighter extends Fighter {
 	}
 	
 	@Override
-	public void draw(PApplet p, Instance i) {
+	public void draw(PApplet p, GraphicalInstance i) {
 		super.draw(p, i);
 		p.fill(p.color(0, 255, 0));
 		float hpw = size * 1.25f;

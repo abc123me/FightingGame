@@ -2,7 +2,7 @@ package jeremiahlowe.fightinggame.ui;
 
 import java.util.Comparator;
 
-import jeremiahlowe.fightinggame.ins.Instance;
+import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import processing.core.PApplet;
 
 public interface IDrawable{
@@ -18,7 +18,7 @@ public interface IDrawable{
 		}
 	};
 	
-	public void draw(PApplet p, Instance i);
+	public void draw(PApplet p, GraphicalInstance i);
 	public int getDrawPriority();
 	public boolean enabled();
 }

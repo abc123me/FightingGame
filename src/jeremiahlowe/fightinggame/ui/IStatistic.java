@@ -1,10 +1,15 @@
 package jeremiahlowe.fightinggame.ui;
 
-import jeremiahlowe.fightinggame.ins.Instance;
+import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import processing.core.PApplet;
 
 public interface IStatistic {
-	public boolean shouldDisplay();
-	public String getStatisticText();
-	public void drawStatistic(PApplet a, Instance i, int statLevel);
+	public int getLevel();
+	public interface IDrawableStatistic extends IStatistic{
+		public void drawStatistic(PApplet a, GraphicalInstance i);
+	}
+	public interface ITextStatistic extends IStatistic{
+		public String[] getStatisticText();
+		public String getHeader();
+	}
 }

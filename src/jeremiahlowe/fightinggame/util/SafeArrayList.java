@@ -119,4 +119,7 @@ public class SafeArrayList<T> implements Iterable<T> {
 		base.clear();
 		update();
 	}
+	public T get(int i) {
+		return base.get(i);
+	}
 }

@@ -66,4 +66,10 @@ public class Viewport {
 		w += a * aspRatio;
 		h += a;
 	}
+	public PVector[] transformAll(Viewport screen, PVector... ve) {
+		PVector[] out = new PVector[ve.length];
+		for(int i = 0; i < ve.length; i++)
+			out[i] = transform(ve[i], screen);
+		return out;
+	}
 }

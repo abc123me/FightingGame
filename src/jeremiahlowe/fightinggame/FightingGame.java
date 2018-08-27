@@ -1,7 +1,8 @@
 package jeremiahlowe.fightinggame;
 
 import jeremiahlowe.fightinggame.ai.AIFighter;
-import jeremiahlowe.fightinggame.ins.Instance;
+import jeremiahlowe.fightinggame.ins.GraphicalInstance;
+import jeremiahlowe.fightinggame.ins.SPInstance;
 import jeremiahlowe.fightinggame.util.Color;
 import jeremiahlowe.fightinggame.util.Viewport;
 import processing.core.PApplet;
@@ -12,7 +13,7 @@ public class FightingGame extends PApplet {
 	public static boolean DEBUG_MODE = false;
 
 	public static void main(String[] args) {
-		DEBUG_MODE = true;
+		DEBUG_MODE = false;
 		main(FightingGame.class, args);
 	}
 
@@ -20,11 +21,11 @@ public class FightingGame extends PApplet {
 	float worldSize = 10;
 	float timeWarp = 1f;
 
-	public Instance instance;
+	public GraphicalInstance instance;
 
 	public void settings() {
 		size(500, 500);
-		instance = new Instance(this);
+		instance = new SPInstance(this);
 		instance.screen = new Viewport(width, -height, width / 2, height / 2);
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
 		player = new Player(instance);

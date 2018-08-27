@@ -3,6 +3,7 @@ package jeremiahlowe.fightinggame.ai;
 import jeremiahlowe.fightinggame.Fighter;
 import jeremiahlowe.fightinggame.PhysicsObject;
 import jeremiahlowe.fightinggame.Player;
+import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.util.Math;
 import processing.core.PApplet;
@@ -180,7 +181,7 @@ public abstract class AIFighterBase extends Player{
 		super.physics(i, dt);
 	}
 	@Override
-	public void draw(PApplet a, Instance i) {
+	public void draw(PApplet a, GraphicalInstance i) {
 		if (i.statistics.level > 2) {
 			PVector tx = PVector.fromAngle(fovTop()).mult(100).add(pos);
 			PVector bx = PVector.fromAngle(fovBot()).mult(100).add(pos);
