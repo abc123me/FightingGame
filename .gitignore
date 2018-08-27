@@ -1,1 +1,5 @@
-/bin/
+# Bin folder
+bin/
+
+# Compiled classes
+*.class
