@@ -1,10 +1,10 @@
 package jeremiahlowe.fightinggame.ai;
 
-import jeremiahlowe.fightinggame.Fighter;
-import jeremiahlowe.fightinggame.PhysicsObject;
-import jeremiahlowe.fightinggame.Player;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ins.Instance;
+import jeremiahlowe.fightinggame.phys.Fighter;
+import jeremiahlowe.fightinggame.phys.PhysicsObject;
+import jeremiahlowe.fightinggame.phys.Player;
 import jeremiahlowe.fightinggame.ui.IStatistic.IDrawableStatistic;
 import jeremiahlowe.fightinggame.util.Math;
 import processing.core.PApplet;

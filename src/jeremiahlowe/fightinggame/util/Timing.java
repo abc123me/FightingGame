@@ -16,4 +16,17 @@ public class Timing {
 	public long millis() {
 		return System.currentTimeMillis() - start;
 	}
+	public double secs() {
+		return millis() / 1000.0;
+	}
+
+	public static final boolean sleep(long i) {
+		try { 
+			Thread.sleep(i); 
+			return true;
+		}
+		catch(InterruptedException e) {
+			return false;
+		}
+	}
 }

@@ -1,4 +1,4 @@
-package jeremiahlowe.fightinggame;
+package jeremiahlowe.fightinggame.phys;
 
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ins.Instance;
@@ -8,8 +8,8 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 public class Fighter extends PhysicsObject implements IDrawable {
-	public final Instance instance;
-
+	
+	public transient Instance instance; //This is VITAL for use when the object is serialized/deserialized via Gson or some other means
 	public float size = 0.5f;
 	public float gunVelocity = 10;
 	public boolean shooting = false;

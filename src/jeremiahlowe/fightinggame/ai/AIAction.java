@@ -1,6 +1,6 @@
 package jeremiahlowe.fightinggame.ai;
 
-import jeremiahlowe.fightinggame.Fighter;
+import jeremiahlowe.fightinggame.phys.Fighter;
 
 public class AIAction {
 	public EAIActionType type;

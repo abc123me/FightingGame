@@ -2,6 +2,7 @@ package jeremiahlowe.fightinggame;
 
 import jeremiahlowe.fightinggame.ai.AIFighter;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
+import jeremiahlowe.fightinggame.phys.Player;
 import jeremiahlowe.fightinggame.ins.GenericGraphicalInstance;
 import jeremiahlowe.fightinggame.util.Color;
 import jeremiahlowe.fightinggame.util.Viewport;

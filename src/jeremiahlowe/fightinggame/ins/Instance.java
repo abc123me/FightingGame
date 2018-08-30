@@ -1,6 +1,6 @@
 package jeremiahlowe.fightinggame.ins;
 
-import jeremiahlowe.fightinggame.PhysicsObject;
+import jeremiahlowe.fightinggame.phys.PhysicsObject;
 import jeremiahlowe.fightinggame.util.SafeArrayList;
 
 public abstract class Instance{
@@ -20,6 +20,8 @@ public abstract class Instance{
 		return physicsObjects;
 	}
 	public void physicsUpdate(double dt) {
+		if(dt <= 0)
+			return;
 		physicsObjects.update();
 		for (PhysicsObject p : physicsObjects)
 			if (p != null && p.enabled())

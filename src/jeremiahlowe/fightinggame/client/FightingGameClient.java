@@ -1,6 +1,7 @@
 package jeremiahlowe.fightinggame.client;
 
-import jeremiahlowe.fightinggame.Player;
+import jeremiahlowe.fightinggame.Meta;
+import jeremiahlowe.fightinggame.phys.Player;
 import jeremiahlowe.fightinggame.util.Viewport;
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -27,8 +28,19 @@ public class FightingGameClient extends PApplet {
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
 		if(!instance.connectToServer("localhost", 1234))
 			System.exit(1);
-		player = new Player(instance);
+		int serverVersion = instance.getServerVersion();
+		if(serverVersion != Meta.VERSION_ID) {
+			System.err.println("Server and client have mismatched versions, server is running " + serverVersion + " and client is running " + Meta.VERSION_ID);
+			System.exit(1);
+		}
+		player = instance.getPlayerFromServer();
+		if(player == null) {
+			System.err.println("Was unable to retrieve player from the server?!");
+			System.exit(-1);
+		}
 		instance.localPlayer = player;
+		instance.addDrawable(player);
+		instance.addPhysicsObject(player);
 	}
 	@Override
 	public void setup() {
@@ -51,10 +63,12 @@ public class FightingGameClient extends PApplet {
 	@Override
 	public void mousePressed() {
 		player.shooting = true;
+		instance.updateLocalPlayer();
 	}
 	@Override
 	public void mouseReleased() {
 		player.shooting = false;
+		instance.updateLocalPlayer();
 	}
 	@Override
 	public void mouseDragged() {

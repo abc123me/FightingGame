@@ -1,7 +1,8 @@
-package jeremiahlowe.fightinggame.server;
+package jeremiahlowe.fightinggame.deprecated;
 
 import jeremiahlowe.fightinggame.ins.GenericGraphicalInstance;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
+import jeremiahlowe.fightinggame.server.Server;
 import jeremiahlowe.fightinggame.util.Viewport;
 import processing.core.PApplet;
 import processing.event.MouseEvent;

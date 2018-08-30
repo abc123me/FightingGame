@@ -23,9 +23,11 @@ public class SocketCommunicator implements Closeable{
 
 	public void print(String text) {
 		out.print(text);
+		out.flush();
 	}
 	public void println(String text) {
 		out.println(text);
+		out.flush();
 	}
 	public String readLine() {
 		return in.next();

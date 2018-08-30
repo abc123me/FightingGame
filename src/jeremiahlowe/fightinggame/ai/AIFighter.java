@@ -1,8 +1,8 @@
 package jeremiahlowe.fightinggame.ai;
 
-import jeremiahlowe.fightinggame.Bullet;
-import jeremiahlowe.fightinggame.Fighter;
 import jeremiahlowe.fightinggame.ins.Instance;
+import jeremiahlowe.fightinggame.phys.Bullet;
+import jeremiahlowe.fightinggame.phys.Fighter;
 import processing.core.PVector;
 
 public class AIFighter extends AIFighterBase{

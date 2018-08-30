@@ -1,4 +1,4 @@
-package jeremiahlowe.fightinggame;
+package jeremiahlowe.fightinggame.phys;
 
 import jeremiahlowe.fightinggame.ins.Instance;
 import processing.core.PVector;
