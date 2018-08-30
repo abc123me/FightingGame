@@ -23,12 +23,12 @@ public class Fighter extends PhysicsObject implements IDrawable {
 	public Fighter(Instance instance) {
 		this(instance, true);
 	}
-	public Fighter(Instance instance, boolean addSelf) {
+	public Fighter(Instance instance, boolean add) {
 		super();
 		color = new Color(255, 0, 0);
 		look = new PVector();
 		size = 1;
-		if (addSelf) {
+		if (add) {
 			if(instance instanceof GraphicalInstance)
 				((GraphicalInstance) instance).addDrawable(this);
 			instance.addPhysicsObject(this);

@@ -10,7 +10,11 @@ public class DamageableFighter extends Fighter {
 	public boolean invincible = false;
 
 	public DamageableFighter(Instance instance) {
-		super(instance);
+		this(instance, true);
+	}
+
+	public DamageableFighter(Instance instance, boolean add) {
+		super(instance, add);
 		health = 75;
 		maxHealth = 100;
 	}

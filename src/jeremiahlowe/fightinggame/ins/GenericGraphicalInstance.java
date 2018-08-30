@@ -3,8 +3,8 @@ package jeremiahlowe.fightinggame.ins;
 import processing.core.PApplet;
 
 //Just an empty class (for singleplayer only)
-public class SingleplayerInstance extends GraphicalInstance {
-	public SingleplayerInstance(PApplet applet) {
+public class GenericGraphicalInstance extends GraphicalInstance {
+	public GenericGraphicalInstance(PApplet applet) {
 		super(applet);
 	}
 }

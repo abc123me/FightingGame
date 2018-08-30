@@ -7,22 +7,26 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-public class Server extends Thread{
+import jeremiahlowe.fightinggame.ins.Instance;
+import jeremiahlowe.fightinggame.net.IDisconnectionListener;
+
+public class Server extends Thread implements IDisconnectionListener{
 	public final int port, cnum;
 	public final String host;
 	public boolean debugPrinting = true;
 	
 	private boolean ready = false;
-	private ArrayList<ClientListenerThread> clientListenerThreads;
+	private ArrayList<ClientWrapper> clients;
+	private Instance instance;
 	
-	public Server(int port) {
-		this(port, "127.0.0.1");
+	public Server(Instance instance, int port) {
+		this(instance, port, "127.0.0.1");
 	}
-	public Server(int port, String host) {
-		this(port, host, 3);
+	public Server(Instance instance, int port, String host) {
+		this(instance, port, host, 3);
 	}
-	public Server(int port, String host, int cnum) {
-		clientListenerThreads = new ArrayList<ClientListenerThread>();
+	public Server(Instance instance, int port, String host, int cnum) {
+		clients = new ArrayList<ClientWrapper>();
 		this.port = port;
 		this.host = host;
 		this.cnum = cnum;
@@ -33,15 +37,18 @@ public class Server extends Thread{
 		ServerSocket servsock = createServerSocket();
 		if(servsock == null) return;
 		System.out.println("Server started!");
+		long UUID = 0;
 		while(!Thread.interrupted()) {
 			try {
 				System.out.println("Waiting for a client!");
 				Socket csock = servsock.accept();
 				System.out.println("Accepted client from: " + csock.getInetAddress());
-				ClientWrapper cw = new ClientWrapper(csock);
-				ClientListenerThread clt = new ClientListenerThread(cw);
-				clientListenerThreads.add(clt);
-				clt.start();
+				ClientWrapper cw = new ClientWrapper(UUID, instance, csock);
+				cw.addDisconnectionListener(this);
+				cw.start();
+				clients.add(cw);
+				UUID++;
+				
 			} catch (IOException e) {
 				System.err.println("Failed to accept client: " + e);
 			}
@@ -67,5 +74,9 @@ public class Server extends Thread{
 	}
 	public boolean ready() {
 		return ready;
+	}
+	@Override
+	public void onDisconnect(ClientWrapper cw) {
+		clients.remove(cw);
 	}
 }

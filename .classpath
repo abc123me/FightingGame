@@ -2,6 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="processing_core.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="gson/gson-2.8.5.jar"/>
+	<classpathentry kind="lib" path="gson/gson-2.8.5-javadoc.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>

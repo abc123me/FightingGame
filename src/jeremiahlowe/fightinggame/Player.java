@@ -13,7 +13,10 @@ public class Player extends DamageableFighter {
 	private float realSpeed;
 
 	public Player(Instance instance) {
-		super(instance);
+		this(instance, true);
+	}
+	public Player(Instance instance, boolean add) {
+		super(instance, add);
 		keys = new PVector(0, 0);
 		size = 0.5f;
 		speed = 7.0f;

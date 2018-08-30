@@ -1,7 +1,6 @@
 package jeremiahlowe.fightinggame.client;
 
 import jeremiahlowe.fightinggame.Player;
-import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.util.Viewport;
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -26,6 +25,8 @@ public class FightingGameClient extends PApplet {
 		instance = new GameClientInstance(this);
 		instance.screen = new Viewport(width, -height, width / 2, height / 2);
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
+		if(!instance.connectToServer("localhost", 1234))
+			System.exit(1);
 		player = new Player(instance);
 		instance.localPlayer = player;
 	}
@@ -45,7 +46,7 @@ public class FightingGameClient extends PApplet {
 	@Override
 	public void mouseMoved() {
 		player.setLookPosition(instance.screen.transform(new PVector(mouseX, mouseY), instance.world));
-		instance.sendPos("player_look", player.keys);
+		instance.updateLocalPlayer();
 	}
 	@Override
 	public void mousePressed() {
@@ -58,7 +59,7 @@ public class FightingGameClient extends PApplet {
 	@Override
 	public void mouseDragged() {
 		player.setLookPosition(instance.screen.transform(new PVector(mouseX, mouseY), instance.world));
-		instance.sendPos("player_look", player.keys);
+		instance.updateLocalPlayer();
 		player.shoot();
 	}
 	@Override
@@ -89,7 +90,7 @@ public class FightingGameClient extends PApplet {
 			instance.statistics.decrStatLevel();
 		if (k == ' ')
 			player.shooting = true;
-		instance.sendPos("player_keys", player.keys);
+		instance.updateLocalPlayer();
 	}
 	@Override
 	public void keyReleased() {
@@ -102,6 +103,6 @@ public class FightingGameClient extends PApplet {
 			player.keys.x = 0;
 		if (k == ' ')
 			player.shooting = false;
-		instance.sendPos("player_keys", player.keys);
+		instance.updateLocalPlayer();
 	}
 }

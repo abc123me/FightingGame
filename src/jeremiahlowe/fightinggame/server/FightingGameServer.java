@@ -1,5 +1,7 @@
 package jeremiahlowe.fightinggame.server;
 
+import jeremiahlowe.fightinggame.ins.GenericGraphicalInstance;
+import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.util.Viewport;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
@@ -17,17 +19,17 @@ public class FightingGameServer extends PApplet {
 		if(gui) main(FightingGameServer.class, args);
 	}
 	
-	public GraphicalServerInstance instance;
+	public GraphicalInstance instance;
 	public Server server;
 	public float worldSize = 10;
 	
 	@Override
 	public void settings() {
 		size(500, 500);
-		instance = new GraphicalServerInstance(this);
+		instance = new GenericGraphicalInstance(this);
 		instance.screen = new Viewport(width, -height, width / 2, height / 2);
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
-		server = new Server(1234);
+		server = new Server(instance, 1234);
 		server.start();
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override

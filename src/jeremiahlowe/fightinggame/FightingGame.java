@@ -2,7 +2,7 @@ package jeremiahlowe.fightinggame;
 
 import jeremiahlowe.fightinggame.ai.AIFighter;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
-import jeremiahlowe.fightinggame.ins.SingleplayerInstance;
+import jeremiahlowe.fightinggame.ins.GenericGraphicalInstance;
 import jeremiahlowe.fightinggame.util.Color;
 import jeremiahlowe.fightinggame.util.Viewport;
 import processing.core.PApplet;
@@ -26,7 +26,7 @@ public class FightingGame extends PApplet {
 	@Override
 	public void settings() {
 		size(500, 500);
-		instance = new SingleplayerInstance(this);
+		instance = new GenericGraphicalInstance(this);
 		instance.screen = new Viewport(width, -height, width / 2, height / 2);
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
 		player = new Player(instance);
