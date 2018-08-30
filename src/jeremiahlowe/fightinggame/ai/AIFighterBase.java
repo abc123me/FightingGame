@@ -187,7 +187,7 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 	public void draw(PApplet a, GraphicalInstance i) {
 		super.draw(a, i);
 	}
-	@Override
+	
 	public void drawStatistic(PApplet a, GraphicalInstance i) {
 		PVector tx = PVector.fromAngle(fovTop()).mult(100).add(pos);
 		PVector bx = PVector.fromAngle(fovBot()).mult(100).add(pos);
@@ -198,7 +198,6 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 		a.line(p.x, p.y, tx.x, tx.y);
 		a.line(p.x, p.y, bx.x, bx.y);
 	}
-	@Override
 	public int getLevel() {
 		return 3;
 	}

@@ -52,19 +52,9 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 		return parent;
 	}
 	
-	@Override
-	public void destroy() {
-		Instance i = parent.instance;
-		i.removePhysicsObject(this);
-		if(i instanceof GraphicalInstance)
-			((GraphicalInstance) i).removeDrawable(this);
-		enabled = false;
-	}
-	@Override
 	public int getDrawPriority() {
 		return GraphicalInstance.BULLET_DRAW_PRIORITY;
 	}
-	@Override
 	public void draw(PApplet p, GraphicalInstance i) {
 		if (!enabled)
 			return;
@@ -72,6 +62,15 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 		PVector pix = i.world.transform(pos, i.screen);
 		PVector ss = i.world.transformIgnoreOffset(new PVector(size, size), i.screen);
 		p.ellipse(pix.x, pix.y, ss.x, ss.y);
+	}
+	
+	@Override
+	public void destroy() {
+		Instance i = parent.instance;
+		i.removePhysicsObject(this);
+		if(i instanceof GraphicalInstance)
+			((GraphicalInstance) i).removeDrawable(this);
+		enabled = false;
 	}
 	@Override
 	public boolean enabled() {
@@ -106,11 +105,10 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 	public String toString() {
 		return "Bullet from " + parent + " with " + timeLeft() + "ms remaining on lifespan";
 	}
-	@Override
+	
 	public int getLevel() {
 		return 3;
 	}
-	@Override
 	public void drawStatistic(PApplet p, GraphicalInstance i) {
 		p.fill(new Color(Color.RED, (int)(255 * 0.85f)).argb());
 		PGFX.polygon(p, i.world.transformAll(i.screen, getColliderVerticies()));

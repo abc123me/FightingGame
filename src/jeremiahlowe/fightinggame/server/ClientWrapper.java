@@ -1,11 +1,8 @@
 package jeremiahlowe.fightinggame.server;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.net.IDataListener;
@@ -19,6 +16,7 @@ public class ClientWrapper extends Thread{
 	private Instance instance;
 	private ArrayList<IDisconnectionListener> disconnectListeners;
 	private ArrayList<IDataListener> dataListeners;
+	private Thread baseThread = null;
 	
 	public ClientWrapper(long UUID, Instance instance, Socket baseSocket) throws IOException {
 		checkSocketIntegrity(baseSocket);
@@ -40,17 +38,17 @@ public class ClientWrapper extends Thread{
 
 	@Override
 	public void run() {
-		in.useDelimiter("\n");
-		while(!Thread.interrupted() && in.ioException() == null) {
+		baseThread = Thread.currentThread();
+		while(!Thread.interrupted() && scomm.stillConnected()) {
 			System.out.println("Waiting for data from client...");
-			if(!in.hasNext()) {
+			if(!scomm.hasNext()) {
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					break;
 				}
 			}
-			String line = in.next();
+			String line = scomm.readLine();
 			System.out.println("Got data from client: " + UUID);
 			System.out.println(line);
 			onData(line);
@@ -62,11 +60,9 @@ public class ClientWrapper extends Thread{
 		for(IDisconnectionListener dl : disconnectListeners)
 			if(dl != null)
 				dl.onDisconnect(this);
-		try {
-			out.close();
-			in.close();
-			baseSocket.close();
-		}catch(IOException ioe) {}
+		scomm.close();
+		if(baseThread!= null && baseThread.isAlive())
+			baseThread.interrupt();
 	}
 	private void onData(String data) {
 		for(IDataListener d : dataListeners)

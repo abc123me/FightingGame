@@ -75,8 +75,8 @@ public class Server extends Thread implements IDisconnectionListener{
 	public boolean ready() {
 		return ready;
 	}
-	@Override
 	public void onDisconnect(ClientWrapper cw) {
 		clients.remove(cw);
 	}
+	
 }

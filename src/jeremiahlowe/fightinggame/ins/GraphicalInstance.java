@@ -46,22 +46,19 @@ public abstract class GraphicalInstance extends Instance{
 	}
 	public ITextStatistic getFramerateStatistic() {
 		return new ITextStatistic() {
-			@Override public int getLevel() { return 1; }
-			@Override public String getHeader() { return null; }
-			@Override public String[] getStatisticText() { return new String[] {String.format("FPS: %.3f", applet.frameRate)}; }
+			public int getLevel() { return 1; }
+			public String getHeader() { return null; }
+			public String[] getStatisticText() { return new String[] {String.format("FPS: %.3f", applet.frameRate)}; }
 		};
 	}
 	public ITextStatistic getInstanceStatistic() {
-		return new ITextStatistic() {
-			@Override 
+		return new ITextStatistic() { 
 			public int getLevel() { 
 				return 2; 
 			}
-			@Override
 			public String getHeader() {
 				return "Instance data:";
 			}
-			@Override
 			public String[] getStatisticText() {
 				String drws = String.format("Drawables: %d +%d -%d", drawables.size(), drawables.addQueueSize(), drawables.removeQueueSize());
 				String phys = String.format("PhysicsObjects: %d +%d -%d", physicsObjects.size(), physicsObjects.addQueueSize(), physicsObjects.removeQueueSize());

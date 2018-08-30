@@ -9,7 +9,6 @@ public class SocketCommunicator implements Closeable{
 	private PrintWriter out;
 	private Scanner in;
 	
-	@SuppressWarnings("resource") //Will be closed since this object is closeable
 	public SocketCommunicator(String host, int port) throws UnknownHostException, IOException {
 		this(new Socket(host, port));
 	}
@@ -46,7 +45,6 @@ public class SocketCommunicator implements Closeable{
 		return true;
 	}
 	
-	@Override
 	public void close() {
 		try{
 			in.close();
@@ -54,5 +52,4 @@ public class SocketCommunicator implements Closeable{
 			base.close();
 		}catch(IOException ioe) {}
 	}
-	
 }

@@ -65,11 +65,10 @@ public class Fighter extends PhysicsObject implements IDrawable {
 		if(instance instanceof GraphicalInstance)
 			((GraphicalInstance) instance).removeDrawable(this);
 	}
-	@Override
+	
 	public int getDrawPriority() {
 		return GraphicalInstance.FIGHTER_DRAW_PRIORITY;
 	}
-	@Override
 	public void draw(PApplet p, GraphicalInstance i) {
 		p.stroke(p.color(255, 0, 0));
 		PVector rpos = i.world.transform(pos, i.screen);
@@ -80,6 +79,7 @@ public class Fighter extends PhysicsObject implements IDrawable {
 		PVector rsize = i.world.transformIgnoreOffset(new PVector(size, size), i.screen);
 		p.ellipse(rpos.x, rpos.y, rsize.x, rsize.y);
 	}
+	
 	@Override
 	public boolean enabled() {
 		return true;

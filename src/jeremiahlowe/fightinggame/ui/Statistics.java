@@ -15,7 +15,6 @@ public class Statistics implements IDrawable {
 	private static final Comparator<IStatistic> statCmp;
 	static {
 		statCmp = new Comparator<IStatistic>() {
-			@Override
 			public int compare(IStatistic a, IStatistic b) {
 				int al = a.getLevel(), bl = b.getLevel();
 				if(al > bl) return 1;
@@ -38,7 +37,6 @@ public class Statistics implements IDrawable {
 			level--;
 	}
 	
-	@Override
 	public void draw(PApplet p, GraphicalInstance gi) {
 		p.stroke(0); p.fill(0);
 		stats.update();
@@ -67,11 +65,9 @@ public class Statistics implements IDrawable {
 				((IDrawableStatistic) stat).drawStatistic(p, gi);
 		}
 	}
-	@Override
 	public int getDrawPriority() {
 		return GraphicalInstance.STATISTICS_DRAW_PRIORITY;
 	}
-	@Override
 	public boolean enabled() {
 		return level > 0;
 	}
