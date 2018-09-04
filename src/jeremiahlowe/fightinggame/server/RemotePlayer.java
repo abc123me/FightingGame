@@ -3,10 +3,10 @@ package jeremiahlowe.fightinggame.server;
 import jeremiahlowe.fightinggame.phys.Player;
 
 public class RemotePlayer {
-	public final ClientWrapper cw;
+	public final SocketWrapperThread cw;
 	public final Player p;
 	
-	public RemotePlayer(Player p, ClientWrapper cw) {
+	public RemotePlayer(Player p, SocketWrapperThread cw) {
 		this.p = p;
 		this.cw = cw;
 	}

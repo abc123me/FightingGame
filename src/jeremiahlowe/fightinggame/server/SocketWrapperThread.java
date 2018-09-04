@@ -10,7 +10,7 @@ import jeremiahlowe.fightinggame.net.IClientListener;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.SocketCommunicator;
 
-public class ClientWrapper extends Thread{
+public class SocketWrapperThread extends Thread{
 	private static final Gson gson = new Gson();
 	
 	public final long UUID;
@@ -19,7 +19,7 @@ public class ClientWrapper extends Thread{
 	private ArrayList<IClientListener> clientListeners;
 	private Thread baseThread = null;
 	
-	public ClientWrapper(long UUID, Socket baseSocket) throws IOException {
+	public SocketWrapperThread(long UUID, Socket baseSocket) throws IOException {
 		this.scomm = new SocketCommunicator(baseSocket);
 		this.clientListeners = new ArrayList<IClientListener>();
 		this.UUID = UUID;

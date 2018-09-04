@@ -8,8 +8,6 @@ import net.net16.jeremiahlowe.shared.math.Vector;
 import processing.core.PApplet;
 
 public class Fighter extends PhysicsObject implements IDrawable {
-	
-	public transient Instance instance; //This is VITAL for use when the object is serialized/deserialized via Gson or some other means
 	public float size = 0.5f;
 	public float gunVelocity = 10;
 	public boolean shooting = false;
@@ -20,20 +18,11 @@ public class Fighter extends PhysicsObject implements IDrawable {
 
 	private float shootCooldown = 0;
 
-	public Fighter(Instance instance) {
-		this(instance, true);
-	}
-	public Fighter(Instance instance, boolean add) {
+	public Fighter() {
 		super();
 		color = new Color(255, 0, 0);
 		look = new Vector();
 		size = 1;
-		if (add) {
-			if(instance instanceof GraphicalInstance)
-				((GraphicalInstance) instance).addDrawable(this);
-			instance.addPhysicsObject(this);
-		}
-		this.instance = instance;
 	}
 
 	public Vector getLookVector() {
@@ -61,9 +50,6 @@ public class Fighter extends PhysicsObject implements IDrawable {
 	@Override
 	public void destroy() {
 		alive = false;
-		instance.removePhysicsObject(this);
-		if(instance instanceof GraphicalInstance)
-			((GraphicalInstance) instance).removeDrawable(this);
 	}
 	
 	public int getDrawPriority() {

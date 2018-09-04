@@ -37,9 +37,6 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 
 	public void fire() {
 		t.start();
-		parent.instance.addPhysicsObject(this);
-		if(parent.instance instanceof GraphicalInstance)
-			((GraphicalInstance) parent.instance).addDrawable(this);
 		enabled = true;
 	}
 	public long timeLeft() {
@@ -66,10 +63,6 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 	
 	@Override
 	public void destroy() {
-		Instance i = parent.instance;
-		i.removePhysicsObject(this);
-		if(i instanceof GraphicalInstance)
-			((GraphicalInstance) i).removeDrawable(this);
 		enabled = false;
 	}
 	@Override

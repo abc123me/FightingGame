@@ -1,12 +1,12 @@
 package jeremiahlowe.fightinggame.net;
 
-import jeremiahlowe.fightinggame.server.ClientWrapper;
+import jeremiahlowe.fightinggame.server.SocketWrapperThread;
 
 public interface IClientListener {
-	public void onConnect(ClientWrapper cw);
-	public void onReceiveRequest(ClientWrapper cw, Packet p);
-	public void onReceiveUpdate(ClientWrapper cw, Packet p);
-	public void onDisconnect(ClientWrapper cw);
-	public void onReceiveData(ClientWrapper cw, String data);
-	public void onReceiveUnknownPacket(ClientWrapper clientWrapper, Packet p);
+	public void onConnect(SocketWrapperThread cw);
+	public void onReceiveRequest(SocketWrapperThread cw, Packet p);
+	public void onReceiveUpdate(SocketWrapperThread cw, Packet p);
+	public void onDisconnect(SocketWrapperThread cw);
+	public void onReceiveData(SocketWrapperThread cw, String data);
+	public void onReceiveUnknownPacket(SocketWrapperThread clientWrapper, Packet p);
 }

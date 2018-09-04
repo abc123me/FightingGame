@@ -37,10 +37,10 @@ public class FightingGameServerCLI implements IClientListener{
 		}
 	}
 
-	public void onConnect(ClientWrapper cw) {
+	public void onConnect(SocketWrapperThread cw) {
 		System.out.println("Client " + cw.UUID + " connected!");
 	}
-	public void onReceiveRequest(ClientWrapper cw, Packet p) {
+	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.VERSION_DATA) {
 			System.out.println("Client requested version sending it to him now");
 			cw.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
@@ -55,20 +55,20 @@ public class FightingGameServerCLI implements IClientListener{
 			cw.sendPacket(Packet.createUpdate(EPacketIdentity.PLAYER_DATA, gson.toJson(player)));
 		}
 	}
-	public void onReceiveUpdate(ClientWrapper cw, Packet p) {
+	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		System.out.println("Got update packet!");
 		if(p.identity == EPacketIdentity.PHYSICS_DATA) {
 			
 		}
 	}
-	public void onDisconnect(ClientWrapper cw) {
+	public void onDisconnect(SocketWrapperThread cw) {
 		System.out.println("Client " + cw.UUID + " disconnected!");
 	}
-	public void onReceiveData(ClientWrapper cw, String data) {
+	public void onReceiveData(SocketWrapperThread cw, String data) {
 		System.out.println("Received data from client " + cw.UUID + ":");
 		System.out.println(data);
 	}
-	public void onReceiveUnknownPacket(ClientWrapper cw, Packet p) {
+	public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {
 		System.out.println("Got unknown packet!");
 	}
 }

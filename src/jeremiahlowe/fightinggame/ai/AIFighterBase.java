@@ -26,15 +26,13 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 	
 	protected Random rng;
 	
-	protected AIFighterBase(Instance instance) {
-		super(instance);
+	protected AIFighterBase() {
+		super();
 		rng = new Random(System.nanoTime());
 		action = new AIAction();
 		action.to = null;
 		fov = (float) (Math.PI / 4);
 		setChaseDistance(2);
-		if(instance instanceof GraphicalInstance) 
-			((GraphicalInstance) instance).addStatistic(this);
 	}
 
 	public void lookAround() {
@@ -55,7 +53,7 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 		action = new AIAction(EAIActionType.Dodge, f);
 	}
 	
-	protected void aiUpdate(float dt) {
+	protected void aiUpdate(Instance instance, float dt) {
 		if (action.type == null) {
 			shooting = false;
 			setAction(new AIAction(EAIActionType.Nothing, null));
@@ -184,7 +182,7 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 	
 	@Override
 	public void physics(Instance i, double dt) {
-		aiUpdate((float) dt);
+		aiUpdate(i, (float) dt);
 		lerpLookPosition(dt);
 		super.physics(i, dt);
 	}

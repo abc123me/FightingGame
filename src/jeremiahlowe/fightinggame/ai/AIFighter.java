@@ -1,12 +1,11 @@
 package jeremiahlowe.fightinggame.ai;
 
-import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.phys.Bullet;
 import jeremiahlowe.fightinggame.phys.Fighter;
 
 public class AIFighter extends AIFighterBase{
-	public AIFighter(Instance instance) {
-		super(instance);
+	public AIFighter() {
+		super();
 		speedBoost = 1.0f;
 		setChaseDistance(2.5f);
 	}

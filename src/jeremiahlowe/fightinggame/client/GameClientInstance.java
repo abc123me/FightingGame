@@ -13,9 +13,8 @@ import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.Timing;
 import net.net16.jeremiahlowe.shared.math.Vector;
 import processing.core.PApplet;
-import processing.core.PVector;
 
-public class GameClientInstance extends GraphicalInstance {
+public class GameClientInstance extends GraphicalInstance{
 	private SocketCommunicator scomm;
 	
 	public Player localPlayer;

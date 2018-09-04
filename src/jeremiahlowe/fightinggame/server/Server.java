@@ -16,7 +16,7 @@ public class Server extends Thread implements IClientListener{
 	public boolean debugPrinting = true;
 	
 	private boolean ready = false;
-	private ArrayList<ClientWrapper> clients;
+	private ArrayList<SocketWrapperThread> clients;
 	private ArrayList<IClientListener> clientListeners;
 	
 	public Server(int port) {
@@ -26,7 +26,7 @@ public class Server extends Thread implements IClientListener{
 		this(port, host, 3);
 	}
 	public Server(int port, String host, int cnum) {
-		clients = new ArrayList<ClientWrapper>();
+		clients = new ArrayList<SocketWrapperThread>();
 		clientListeners = new ArrayList<IClientListener>();
 		this.port = port;
 		this.host = host;
@@ -44,7 +44,7 @@ public class Server extends Thread implements IClientListener{
 				System.out.println("Waiting for a client!");
 				Socket csock = servsock.accept();
 				System.out.println("Accepted client from: " + csock.getInetAddress());
-				ClientWrapper cw = new ClientWrapper(UUID, csock);
+				SocketWrapperThread cw = new SocketWrapperThread(UUID, csock);
 				cw.addClientListener(this);
 				cw.start();
 				clients.add(cw);
@@ -77,33 +77,33 @@ public class Server extends Thread implements IClientListener{
 		return ready;
 	}
 	
-	public void onDisconnect(ClientWrapper cw) {
+	public void onDisconnect(SocketWrapperThread cw) {
 		for(IClientListener c : clientListeners)
 			if(c != null)
 				c.onDisconnect(cw);
 		clients.remove(cw);
 	}
-	public void onConnect(ClientWrapper cw) {
+	public void onConnect(SocketWrapperThread cw) {
 		for(IClientListener c : clientListeners)
 			if(c != null)
 				c.onConnect(cw);
 	}
-	public void onReceiveRequest(ClientWrapper cw, Packet p) {
+	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		for(IClientListener c : clientListeners)
 			if(c != null)
 				c.onReceiveRequest(cw, p);
 	}
-	public void onReceiveUpdate(ClientWrapper cw, Packet p) {
+	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		for(IClientListener c : clientListeners)
 			if(c != null)
 				c.onReceiveUpdate(cw, p);
 	}
-	public void onReceiveData(ClientWrapper cw, String data) {
+	public void onReceiveData(SocketWrapperThread cw, String data) {
 		for(IClientListener c : clientListeners)
 			if(c != null)
 				c.onReceiveData(cw, data);
 	}
-	public void onReceiveUnknownPacket(ClientWrapper cw, Packet p) {
+	public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {
 		for(IClientListener c : clientListeners)
 			if(c != null)
 				c.onReceiveUnknownPacket(cw, p);
