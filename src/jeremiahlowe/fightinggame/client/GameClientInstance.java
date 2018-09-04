@@ -51,7 +51,6 @@ public class GameClientInstance extends GraphicalInstance{
 			return null;
 		System.out.println(p.contents);
 		Player local = gson.fromJson(p.contents, Player.class);
-		local.instance = this; //this is VITAL since instance will always be null to it's transient property
 		return local;
 	}
 	public void updateLocalPlayer() {
