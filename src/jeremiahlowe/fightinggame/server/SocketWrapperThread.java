@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
+import com.sun.xml.internal.ws.Closeable;
 
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.ISocketListener;
@@ -12,7 +13,7 @@ import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.SocketCommunicator;
 import net.net16.jeremiahlowe.shared.Timing;
 
-public class SocketWrapperThread extends Thread{
+public class SocketWrapperThread extends Thread implements Closeable{
 	private static final Gson gson = new Gson();
 	
 	public final long UUID;
@@ -28,7 +29,8 @@ public class SocketWrapperThread extends Thread{
 	}
 
 	public Packet waitForPacket(long timeout, EPacketIdentity identity) {
-		sendPacket(Packet.createRequest(identity));
+		Packet req = Packet.createRequest(identity);
+		sendPacket(req);
 		if(!waitForServer(1000)) {
 			System.err.println("Server didn't respond to request for \"" + identity + "\" after " + timeout + "ms");
 			return null;
@@ -124,6 +126,10 @@ public class SocketWrapperThread extends Thread{
 				c.onReceiveData(this, data);
 	}
 	
+	public void close() {
+		disconnect();
+	}
+	
 	public void addClientListener(ISocketListener d) {
 		clientListeners.add(d);
 	}
@@ -131,6 +137,7 @@ public class SocketWrapperThread extends Thread{
 		clientListeners.remove(d);
 	}
 	public void sendPacket(Packet p) {
-		scomm.println(gson.toJson(p));
+		String j = gson.toJson(p);
+		scomm.println(j);
 	}
 }

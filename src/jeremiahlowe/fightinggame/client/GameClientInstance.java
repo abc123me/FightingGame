@@ -26,11 +26,18 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 		gson = new Gson();
 	}
 	
+	@SuppressWarnings("resource") //Will be closed by either hook or disconnect
 	public boolean connectToServer(String host, int port) {
 		try{
 			scomm = new SocketWrapperThread(0, new Socket(host, port));
+			scomm.addClientListener(this);
 			scomm.start();	
-			System.out.println("Sucesfully connected to server!");
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					scomm.close();
+				}
+			});
 			return true;
 		}catch(IOException ioe) {
 			System.out.println("Failed to connect to server " + host + " on port " + port);
@@ -38,14 +45,15 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			return false;
 		}
 	}
-
+	public void disconnect() {
+		scomm.close();
+	}
 	public void onConnect(SocketWrapperThread cw) {
-		return;
+		System.out.println("Sucesfully connected to server!");
 	}
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.VERSION_DATA)
 			scomm.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
-		return;
 	}
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		System.out.println("Got update from server!");
@@ -61,16 +69,15 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			if(pl != null) remove(pl);
 			else throw new RuntimeException("Server sent us invalid playerdata?!");
 		}
-		return;
 	}
 	public void onDisconnect(SocketWrapperThread cw) {
-		return;
+		System.out.println("Disconnected from server!");
 	}
 	public void onReceiveData(SocketWrapperThread cw, String data) {
-		return;
+		
 	}
 	public void onReceiveUnknownPacket(SocketWrapperThread clientWrapper, Packet p) {
-		return;
+		System.out.println("Got an unknown packet???!!!");
 	}
 	public Player getLocalPlayerFromServer() {
 		Packet p = scomm.waitForPacket(1000, EPacketIdentity.LOCAL_PLAYER_DATA);

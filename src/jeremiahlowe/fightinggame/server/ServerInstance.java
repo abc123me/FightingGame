@@ -45,10 +45,12 @@ public class ServerInstance extends Instance{
 	}
 	public void addPlayerIgnoreSelf(RemotePlayer remote) {
 		players.add(remote);
-		server.broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, gson.toJson(remote.p)), remote.cw.UUID);
+		String json = gson.toJson(remote.p);
+		server.broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, json), remote.cw.UUID);//, remote.cw.UUID);
 	}
 	public void removePlayer(RemotePlayer remote) {
 		players.remove(remote);
-		server.broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_REMOVE, gson.toJson(remote.p)));
+		String json = gson.toJson(remote.p);
+		server.broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_REMOVE, json));//, remote.cw.UUID);
 	}
 }

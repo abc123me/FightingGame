@@ -27,6 +27,7 @@ public class FightingGameClient extends PApplet {
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
 		if(!instance.connectToServer("localhost", 1234))
 			System.exit(1);
+		player = instance.getLocalPlayerFromServer();
 		if(player == null) {
 			System.err.println("Was unable to retrieve player from the server?!");
 			System.exit(-1);
