@@ -8,11 +8,13 @@ public class Player extends DamageableFighter {
 	public String name = "Unnamed";
 	public float speed, speedBoost;
 	public float lookOffset = (float) (1.5f * Math.PI);
+	public final long uuid;
 	
 	private float realSpeed;
 
-	public Player() {
+	public Player(long uuid) {
 		super();
+		this.uuid = uuid;
 		keys = new Vector(0, 0);
 		size = 0.5f;
 		speed = 7.0f;

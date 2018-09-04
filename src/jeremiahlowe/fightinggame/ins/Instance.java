@@ -10,12 +10,6 @@ public abstract class Instance{
 		physicsObjects = new QueuedArrayList<PhysicsObject>();
 	}
 
-	public void removePhysicsObject(PhysicsObject p) {
-		physicsObjects.remove(p);
-	}
-	public void addPhysicsObject(PhysicsObject p) {
-		physicsObjects.add(p);
-	}
 	public QueuedArrayList<PhysicsObject> getPhysicsObjects(){
 		return physicsObjects;
 	}
@@ -26,5 +20,24 @@ public abstract class Instance{
 		for (PhysicsObject p : physicsObjects)
 			if (p != null && p.enabled())
 				p.physics(this, dt);
+	}
+	
+	public void add(Object p) {
+		if(p instanceof PhysicsObject)
+			physicsObjects.add((PhysicsObject) p); 
+	}
+	public void remove(Object p) {
+		if(p instanceof PhysicsObject)
+			physicsObjects.remove((PhysicsObject) p); 
+	}
+	public void addAll(Object...objects) {
+		for(Object o : objects)
+			if(o != null)
+				add(o);
+	}
+	public void removeAll(Object...objects) {
+		for(Object o : objects)
+			if(o != null)
+				remove(o);
 	}
 }

@@ -30,14 +30,15 @@ public class FightingGame extends PApplet {
 		instance = new GenericGraphicalInstance(this);
 		instance.screen = new Viewport(width, -height, width / 2, height / 2);
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
-		player = new Player(instance);
+		player = new Player(-1);
 		player.pos = new Vector(0, 2);
 		player.color = Color.YELLOW;
-		AIFighter f1 = new AIFighter(instance);
-		AIFighter f2 = new AIFighter(instance);
+		AIFighter f1 = new AIFighter();
+		AIFighter f2 = new AIFighter();
 		f2.pos = new Vector(2, 0);
 		f1.pos = new Vector(-2, 0);
 		f2.attack(f1);
+		instance.addAll(f1, f2, player);
 	}
 	@Override
 	public void setup() {

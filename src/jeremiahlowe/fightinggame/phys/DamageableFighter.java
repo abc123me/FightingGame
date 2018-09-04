@@ -14,31 +14,33 @@ public class DamageableFighter extends Fighter {
 		maxHealth = 100;
 	}
 
-	public void onHeal(Object from, float by) {
+	public void onHeal(Instance i, Object from, float by) {
 		if (by < 0) {
-			onHit(from, -by);
+			onHit(i, from, -by);
 			return;
 		}
 		health += by;
 		if (health > maxHealth)
 			health = maxHealth;
 	}
-	public void onHit(Object from, float damage) {
+	public void onHit(Instance i, Object from, float damage) {
 		if (invincible)
 			return;
 		if (damage < 0) {
-			onHeal(from, -damage);
+			onHeal(i, from, -damage);
 			return;
 		}
 		health -= damage;
 		if (health <= 0) {
 			health = 0;
-			onDeath();
+			onDeath(i);
 		}
 	}
-	public void onDeath() {
+	public void onDeath(Instance i) {
 		alive = false;
 		destroy();
+		if(i != null)
+			i.remove(this);
 	}
 	
 	@Override

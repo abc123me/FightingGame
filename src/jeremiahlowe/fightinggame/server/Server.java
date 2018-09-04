@@ -7,17 +7,17 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import jeremiahlowe.fightinggame.net.IClientListener;
+import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
 
-public class Server extends Thread implements IClientListener{
+public class Server extends Thread implements ISocketListener{
 	public final int port, cnum;
 	public final String host;
 	public boolean debugPrinting = true;
 	
 	private boolean ready = false;
 	private ArrayList<SocketWrapperThread> clients;
-	private ArrayList<IClientListener> clientListeners;
+	private ArrayList<ISocketListener> clientListeners;
 	
 	public Server(int port) {
 		this(port, "127.0.0.1");
@@ -27,7 +27,7 @@ public class Server extends Thread implements IClientListener{
 	}
 	public Server(int port, String host, int cnum) {
 		clients = new ArrayList<SocketWrapperThread>();
-		clientListeners = new ArrayList<IClientListener>();
+		clientListeners = new ArrayList<ISocketListener>();
 		this.port = port;
 		this.host = host;
 		this.cnum = cnum;
@@ -77,42 +77,51 @@ public class Server extends Thread implements IClientListener{
 		return ready;
 	}
 	
+	public void broadcast(Packet msg) {
+		for(SocketWrapperThread t : clients)
+			if(t != null)
+				t.sendPacket(msg);
+	}
+	public void broadcastAllBut(Packet msg, long ignoreUUID) {
+		for(SocketWrapperThread t : clients) 
+			if(t != null && t.UUID != ignoreUUID) 
+				t.sendPacket(msg);
+	}
 	public void onDisconnect(SocketWrapperThread cw) {
-		for(IClientListener c : clientListeners)
+		for(ISocketListener c : clientListeners)
 			if(c != null)
 				c.onDisconnect(cw);
 		clients.remove(cw);
 	}
 	public void onConnect(SocketWrapperThread cw) {
-		for(IClientListener c : clientListeners)
+		for(ISocketListener c : clientListeners)
 			if(c != null)
 				c.onConnect(cw);
 	}
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
-		for(IClientListener c : clientListeners)
+		for(ISocketListener c : clientListeners)
 			if(c != null)
 				c.onReceiveRequest(cw, p);
 	}
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
-		for(IClientListener c : clientListeners)
+		for(ISocketListener c : clientListeners)
 			if(c != null)
 				c.onReceiveUpdate(cw, p);
 	}
 	public void onReceiveData(SocketWrapperThread cw, String data) {
-		for(IClientListener c : clientListeners)
+		for(ISocketListener c : clientListeners)
 			if(c != null)
 				c.onReceiveData(cw, data);
 	}
 	public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {
-		for(IClientListener c : clientListeners)
+		for(ISocketListener c : clientListeners)
 			if(c != null)
 				c.onReceiveUnknownPacket(cw, p);
 	}
-	public void addClientListener(IClientListener c) {
+	public void addClientListener(ISocketListener c) {
 		clientListeners.add(c);
 	}
-	public void removeClientListener(IClientListener c) {
+	public void removeClientListener(ISocketListener c) {
 		clientListeners.remove(c);
 	}
-	
 }

@@ -27,7 +27,7 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 	protected Random rng;
 	
 	protected AIFighterBase() {
-		super();
+		super(0);
 		rng = new Random(System.nanoTime());
 		action = new AIAction();
 		action.to = null;

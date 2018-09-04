@@ -37,11 +37,11 @@ public class Fighter extends PhysicsObject implements IDrawable {
 	public void setLookPosition(Vector look) {
 		this.look = look;
 	}
-	public void shoot() {
+	public Bullet shoot() {
 		if (shootCooldown > 0)
-			return;
+			return null;
 		shootCooldown = shootingSpeed;
-		new Bullet(this).fire();
+		return new Bullet(this);
 	}
 	public boolean alive() {
 		return alive;
@@ -86,8 +86,10 @@ public class Fighter extends PhysicsObject implements IDrawable {
 		super.physics(i, dt);
 		if (shootCooldown >= 0)
 			shootCooldown -= dt;
-		if (shooting)
-			shoot();
+		if (shooting) {
+			Bullet b = shoot();
+			if(b != null) b.fire(i);
+		}
 	}
 	@Override
 	public String toString() {

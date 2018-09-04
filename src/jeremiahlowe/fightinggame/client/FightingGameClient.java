@@ -1,6 +1,5 @@
 package jeremiahlowe.fightinggame.client;
 
-import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.math.Vector;
 import net.net16.jeremiahlowe.shared.math.Viewport;
@@ -28,19 +27,12 @@ public class FightingGameClient extends PApplet {
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
 		if(!instance.connectToServer("localhost", 1234))
 			System.exit(1);
-		int serverVersion = instance.getServerVersion();
-		if(serverVersion != Meta.VERSION_ID) {
-			System.err.println("Server and client have mismatched versions, server is running " + serverVersion + " and client is running " + Meta.VERSION_ID);
-			System.exit(1);
-		}
-		player = instance.getPlayerFromServer();
 		if(player == null) {
 			System.err.println("Was unable to retrieve player from the server?!");
 			System.exit(-1);
 		}
 		instance.localPlayer = player;
-		instance.addDrawable(player);
-		instance.addPhysicsObject(player);
+		instance.add(player);
 	}
 	@Override
 	public void setup() {

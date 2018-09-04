@@ -19,6 +19,7 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 
 	private final Fighter parent;
 	private Timing t;
+	private Instance i;
 
 	private long spawnTime;
 	private double deltaTime = 0;
@@ -35,9 +36,11 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 		t = new Timing();
 	}
 
-	public void fire() {
+	public void fire(Instance i) {
 		t.start();
 		enabled = true;
+		this.i = i;
+		i.add(this);
 	}
 	public long timeLeft() {
 		return lifetime - (t.millis() - spawnTime);
@@ -64,6 +67,8 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 	@Override
 	public void destroy() {
 		enabled = false;
+		if(i != null)
+			i.remove(this);
 	}
 	@Override
 	public boolean enabled() {
@@ -80,7 +85,7 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 			size2 += psize * psize;
 			boolean hit = dpcol <= size2;
 			if (hit && p instanceof DamageableFighter)
-				((DamageableFighter) p).onHit(this, damage);
+				((DamageableFighter) p).onHit(i, this, damage);
 			if(hit)
 				destroy();
 		}

@@ -29,12 +29,6 @@ public abstract class GraphicalInstance extends Instance{
 		statistics.addStatistic(getInstanceStatistic());
 	}
 	
-	public void removeDrawable(IDrawable d) {
-		drawables.remove(d);
-	}
-	public void addDrawable(IDrawable d) {
-		drawables.add(d);
-	}
 	public QueuedArrayList<IDrawable> getDrawables(){
 		return drawables;
 	}
@@ -69,14 +63,20 @@ public abstract class GraphicalInstance extends Instance{
 			}
 		};
 	}
-	public boolean addStatistic(IStatistic stat) {
-		if(statistics != null)
-			return statistics.addStatistic(stat);
-		return false;
+	@Override
+	public void add(Object p) {
+		super.add(p);
+		if(p instanceof IStatistic)
+			statistics.addStatistic((IStatistic) p);
+		if(p instanceof IDrawable)
+			drawables.add((IDrawable) p);
 	}
-	public boolean removeStatistic(IStatistic stat) {
-		if(statistics != null)
-			return statistics.removeStatistic(stat);
-		return false;
+	@Override
+	public void remove(Object p) {
+		super.remove(p);
+		if(p instanceof IStatistic)
+			statistics.removeStatistic((IStatistic) p);
+		if(p instanceof IDrawable)
+			drawables.remove((IDrawable) p);
 	}
 }

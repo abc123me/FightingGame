@@ -1,21 +1,22 @@
 package jeremiahlowe.fightinggame.client;
 
 import java.io.IOException;
+import java.net.Socket;
 
 import com.google.gson.Gson;
 
+import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
+import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
-import jeremiahlowe.fightinggame.net.SocketCommunicator;
-import jeremiahlowe.fightinggame.phys.PhysicsObject;
+import jeremiahlowe.fightinggame.net.PlayerMovementData;
 import jeremiahlowe.fightinggame.phys.Player;
-import net.net16.jeremiahlowe.shared.Timing;
-import net.net16.jeremiahlowe.shared.math.Vector;
+import jeremiahlowe.fightinggame.server.SocketWrapperThread;
 import processing.core.PApplet;
 
-public class GameClientInstance extends GraphicalInstance{
-	private SocketCommunicator scomm;
+public class GameClientInstance extends GraphicalInstance implements ISocketListener{
+	private SocketWrapperThread scomm;
 	
 	public Player localPlayer;
 	public final Gson gson;
@@ -24,19 +25,11 @@ public class GameClientInstance extends GraphicalInstance{
 		super(applet);
 		gson = new Gson();
 	}
-
-	@Override
-	public void addPhysicsObject(PhysicsObject p) {
-		return;
-	}
-	@Override
-	public void removePhysicsObject(PhysicsObject p) {
-		return;
-	}
 	
 	public boolean connectToServer(String host, int port) {
 		try{
-			scomm = new SocketCommunicator(host, port);
+			scomm = new SocketWrapperThread(0, new Socket(host, port));
+			scomm.start();	
 			System.out.println("Sucesfully connected to server!");
 			return true;
 		}catch(IOException ioe) {
@@ -45,66 +38,49 @@ public class GameClientInstance extends GraphicalInstance{
 			return false;
 		}
 	}
-	public Player getPlayerFromServer() {
-		Packet p = waitForRequest(1000, EPacketIdentity.PLAYER_DATA);
+
+	public void onConnect(SocketWrapperThread cw) {
+		return;
+	}
+	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
+		if(p.identity == EPacketIdentity.VERSION_DATA)
+			scomm.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
+		return;
+	}
+	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
+		System.out.println("Got update from server!");
+		if(p.identity == EPacketIdentity.PLAYER_ADD) {
+			Player pl = gson.fromJson(p.contents, Player.class);
+			System.out.println("Adding new player based off of: " + p.contents);
+			if(pl != null) add(pl);
+			else throw new RuntimeException("Server sent us invalid playerdata?!");
+		}
+		if(p.identity == EPacketIdentity.PLAYER_REMOVE) {
+			Player pl = gson.fromJson(p.contents, Player.class);
+			System.out.println("Removing player based off of: " + p.contents);
+			if(pl != null) remove(pl);
+			else throw new RuntimeException("Server sent us invalid playerdata?!");
+		}
+		return;
+	}
+	public void onDisconnect(SocketWrapperThread cw) {
+		return;
+	}
+	public void onReceiveData(SocketWrapperThread cw, String data) {
+		return;
+	}
+	public void onReceiveUnknownPacket(SocketWrapperThread clientWrapper, Packet p) {
+		return;
+	}
+	public Player getLocalPlayerFromServer() {
+		Packet p = scomm.waitForPacket(1000, EPacketIdentity.LOCAL_PLAYER_DATA);
 		if(p == null)
 			return null;
-		System.out.println(p.contents);
-		Player local = gson.fromJson(p.contents, Player.class);
-		return local;
+		return gson.fromJson(p.contents, Player.class);
 	}
 	public void updateLocalPlayer() {
-		String jsonPlayer = gson.toJson(new RemotePlayer(localPlayer));
-		Packet p = Packet.createUpdate(EPacketIdentity.PLAYER_DATA, jsonPlayer);
-		scomm.println(gson.toJson(p));
-	}
-	public int getServerVersion() {
-		Packet p = waitForRequest(1000, EPacketIdentity.VERSION_DATA);
-		if(p == null)
-			return -1;
-		return Integer.parseInt(p.contents);
-	}
-	
-	private Packet waitForRequest(long timeout, EPacketIdentity identity) {
-		scomm.println(gson.toJson(Packet.createRequest(identity)));
-		if(!waitForServer(1000)) {
-			System.err.println("Server didn't respond to request for \"" + identity + "\" after " + timeout + "ms");
-			return null;
-		}
-		String fromServer = scomm.readLine();
-		Packet p = gson.fromJson(fromServer, Packet.class);
-		if(p.type != Packet.UPDATE){
-			System.err.println("Server responded to \"" + identity + "\" request with an invalid packet type of: " + p.type);
-			return null;
-		}
-		if(p.identity != identity){
-			System.err.println("Server responded to \"" + identity + "\" request with an invalid packet identity of \"" + p.identity + "\"");
-			return null;
-		}
-		return p;
-	}
-	private boolean waitForServer(long timeout) {
-		return waitForServer(timeout, 10);
-	}
-	private boolean waitForServer(long timeout, long step) {
-		long time = 0;
-		while(!scomm.hasNext()) {
-			if(!Timing.sleep(step))
-				return false;
-			time += step;
-			if(time > timeout)
-				return false;
-		}
-		return true;
-	}
-}
-class RemotePlayer{
-	public Vector keys, look;
-	public boolean shooting;
-	
-	public RemotePlayer(Player from) {
-		keys = from.keys;
-		look = from.look;
-		shooting = from.shooting;
+		scomm.sendPacket(
+				Packet.createUpdate(EPacketIdentity.LOCAL_PLAYER_MOVEMENT, //Packet type
+				gson.toJson(new PlayerMovementData(localPlayer)))); //Movement data
 	}
 }

@@ -1,5 +1,5 @@
 package jeremiahlowe.fightinggame.net;
 
 public enum EPacketIdentity {
-	PLAYER_DATA, VERSION_DATA, PHYSICS_DATA;
+	LOCAL_PLAYER_DATA, VERSION_DATA, PLAYER_REMOVE, PLAYER_ADD, LOCAL_PLAYER_MOVEMENT;
 }
