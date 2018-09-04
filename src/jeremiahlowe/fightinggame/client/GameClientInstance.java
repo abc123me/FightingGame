@@ -10,7 +10,8 @@ import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.SocketCommunicator;
 import jeremiahlowe.fightinggame.phys.PhysicsObject;
 import jeremiahlowe.fightinggame.phys.Player;
-import jeremiahlowe.fightinggame.util.Timing;
+import net.net16.jeremiahlowe.shared.Timing;
+import net.net16.jeremiahlowe.shared.math.Vector;
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -100,7 +101,7 @@ public class GameClientInstance extends GraphicalInstance {
 	}
 }
 class RemotePlayer{
-	public PVector keys, look;
+	public Vector keys, look;
 	public boolean shooting;
 	
 	public RemotePlayer(Player from) {

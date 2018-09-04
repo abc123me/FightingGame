@@ -2,8 +2,8 @@ package jeremiahlowe.fightinggame.phys;
 
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ins.Instance;
+import net.net16.jeremiahlowe.shared.math.Vector;
 import processing.core.PApplet;
-import processing.core.PVector;
 
 public class DamageableFighter extends Fighter {
 	public float health, maxHealth;
@@ -52,15 +52,15 @@ public class DamageableFighter extends Fighter {
 		p.fill(p.color(0, 255, 0));
 		float hpw = size * 1.25f;
 		float y = pos.y + size;
-		PVector rpos = i.world.transform(new PVector(pos.x - hpw / 2, y), i.screen);
-		PVector rsize = i.world.transformIgnoreOffset(new PVector(hpw, hpw / 4), i.screen);
+		Vector rpos = i.world.transform(new Vector(pos.x - hpw / 2, y), i.screen);
+		Vector rsize = i.world.transformIgnoreOffset(new Vector(hpw, hpw / 4), i.screen);
 		p.rect(rpos.x, rpos.y, rsize.x, rsize.y);
 		if (health == maxHealth)
 			return;
 		p.fill(p.color(255, 0, 0));
 		float w = (health / maxHealth) * hpw;
-		rpos = i.world.transform(new PVector(w + pos.x - hpw / 2, y), i.screen);
-		rsize = i.world.transformIgnoreOffset(new PVector(hpw - w, hpw / 4), i.screen);
+		rpos = i.world.transform(new Vector(w + pos.x - hpw / 2, y), i.screen);
+		rsize = i.world.transformIgnoreOffset(new Vector(hpw - w, hpw / 4), i.screen);
 		p.rect(rpos.x, rpos.y, rsize.x, rsize.y);
 	}
 	@Override

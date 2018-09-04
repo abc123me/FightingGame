@@ -1,14 +1,14 @@
 package jeremiahlowe.fightinggame.phys;
 
 import jeremiahlowe.fightinggame.ins.Instance;
-import processing.core.PVector;
+import net.net16.jeremiahlowe.shared.math.Vector;
 
 public abstract class PhysicsObject {
-	public PVector pos, vel;
+	public Vector pos, vel;
 
 	protected PhysicsObject() {
-		pos = new PVector();
-		vel = new PVector();
+		pos = new Vector();
+		vel = new Vector();
 	}
 
 	public void physics(Instance instance, double dt) {

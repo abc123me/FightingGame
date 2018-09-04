@@ -4,8 +4,8 @@ import jeremiahlowe.fightinggame.ui.IDrawable;
 import jeremiahlowe.fightinggame.ui.IStatistic;
 import jeremiahlowe.fightinggame.ui.Statistics;
 import jeremiahlowe.fightinggame.ui.IStatistic.ITextStatistic;
-import jeremiahlowe.fightinggame.util.SafeArrayList;
-import jeremiahlowe.fightinggame.util.Viewport;
+import net.net16.jeremiahlowe.shared.QueuedArrayList;
+import net.net16.jeremiahlowe.shared.math.Viewport;
 import processing.core.PApplet;
 
 public abstract class GraphicalInstance extends Instance{
@@ -13,7 +13,7 @@ public abstract class GraphicalInstance extends Instance{
 	public static final int BULLET_DRAW_PRIORITY = 3;
 	public static final int FIGHTER_DRAW_PRIORITY = 2;
 	
-	protected SafeArrayList<IDrawable> drawables;
+	protected QueuedArrayList<IDrawable> drawables;
 	
 	public Viewport world, screen;
 	public PApplet applet;
@@ -21,7 +21,7 @@ public abstract class GraphicalInstance extends Instance{
 	
 	public GraphicalInstance(PApplet applet) {
 		super();
-		drawables = new SafeArrayList<IDrawable>(IDrawable.PRIORITY_SORT);
+		drawables = new QueuedArrayList<IDrawable>(IDrawable.PRIORITY_SORT);
 		this.applet = applet;
 		statistics = new Statistics();
 		drawables.add(statistics);
@@ -35,7 +35,7 @@ public abstract class GraphicalInstance extends Instance{
 	public void addDrawable(IDrawable d) {
 		drawables.add(d);
 	}
-	public SafeArrayList<IDrawable> getDrawables(){
+	public QueuedArrayList<IDrawable> getDrawables(){
 		return drawables;
 	}
 	public void drawAll(PApplet p) {

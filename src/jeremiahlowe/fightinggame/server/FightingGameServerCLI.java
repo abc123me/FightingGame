@@ -7,7 +7,7 @@ import jeremiahlowe.fightinggame.net.IClientListener;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.phys.Player;
-import jeremiahlowe.fightinggame.util.Timing;
+import net.net16.jeremiahlowe.shared.Timing;
 
 public class FightingGameServerCLI implements IClientListener{
 	private Server server;

@@ -4,12 +4,12 @@ import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.ui.IDrawable;
 import jeremiahlowe.fightinggame.ui.IStatistic.IDrawableStatistic;
-import jeremiahlowe.fightinggame.util.Color;
-import jeremiahlowe.fightinggame.util.Math;
 import jeremiahlowe.fightinggame.util.PGFX;
-import jeremiahlowe.fightinggame.util.Timing;
+import net.net16.jeremiahlowe.shared.Color;
+import net.net16.jeremiahlowe.shared.Timing;
+import net.net16.jeremiahlowe.shared.math.GeneralMath;
+import net.net16.jeremiahlowe.shared.math.Vector;
 import processing.core.PApplet;
-import processing.core.PVector;
 
 public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatistic{
 	public float size = 0.1f;
@@ -26,7 +26,7 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 
 	public Bullet(Fighter f) {
 		super();
-		PVector vel = f.getLookVector(f.gunVelocity);
+		Vector vel = f.getLookVector(f.gunVelocity);
 		this.pos = f.pos.copy();
 		this.vel = vel.add(f.vel.copy());
 		enabled = false;
@@ -45,8 +45,8 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 	public long timeLeft() {
 		return lifetime - (t.millis() - spawnTime);
 	}
-	public PVector nextPosition() {
-		return PVector.add(pos, vel.copy().mult((float) deltaTime));
+	public Vector nextPosition() {
+		return Vector.add(pos, vel.copy().mult((float) deltaTime));
 	}
 	public Fighter getParent() {
 		return parent;
@@ -59,8 +59,8 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 		if (!enabled)
 			return;
 		p.fill(color.argb());
-		PVector pix = i.world.transform(pos, i.screen);
-		PVector ss = i.world.transformIgnoreOffset(new PVector(size, size), i.screen);
+		Vector pix = i.world.transform(pos, i.screen);
+		Vector ss = i.world.transformIgnoreOffset(new Vector(size, size), i.screen);
 		p.ellipse(pix.x, pix.y, ss.x, ss.y);
 	}
 	
@@ -80,7 +80,7 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 	public boolean collidesWith(PhysicsObject p) {
 		if (p == parent || p instanceof Bullet || p == null)
 			return false;
-		float dpcol = Math.dist2FromPolygon(p.pos, getColliderVerticies());
+		float dpcol = GeneralMath.dist2FromPolygon(p.pos, getColliderVerticies());
 		float size2 = size * size;
 		if (p instanceof Fighter) {
 			float psize = ((Fighter) p).size / 2;
@@ -114,14 +114,14 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 		PGFX.polygon(p, i.world.transformAll(i.screen, getColliderVerticies()));
 	}
 	
-	private PVector[] getColliderVerticies() {
-		PVector a = pos.copy(), b = pos.copy();
-		PVector npos = nextPosition();
-		PVector c = npos.copy(), d = npos.copy();
+	private Vector[] getColliderVerticies() {
+		Vector a = pos.copy(), b = pos.copy();
+		Vector npos = nextPosition();
+		Vector c = npos.copy(), d = npos.copy();
 		a.x -= size / 2;
 		b.x += size / 2;
 		c.x += size / 2;
 		d.x -= size / 2;
-		return new PVector[] {a, b, c, d};
+		return new Vector[] {a, b, c, d};
 	}
 }

@@ -1,18 +1,20 @@
 package jeremiahlowe.fightinggame.ai;
 
+import java.util.Random;
+
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.phys.Fighter;
 import jeremiahlowe.fightinggame.phys.PhysicsObject;
 import jeremiahlowe.fightinggame.phys.Player;
 import jeremiahlowe.fightinggame.ui.IStatistic.IDrawableStatistic;
-import jeremiahlowe.fightinggame.util.Math;
+import net.net16.jeremiahlowe.shared.math.GeneralMath;
+import net.net16.jeremiahlowe.shared.math.Vector;
 import processing.core.PApplet;
-import processing.core.PVector;
 
 public abstract class AIFighterBase extends Player implements IDrawableStatistic{
 	public float fov = 0;
-	public float lerpSpeed = Math.PI * 1.5f;
+	public float lerpSpeed = (float) (Math.PI * 1.5f);
 	
 	protected AIAction lastAction, action;
 	protected float gotoLookAngle = 0;
@@ -20,13 +22,16 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 	protected float dodgeTime = 0.75f;
 	protected float dodgeTimeRem = 0;
 	protected float chaseDist2, chaseDist;
-	protected PVector dodgeDir;
+	protected Vector dodgeDir;
+	
+	protected Random rng;
 	
 	protected AIFighterBase(Instance instance) {
 		super(instance);
+		rng = new Random(System.nanoTime());
 		action = new AIAction();
 		action.to = null;
-		fov = Math.PI / 4;
+		fov = (float) (Math.PI / 4);
 		setChaseDistance(2);
 		if(instance instanceof GraphicalInstance) 
 			((GraphicalInstance) instance).addStatistic(this);
@@ -38,15 +43,15 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 	public void attack(Fighter f) {
 		if (f == null)
 			return;
-		if (PVector.sub(pos, f.pos).magSq() > chaseDist2)
+		if (Vector.sub(pos, f.pos).magSq() > chaseDist2)
 			setAction(new AIAction(EAIActionType.Chase, f));
 		else
 			setAction(new AIAction(EAIActionType.ShootAt, f));
 	}
 	public void startDodge(Fighter f) {
 		dodgeTimeRem = dodgeTime;
-		boolean x = Math.random(1) > 0.5;
-		dodgeDir = new PVector(x ? 1 : -1, -1);
+		boolean x = rng.nextFloat() > 0.5;
+		dodgeDir = new Vector(x ? 1 : -1, -1);
 		action = new AIAction(EAIActionType.Dodge, f);
 	}
 	
@@ -79,22 +84,22 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 		if (action.type == EAIActionType.ShootAt) {
 			speedBoost = 1.0f;
 			shooting = true;
-			keys = new PVector();
+			keys = new Vector();
 			float a = angleTo(action.to.pos);
 			setLookRotation(a);
-			if (Math.dist2(pos, action.to.pos) > chaseDist2) {
+			if (pos.distSq(action.to.pos) > chaseDist2) {
 				setAction(new AIAction(EAIActionType.Chase, action.to));
 				return;
 			}
 		}
 		if (action.type == EAIActionType.Chase) {
 			speedBoost = 1.5f;
-			if (Math.dist2(pos, action.to.pos) < (chaseDist2 - chaseDist2 / 4)) {
+			if (pos.distSq(action.to.pos) < (chaseDist2 - chaseDist2 / 4)) {
 				setAction(new AIAction(EAIActionType.ShootAt, action.to));
 				return;
 			}
-			keys = new PVector(0, 1);
-			setLookRotation(PVector.sub(action.to.pos, pos).heading());
+			keys = new Vector(0, 1);
+			setLookRotation(Vector.sub(action.to.pos, pos).atan2());
 		}
 		if (action.type == EAIActionType.Dodge) {
 			shooting = false;
@@ -115,15 +120,15 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 			return true;
 		return false;
 	}
-	protected boolean inFOV(PVector pos) {
+	protected boolean inFOV(Vector pos) {
 		return inFOV(angleTo(pos));
 	}
 	protected float fovTop() {
-		float a = getLookVector().heading();
+		float a = getLookVector().atan2();
 		return a + fov / 2;
 	}
 	protected float fovBot() {
-		float a = getLookVector().heading();
+		float a = getLookVector().atan2();
 		return a - fov / 2;
 	}
 	protected void setAction(AIAction action) {
@@ -137,7 +142,7 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 	public void turn(float by) {
 		gotoLookAngle += by;
 	}
-	public void setLookPosition(PVector pos) {
+	public void setLookPosition(Vector pos) {
 		setLookRotation(angleTo(pos));
 	}
 	public void setLookRotation(float angle) {
@@ -149,8 +154,8 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 	public float getRequestedLookRotation() {
 		return gotoLookAngle;
 	}
-	public float angleTo(PVector pos) {
-		return pos.copy().sub(this.pos).heading();
+	public float angleTo(Vector pos) {
+		return pos.copy().sub(this.pos).atan2();
 	}
 	public float getChaseDistance() {
 		return chaseDist;
@@ -162,7 +167,7 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 	
 	private void lerpLookPosition(double dt) {
 		float lerpAmount = (float) dt * lerpSpeed;
-		gotoLookAngle = Math.normalizeAngle(gotoLookAngle);
+		gotoLookAngle = GeneralMath.normalizeAngle(gotoLookAngle);
 		float diff = gotoLookAngle - curLookAngle;
 		if (diff == 0)
 			return;
@@ -174,7 +179,7 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 		if (diff > lerpAmount)
 			diff = lerpAmount;
 		curLookAngle += m * diff;
-		super.setLookPosition(PVector.fromAngle(curLookAngle).add(pos));
+		super.setLookPosition(Vector.fromAngle(curLookAngle).add(pos));
 	}
 	
 	@Override
@@ -189,12 +194,12 @@ public abstract class AIFighterBase extends Player implements IDrawableStatistic
 	}
 	
 	public void drawStatistic(PApplet a, GraphicalInstance i) {
-		PVector tx = PVector.fromAngle(fovTop()).mult(100).add(pos);
-		PVector bx = PVector.fromAngle(fovBot()).mult(100).add(pos);
+		Vector tx = Vector.fromAngle(fovTop()).mult(100).add(pos);
+		Vector bx = Vector.fromAngle(fovBot()).mult(100).add(pos);
 		tx = i.world.transform(tx, i.screen);
 		bx = i.world.transform(bx, i.screen);
 		a.stroke(a.color(255, 200, 0));
-		PVector p = i.world.transform(pos, i.screen);
+		Vector p = i.world.transform(pos, i.screen);
 		a.line(p.x, p.y, tx.x, tx.y);
 		a.line(p.x, p.y, bx.x, bx.y);
 	}

@@ -3,12 +3,10 @@ package jeremiahlowe.fightinggame.ai;
 import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.phys.Bullet;
 import jeremiahlowe.fightinggame.phys.Fighter;
-import processing.core.PVector;
 
 public class AIFighter extends AIFighterBase{
 	public AIFighter(Instance instance) {
 		super(instance);
-		keys = new PVector();
 		speedBoost = 1.0f;
 		setChaseDistance(2.5f);
 	}

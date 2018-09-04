@@ -4,10 +4,10 @@ import jeremiahlowe.fightinggame.ai.AIFighter;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.phys.Player;
 import jeremiahlowe.fightinggame.ins.GenericGraphicalInstance;
-import jeremiahlowe.fightinggame.util.Color;
-import jeremiahlowe.fightinggame.util.Viewport;
+import net.net16.jeremiahlowe.shared.Color;
+import net.net16.jeremiahlowe.shared.math.Vector;
+import net.net16.jeremiahlowe.shared.math.Viewport;
 import processing.core.PApplet;
-import processing.core.PVector;
 import processing.event.MouseEvent;
 
 public class FightingGame extends PApplet {
@@ -31,12 +31,12 @@ public class FightingGame extends PApplet {
 		instance.screen = new Viewport(width, -height, width / 2, height / 2);
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
 		player = new Player(instance);
-		player.pos = new PVector(0, 2);
+		player.pos = new Vector(0, 2);
 		player.color = Color.YELLOW;
 		AIFighter f1 = new AIFighter(instance);
 		AIFighter f2 = new AIFighter(instance);
-		f2.pos = new PVector(2, 0);
-		f1.pos = new PVector(-2, 0);
+		f2.pos = new Vector(2, 0);
+		f1.pos = new Vector(-2, 0);
 		f2.attack(f1);
 	}
 	@Override
@@ -56,7 +56,7 @@ public class FightingGame extends PApplet {
 
 	@Override
 	public void mouseMoved() {
-		player.setLookPosition(instance.screen.transform(new PVector(mouseX, mouseY), instance.world));
+		player.setLookPosition(instance.screen.transform(new Vector(mouseX, mouseY), instance.world));
 	}
 	@Override
 	public void mousePressed() {
@@ -68,7 +68,7 @@ public class FightingGame extends PApplet {
 	}
 	@Override
 	public void mouseDragged() {
-		player.setLookPosition(instance.screen.transform(new PVector(mouseX, mouseY), instance.world));
+		player.setLookPosition(instance.screen.transform(new Vector(mouseX, mouseY), instance.world));
 		player.shoot();
 	}
 	@Override

@@ -3,9 +3,9 @@ package jeremiahlowe.fightinggame.phys;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.ui.IDrawable;
-import jeremiahlowe.fightinggame.util.Color;
+import net.net16.jeremiahlowe.shared.Color;
+import net.net16.jeremiahlowe.shared.math.Vector;
 import processing.core.PApplet;
-import processing.core.PVector;
 
 public class Fighter extends PhysicsObject implements IDrawable {
 	
@@ -16,7 +16,7 @@ public class Fighter extends PhysicsObject implements IDrawable {
 	public float shootingSpeed = 0.15f;
 	public boolean alive = true;
 	public Color color;
-	public PVector look;
+	public Vector look;
 
 	private float shootCooldown = 0;
 
@@ -26,7 +26,7 @@ public class Fighter extends PhysicsObject implements IDrawable {
 	public Fighter(Instance instance, boolean add) {
 		super();
 		color = new Color(255, 0, 0);
-		look = new PVector();
+		look = new Vector();
 		size = 1;
 		if (add) {
 			if(instance instanceof GraphicalInstance)
@@ -36,16 +36,16 @@ public class Fighter extends PhysicsObject implements IDrawable {
 		this.instance = instance;
 	}
 
-	public PVector getLookVector() {
+	public Vector getLookVector() {
 		return look.copy().sub(pos).normalize();
 	}
-	public PVector getLookVector(float mag) {
+	public Vector getLookVector(float mag) {
 		return getLookVector().mult(mag);
 	}
 	public float heading() {
-		return look.copy().sub(pos).heading();
+		return look.copy().sub(pos).atan2();
 	}
-	public void setLookPosition(PVector look) {
+	public void setLookPosition(Vector look) {
 		this.look = look;
 	}
 	public void shoot() {
@@ -71,12 +71,12 @@ public class Fighter extends PhysicsObject implements IDrawable {
 	}
 	public void draw(PApplet p, GraphicalInstance i) {
 		p.stroke(p.color(255, 0, 0));
-		PVector rpos = i.world.transform(pos, i.screen);
-		PVector lpos = i.world.transform(getLookVector(1000).add(pos), i.screen);
+		Vector rpos = i.world.transform(pos, i.screen);
+		Vector lpos = i.world.transform(getLookVector(1000).add(pos), i.screen);
 		p.line(rpos.x, rpos.y, lpos.x, lpos.y);
 		p.fill(color.argb());
 		p.stroke(0);
-		PVector rsize = i.world.transformIgnoreOffset(new PVector(size, size), i.screen);
+		Vector rsize = i.world.transformIgnoreOffset(new Vector(size, size), i.screen);
 		p.ellipse(rpos.x, rpos.y, rsize.x, rsize.y);
 	}
 	

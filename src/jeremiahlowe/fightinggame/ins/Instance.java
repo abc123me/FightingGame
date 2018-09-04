@@ -1,13 +1,13 @@
 package jeremiahlowe.fightinggame.ins;
 
 import jeremiahlowe.fightinggame.phys.PhysicsObject;
-import jeremiahlowe.fightinggame.util.SafeArrayList;
+import net.net16.jeremiahlowe.shared.QueuedArrayList;
 
 public abstract class Instance{
-	protected SafeArrayList<PhysicsObject> physicsObjects;
+	protected QueuedArrayList<PhysicsObject> physicsObjects;
 	
 	public Instance() {
-		physicsObjects = new SafeArrayList<PhysicsObject>();
+		physicsObjects = new QueuedArrayList<PhysicsObject>();
 	}
 
 	public void removePhysicsObject(PhysicsObject p) {
@@ -16,7 +16,7 @@ public abstract class Instance{
 	public void addPhysicsObject(PhysicsObject p) {
 		physicsObjects.add(p);
 	}
-	public SafeArrayList<PhysicsObject> getPhysicsObjects(){
+	public QueuedArrayList<PhysicsObject> getPhysicsObjects(){
 		return physicsObjects;
 	}
 	public void physicsUpdate(double dt) {

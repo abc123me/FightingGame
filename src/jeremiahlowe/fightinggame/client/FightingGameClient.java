@@ -2,9 +2,9 @@ package jeremiahlowe.fightinggame.client;
 
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.phys.Player;
-import jeremiahlowe.fightinggame.util.Viewport;
+import net.net16.jeremiahlowe.shared.math.Vector;
+import net.net16.jeremiahlowe.shared.math.Viewport;
 import processing.core.PApplet;
-import processing.core.PVector;
 import processing.event.MouseEvent;
 
 public class FightingGameClient extends PApplet {
@@ -57,7 +57,7 @@ public class FightingGameClient extends PApplet {
 	
 	@Override
 	public void mouseMoved() {
-		player.setLookPosition(instance.screen.transform(new PVector(mouseX, mouseY), instance.world));
+		player.setLookPosition(instance.screen.transform(new Vector(mouseX, mouseY), instance.world));
 		instance.updateLocalPlayer();
 	}
 	@Override
@@ -72,7 +72,7 @@ public class FightingGameClient extends PApplet {
 	}
 	@Override
 	public void mouseDragged() {
-		player.setLookPosition(instance.screen.transform(new PVector(mouseX, mouseY), instance.world));
+		player.setLookPosition(instance.screen.transform(new Vector(mouseX, mouseY), instance.world));
 		instance.updateLocalPlayer();
 		player.shoot();
 	}

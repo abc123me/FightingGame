@@ -4,13 +4,13 @@ import java.util.Comparator;
 
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ui.IStatistic.*;
-import jeremiahlowe.fightinggame.util.SafeArrayList;
+import net.net16.jeremiahlowe.shared.QueuedArrayList;
 import processing.core.PApplet;
 
 public class Statistics implements IDrawable {
 	public int level = 0;
 	
-	private SafeArrayList<IStatistic> stats;
+	private QueuedArrayList<IStatistic> stats;
 	
 	private static final Comparator<IStatistic> statCmp;
 	static {
@@ -25,7 +25,7 @@ public class Statistics implements IDrawable {
 	}
 	
 	public Statistics() {
-		stats = new SafeArrayList<IStatistic>(statCmp);
+		stats = new QueuedArrayList<IStatistic>(statCmp);
 	}
 
 	public void incrStatLevel() {

@@ -1,14 +1,13 @@
 package jeremiahlowe.fightinggame.phys;
 
 import jeremiahlowe.fightinggame.ins.Instance;
-import jeremiahlowe.fightinggame.util.Math;
-import processing.core.PVector;
+import net.net16.jeremiahlowe.shared.math.Vector;
 
 public class Player extends DamageableFighter {
-	public PVector keys;
+	public Vector keys;
 	public String name = "Unnamed";
 	public float speed, speedBoost;
-	public float lookOffset = 1.5f * Math.PI;
+	public float lookOffset = (float) (1.5f * Math.PI);
 	
 	private float realSpeed;
 
@@ -17,7 +16,7 @@ public class Player extends DamageableFighter {
 	}
 	public Player(Instance instance, boolean add) {
 		super(instance, add);
-		keys = new PVector(0, 0);
+		keys = new Vector(0, 0);
 		size = 0.5f;
 		speed = 7.0f;
 		realSpeed = speed;

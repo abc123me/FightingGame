@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.phys.Player;
-import jeremiahlowe.fightinggame.util.Color;
+import net.net16.jeremiahlowe.shared.Color;
 
 public class ServerInstance extends Instance{
 	private ArrayList<RemotePlayer> players;
