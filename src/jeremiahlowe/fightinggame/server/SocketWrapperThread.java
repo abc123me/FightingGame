@@ -2,7 +2,7 @@ package jeremiahlowe.fightinggame.server;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.gson.Gson;
 import com.sun.xml.internal.ws.Closeable;
@@ -12,6 +12,7 @@ import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.SocketAdapter;
 import jeremiahlowe.fightinggame.net.SocketCommunicator;
+import net.net16.jeremiahlowe.shared.Timing;
 
 public class SocketWrapperThread extends Thread implements Closeable{
 	private static final Gson gson = new Gson();
@@ -19,13 +20,13 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	public final long UUID;
 	
 	private SocketCommunicator scomm;
-	private ArrayList<ISocketListener> clientListeners;
+	private CopyOnWriteArrayList<ISocketListener> clientListeners;
 	private Thread baseThread = null;
 	private Packet waitTransfer = null;
 	
 	public SocketWrapperThread(long UUID, Socket baseSocket, boolean startWaitQueue) throws IOException {
 		this.scomm = new SocketCommunicator(baseSocket);
-		this.clientListeners = new ArrayList<ISocketListener>();
+		this.clientListeners = new CopyOnWriteArrayList<ISocketListener>();
 		this.UUID = UUID;
 	}
 	public SocketWrapperThread(long UUID, Socket baseSocket) throws IOException {
@@ -40,6 +41,8 @@ public class SocketWrapperThread extends Thread implements Closeable{
 			String line = scomm.readLine();
 			onData(line);
 			parseData(line);
+			if(!scomm.hasNext()) 
+				Timing.sleep(10);
 		}
 		disconnect();
 	}
@@ -127,11 +130,11 @@ public class SocketWrapperThread extends Thread implements Closeable{
 		addClientListener(isl);
 		Packet out = null;
 		try {
-			t.wait(time); //If this is finished then out is not set to waitTransfer so we return null
+			Thread.sleep(time); //If this is finished then out is not set to waitTransfer so we return null
 		} catch (InterruptedException e) {
 			out = waitTransfer; //This means the SocketAdapter above interrupts are wait and we have the requested packet
 		} finally {
-			removeClientListener(isl);
+			removeClientListener(isl); //If we don't do this then bad shit happens so we must do this
 		}
 		return out;
 	}

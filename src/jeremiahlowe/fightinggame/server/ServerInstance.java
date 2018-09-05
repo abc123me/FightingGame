@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
+import jeremiahlowe.fightinggame.net.PlayerMovementData;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.Color;
 
@@ -22,6 +23,22 @@ public class ServerInstance extends Instance{
 		players = new ArrayList<RemotePlayer>();
 	}
 
+	public Player[] getPlayerList() {
+		int inc = 0;
+		Player[] out = new Player[players.size()];
+		for(RemotePlayer p : players) {
+			if(p == null)
+				continue;
+			out[inc] = p.p; 
+			inc++;
+		}
+		if(inc != out.length) {
+			Player[] n = new Player[inc];
+			for(int i = 0; i < out.length; i++)
+				n[i] = out[i];
+			return n;
+		} else return out;
+	}
 	public Player getPlayerWithUUID(long UUID) {
 		for(RemotePlayer p : players)
 			if(p.cw.UUID == UUID)
@@ -52,5 +69,9 @@ public class ServerInstance extends Instance{
 		players.remove(remote);
 		String json = gson.toJson(remote.p);
 		server.broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_REMOVE, json));//, remote.cw.UUID);
+	}
+	public void updatePlayerMovementData(PlayerMovementData pmd) {
+		String json = gson.toJson(pmd);
+		server.broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, json), pmd.forUUID);
 	}
 }

@@ -47,26 +47,32 @@ public class FightingGameServerCLI implements ISocketListener{
 		System.out.println("Client " + cw.UUID + " connected!");
 	}
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
+		System.out.println("Client sent request for: " + p.identity);
 		if(p.identity == EPacketIdentity.VERSION_DATA) {
 			System.out.println("Client requested version sending it to him now");
 			cw.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
 		}
-		else if(p.identity == EPacketIdentity.LOCAL_PLAYER_DATA) {
+		else if(p.identity == EPacketIdentity.CLIENT_PLAYER_DATA) {
 			System.out.println("Client requested their player data sending it to him now");
 			Player player = instance.getPlayerWithUUID(cw.UUID);
 			if(player == null) {
 				player = instance.createPlayer(cw.UUID);
 				instance.addPlayerIgnoreSelf(new RemotePlayer(player, cw));
 			}
-			cw.sendPacket(Packet.createUpdate(EPacketIdentity.LOCAL_PLAYER_DATA, gson.toJson(player)));
+			cw.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_PLAYER_DATA, gson.toJson(player)));
+		}
+		else if(p.identity == EPacketIdentity.PLAYER_LIST) {
+			System.out.println("Client requested the player list, sending it to him");
+			
 		}
 	}
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
-		//System.out.println("Got update packet!");
-		if(p.identity == EPacketIdentity.LOCAL_PLAYER_MOVEMENT) {
+		System.out.println("Client sent update for: " + p.identity);
+		if(p.identity == EPacketIdentity.PLAYER_MOVEMENT) {
 			PlayerMovementData pmd = gson.fromJson(p.contents, PlayerMovementData.class);
 			Player pl = instance.getPlayerWithUUID(cw.UUID);
 			pmd.copyTo(pl);
+			instance.updatePlayerMovementData(pmd);
 			System.out.println("Updated player movement data");
 		}
 	}
@@ -74,8 +80,7 @@ public class FightingGameServerCLI implements ISocketListener{
 		System.out.println("Client " + cw.UUID + " disconnected!");
 	}
 	public void onReceiveData(SocketWrapperThread cw, String data) {
-		//System.out.println("Received data from client " + cw.UUID + ":");
-		//System.out.println(data);
+		
 	}
 	public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {
 		System.out.println("Got unknown packet!");

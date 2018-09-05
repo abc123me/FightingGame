@@ -11,6 +11,7 @@ import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.PlayerMovementData;
+import jeremiahlowe.fightinggame.phys.PhysicsObject;
 import jeremiahlowe.fightinggame.phys.Player;
 import jeremiahlowe.fightinggame.server.SocketWrapperThread;
 import processing.core.PApplet;
@@ -63,11 +64,18 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			if(pl != null) add(pl);
 			else throw new RuntimeException("Server sent us invalid playerdata?!");
 		}
-		if(p.identity == EPacketIdentity.PLAYER_REMOVE) {
+		else if(p.identity == EPacketIdentity.PLAYER_REMOVE) {
 			Player pl = gson.fromJson(p.contents, Player.class);
 			System.out.println("Removing player based off of: " + p.contents);
 			if(pl != null) remove(pl);
 			else throw new RuntimeException("Server sent us invalid playerdata?!");
+		}
+		else if(p.identity == EPacketIdentity.PLAYER_MOVEMENT) {
+			PlayerMovementData pd = gson.fromJson(p.contents, PlayerMovementData.class);
+			if(pd == null) throw new RuntimeException("Server sent us invalid playerdata?!");
+			System.out.println("Updating player " + pd.forUUID + "'s movement data on the client");
+			Player pl = getByUUID(pd.forUUID);
+			pd.copyTo(pl);
 		}
 	}
 	public void onDisconnect(SocketWrapperThread cw) {
@@ -79,15 +87,23 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 	public void onReceiveUnknownPacket(SocketWrapperThread clientWrapper, Packet p) {
 		System.out.println("Got an unknown packet???!!!");
 	}
+	public Player getByUUID(long uuid) {
+		for(PhysicsObject p : physicsObjects)
+			if(p != null && p instanceof Player)
+				if(((Player) p).uuid == uuid)
+					return (Player) p;
+		return null;
+	}
 	public Player getLocalPlayerFromServer() {
-		Packet p = scomm.waitForUpdate(1000, EPacketIdentity.LOCAL_PLAYER_DATA);
+		scomm.sendPacket(Packet.createRequest(EPacketIdentity.CLIENT_PLAYER_DATA));
+		Packet p = scomm.waitForUpdate(1000, EPacketIdentity.CLIENT_PLAYER_DATA);
 		if(p == null)
 			return null;
 		return gson.fromJson(p.contents, Player.class);
 	}
 	public void updateLocalPlayer() {
 		scomm.sendPacket(
-				Packet.createUpdate(EPacketIdentity.LOCAL_PLAYER_MOVEMENT, //Packet type
+				Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, //Packet type
 				gson.toJson(new PlayerMovementData(localPlayer)))); //Movement data
 	}
 }

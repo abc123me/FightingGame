@@ -6,11 +6,13 @@ import net.net16.jeremiahlowe.shared.math.Vector;
 public class PlayerMovementData{
 	public Vector keys, look;
 	public boolean shooting;
+	public long forUUID;
 	
 	public PlayerMovementData(Player from) {
 		keys = from.keys;
 		look = from.look;
 		shooting = from.shooting;
+		forUUID = from.uuid;
 	}
 
 	public void copyTo(Player pl) {
