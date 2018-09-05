@@ -80,7 +80,7 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 		System.out.println("Got an unknown packet???!!!");
 	}
 	public Player getLocalPlayerFromServer() {
-		Packet p = scomm.waitForPacket(1000, EPacketIdentity.LOCAL_PLAYER_DATA);
+		Packet p = scomm.waitForUpdate(1000, EPacketIdentity.LOCAL_PLAYER_DATA);
 		if(p == null)
 			return null;
 		return gson.fromJson(p.contents, Player.class);

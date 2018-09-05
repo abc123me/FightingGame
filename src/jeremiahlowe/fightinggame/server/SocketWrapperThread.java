@@ -7,26 +7,29 @@ import java.util.ArrayList;
 import com.google.gson.Gson;
 import com.sun.xml.internal.ws.Closeable;
 
+import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
-import jeremiahlowe.fightinggame.net.PacketWaitQueue;
+import jeremiahlowe.fightinggame.net.SocketAdapter;
 import jeremiahlowe.fightinggame.net.SocketCommunicator;
 
 public class SocketWrapperThread extends Thread implements Closeable{
 	private static final Gson gson = new Gson();
 	
 	public final long UUID;
-	public final PacketWaitQueue waitQueue;
 	
 	private SocketCommunicator scomm;
 	private ArrayList<ISocketListener> clientListeners;
 	private Thread baseThread = null;
+	private Packet waitTransfer = null;
 	
-	public SocketWrapperThread(long UUID, Socket baseSocket) throws IOException {
+	public SocketWrapperThread(long UUID, Socket baseSocket, boolean startWaitQueue) throws IOException {
 		this.scomm = new SocketCommunicator(baseSocket);
 		this.clientListeners = new ArrayList<ISocketListener>();
 		this.UUID = UUID;
-		waitQueue = new PacketWaitQueue(this);
+	}
+	public SocketWrapperThread(long UUID, Socket baseSocket) throws IOException {
+		this(UUID, baseSocket, true);
 	}
 	
 	@Override
@@ -100,5 +103,36 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	public void sendPacket(Packet p) {
 		String j = gson.toJson(p);
 		scomm.println(j);
+	}
+
+	public Packet waitForRequest(int time, EPacketIdentity ident) {
+		return waitForPacket(time, Packet.createRequest(ident));
+	}
+	public Packet waitForUpdate(int time, EPacketIdentity ident) {
+		return waitForPacket(time, Packet.createUpdate(ident, null));
+	}
+	private Packet waitForPacket(int time, Packet basedOff) {
+		waitTransfer = null;
+		final Thread t = Thread.currentThread();
+		ISocketListener isl = new SocketAdapter() {
+			public void onPacket(Packet p) {
+				if(p.identity == basedOff.identity && p.type == basedOff.type) {
+					waitTransfer = p;
+					t.interrupt();
+				}
+			}
+			@Override public void onReceiveRequest(SocketWrapperThread cw, Packet p) { onPacket(p); }
+			@Override public void onReceiveUpdate(SocketWrapperThread cw, Packet p) { onPacket(p); }
+		};
+		addClientListener(isl);
+		Packet out = null;
+		try {
+			t.wait(time); //If this is finished then out is not set to waitTransfer so we return null
+		} catch (InterruptedException e) {
+			out = waitTransfer; //This means the SocketAdapter above interrupts are wait and we have the requested packet
+		} finally {
+			removeClientListener(isl);
+		}
+		return out;
 	}
 }
