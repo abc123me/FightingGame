@@ -43,7 +43,7 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 		i.add(this);
 	}
 	public long timeLeft() {
-		return lifetime - (t.millis() - spawnTime);
+		return lifetime - (t.millisPassed() - spawnTime);
 	}
 	public Vector nextPosition() {
 		return Vector.add(pos, vel.copy().mult((float) deltaTime));
@@ -95,7 +95,7 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 	public void physics(Instance i, double dt) {
 		deltaTime = dt;
 		super.physics(i, dt);
-		long aliveTime = t.millis() - spawnTime;
+		long aliveTime = t.millisPassed() - spawnTime;
 		if (aliveTime > lifetime)
 			destroy();
 	}

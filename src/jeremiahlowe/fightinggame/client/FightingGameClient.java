@@ -1,5 +1,6 @@
 package jeremiahlowe.fightinggame.client;
 
+import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.math.Vector;
 import net.net16.jeremiahlowe.shared.math.Viewport;
@@ -11,6 +12,7 @@ public class FightingGameClient extends PApplet {
 
 	public static void main(String[] args) {
 		DEBUG_MODE = true;
+		Meta.setServerside(false);
 		main(FightingGameClient.class, args);
 	}
 	

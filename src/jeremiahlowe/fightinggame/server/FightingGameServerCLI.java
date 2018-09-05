@@ -15,6 +15,7 @@ public class FightingGameServerCLI implements ISocketListener{
 	private static final Gson gson = new Gson();
 	
 	public static void main(String[] args) {
+		Meta.setServerside(true);
 		FightingGameServerCLI cli = new FightingGameServerCLI(1234);
 		cli.start();
 	}
@@ -38,7 +39,7 @@ public class FightingGameServerCLI implements ISocketListener{
 		while(true) {
 			t.reset();
 			instance.physicsUpdate(deltaTime);
-			deltaTime = t.secs();
+			deltaTime = t.secondsPassed();
 		}
 	}
 

@@ -2,7 +2,7 @@ package jeremiahlowe.fightinggame.net;
 
 import jeremiahlowe.fightinggame.server.SocketWrapperThread;
 
-public class ClientAdapter implements ISocketListener {
+public class SocketAdapter implements ISocketListener {
 	public void onConnect(SocketWrapperThread cw) {}
 	public void onDisconnect(SocketWrapperThread cw) {}
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {}

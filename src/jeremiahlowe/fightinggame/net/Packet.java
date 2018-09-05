@@ -22,4 +22,7 @@ public class Packet {
 	public static Packet createUpdate(EPacketIdentity identity, String content) {
 		return new Packet(UPDATE, identity, content);
 	}
+	public Packet copy() {
+		return new Packet(type, identity, contents);
+	}
 }

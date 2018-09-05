@@ -33,7 +33,8 @@ public class SocketCommunicator implements Closeable{
 	}
 	public String readLine() {
 		try {
-			return in.readLine();
+			String s = in.readLine(); 
+			return s;
 		} catch (IOException e) {
 			close();
 			return null;
