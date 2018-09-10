@@ -87,7 +87,7 @@ public class FightingGameServerCLI implements ISocketListener{
 		System.out.println("debug <level>\tSets the debug level (0-3)");
 		System.out.println("tps\t\tGets the TPS the server is running at");
 		System.out.println("lag\t\tLags the server");
-		System.out.println("lsphysics\tLists the physicsobjects the server is handling");
+		System.out.println("lsphys\tLists the physicsobjects the server is handling");
 	}
 	public void handleUserInput(String input) {
 		input = input.trim();
@@ -135,7 +135,7 @@ public class FightingGameServerCLI implements ISocketListener{
 			lagg = !lagg;
 			System.out.println("Server lag " + (lagg ? "en" : "dis") + "abled!");
 		}
-		else if(input.equals("lsphysics")) {
+		else if(input.equals("lsphys")) {
 			System.out.println("Physics objects:");
 			for(PhysicsObject po : instance.getPhysicsObjects()) {
 				if(po == null) continue;
