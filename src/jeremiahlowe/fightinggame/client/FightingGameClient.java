@@ -1,13 +1,16 @@
 package jeremiahlowe.fightinggame.client;
 
 import jeremiahlowe.fightinggame.Meta;
+import jeremiahlowe.fightinggame.net.ISocketListener;
+import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.phys.Player;
+import jeremiahlowe.fightinggame.server.SocketWrapperThread;
 import net.net16.jeremiahlowe.shared.math.Vector;
 import net.net16.jeremiahlowe.shared.math.Viewport;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
 
-public class FightingGameClient extends PApplet {
+public class FightingGameClient extends PApplet implements ISocketListener{
 	public static boolean DEBUG_MODE = false;
 
 	public static void main(String[] args) {
@@ -19,7 +22,7 @@ public class FightingGameClient extends PApplet {
 	public float worldSize = 10;
 	
 	private GameClientInstance instance;
-	private Player player;
+	private Player localPlayer;
 	
 	@Override
 	public void settings() {
@@ -29,13 +32,14 @@ public class FightingGameClient extends PApplet {
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
 		if(!instance.connectToServer("localhost", 1234))
 			System.exit(1);
-		player = instance.getLocalPlayerFromServer();
-		if(player == null) {
+		localPlayer = instance.getLocalPlayerFromServer();
+		if(localPlayer == null) {
 			System.err.println("Was unable to retrieve player from the server?!");
 			System.exit(-1);
 		}
-		instance.localPlayer = player;
-		instance.add(player);
+		instance.localPlayer = localPlayer;
+		instance.addAll(localPlayer, instance.getNetworkStatistics());
+		instance.getPlayerList();
 	}
 	@Override
 	public void setup() {
@@ -52,24 +56,24 @@ public class FightingGameClient extends PApplet {
 	
 	@Override
 	public void mouseMoved() {
-		player.setLookPosition(instance.screen.transform(new Vector(mouseX, mouseY), instance.world));
+		localPlayer.setLookPosition(instance.screen.transform(new Vector(mouseX, mouseY), instance.world));
 		instance.updateLocalPlayer();
 	}
 	@Override
 	public void mousePressed() {
-		player.shooting = true;
+		localPlayer.shooting = true;
 		instance.updateLocalPlayer();
 	}
 	@Override
 	public void mouseReleased() {
-		player.shooting = false;
+		localPlayer.shooting = false;
 		instance.updateLocalPlayer();
 	}
 	@Override
 	public void mouseDragged() {
-		player.setLookPosition(instance.screen.transform(new Vector(mouseX, mouseY), instance.world));
+		localPlayer.setLookPosition(instance.screen.transform(new Vector(mouseX, mouseY), instance.world));
 		instance.updateLocalPlayer();
-		player.shoot();
+		localPlayer.shoot();
 	}
 	@Override
 	public void mouseWheel(MouseEvent m) {
@@ -83,35 +87,47 @@ public class FightingGameClient extends PApplet {
 	@Override
 	public void keyPressed() {
 		if (keyCode == SHIFT)
-			player.setFastMovement(true);
+			localPlayer.setFastMovement(true);
 		char k = Character.toLowerCase(key);
 		if (k == 'w')
-			player.keys.y = 1;
+			localPlayer.keys.y = 1;
 		if (k == 's')
-			player.keys.y = -1;
+			localPlayer.keys.y = -1;
 		if (k == 'a')
-			player.keys.x = 1;
+			localPlayer.keys.x = 1;
 		if (k == 'd')
-			player.keys.x = -1;
+			localPlayer.keys.x = -1;
 		if (k == '=')
 			instance.statistics.incrStatLevel();
 		if (k == '-')
 			instance.statistics.decrStatLevel();
 		if (k == ' ')
-			player.shooting = true;
+			localPlayer.shooting = true;
 		instance.updateLocalPlayer();
 	}
 	@Override
 	public void keyReleased() {
 		if (keyCode == SHIFT)
-			player.setFastMovement(false);
+			localPlayer.setFastMovement(false);
 		char k = Character.toLowerCase(key);
 		if (k == 'w' || k == 's')
-			player.keys.y = 0;
+			localPlayer.keys.y = 0;
 		if (k == 'a' || k == 'd')
-			player.keys.x = 0;
+			localPlayer.keys.x = 0;
 		if (k == ' ')
-			player.shooting = false;
+			localPlayer.shooting = false;
 		instance.updateLocalPlayer();
+	}
+	@Override public void onConnect(SocketWrapperThread cw) {}
+	@Override public void onReceiveRequest(SocketWrapperThread cw, Packet p) {}
+	@Override public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {}
+	@Override public void onDisconnect(SocketWrapperThread cw) {
+		exit();
+	}
+	@Override public void onReceiveData(SocketWrapperThread cw, String data) {}
+	@Override public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
+	public void exit() {
+		System.out.println("Exiting now!");
+		System.exit(0);
 	}
 }

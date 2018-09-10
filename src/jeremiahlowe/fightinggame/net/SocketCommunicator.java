@@ -8,9 +8,6 @@ public class SocketCommunicator implements Closeable{
 	private PrintWriter out;
 	private BufferedReader in;
 	
-	public SocketCommunicator(String host, int port) throws UnknownHostException, IOException {
-		this(new Socket(host, port));
-	}
 	public SocketCommunicator(Socket base) throws IOException{
 		this.base = base;
 		if(base == null)

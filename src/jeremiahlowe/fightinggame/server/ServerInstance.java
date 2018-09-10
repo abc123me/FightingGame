@@ -45,6 +45,12 @@ public class ServerInstance extends Instance{
 				return p.p;
 		return null;
 	}
+	public SocketWrapperThread getWrapperWithUUID(long UUID) {
+		for(RemotePlayer p : players)
+			if(p.cw.UUID == UUID)
+				return p.cw;
+		return null;
+	}
 	public Player createPlayer(long uuid) {
 		Player p = new Player(uuid);
 		p.color = new Color(255, 0, 0);
@@ -54,8 +60,6 @@ public class ServerInstance extends Instance{
 		p.invincible = false;
 		return p;
 	}
-	
-
 	public void addPlayer(RemotePlayer remote) {
 		players.add(remote);
 		server.broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, gson.toJson(remote.p)));
@@ -73,5 +77,28 @@ public class ServerInstance extends Instance{
 	public void updatePlayerMovementData(PlayerMovementData pmd) {
 		String json = gson.toJson(pmd);
 		server.broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, json), pmd.forUUID);
+	}
+	public void removePlayerWithUUID(long uuid) {
+		RemotePlayer toRemove = null;
+		for(RemotePlayer p : players)
+			if(p.cw.UUID == uuid)
+				toRemove = p;
+		if(toRemove == null)
+			return;
+		players.remove(toRemove);
+		String json = gson.toJson(toRemove.cw.UUID);
+		server.broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_REMOVE, json), toRemove.cw.UUID);
+	}
+	public void kickPlayerWithUUID(long uuid) {
+		SocketWrapperThread w = getWrapperWithUUID(uuid);
+		if(w == null) {
+			System.out.println("No player with UUID: " + uuid);
+			return;
+		}
+		w.close();
+		if(w.isAlive())
+			w.interrupt();
+		System.out.println("Kicked player with UUID: " + uuid);
+		removePlayerWithUUID(uuid);
 	}
 }

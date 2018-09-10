@@ -43,6 +43,7 @@ public class Fighter extends PhysicsObject implements IDrawable {
 		shootCooldown = shootingSpeed;
 		return new Bullet(this);
 	}
+
 	public boolean alive() {
 		return alive;
 	}

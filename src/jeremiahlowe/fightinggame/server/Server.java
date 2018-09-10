@@ -34,6 +34,7 @@ public class Server extends Thread implements ISocketListener{
 	}
 	
 	@Override
+	@SuppressWarnings("resource")
 	public void run() {
 		ServerSocket servsock = createServerSocket();
 		if(servsock == null) return;

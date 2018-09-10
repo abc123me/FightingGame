@@ -7,8 +7,8 @@ import jeremiahlowe.fightinggame.ui.IStatistic.IDrawableStatistic;
 import jeremiahlowe.fightinggame.util.PGFX;
 import net.net16.jeremiahlowe.shared.Color;
 import net.net16.jeremiahlowe.shared.Timing;
-import net.net16.jeremiahlowe.shared.math.GeneralMath;
 import net.net16.jeremiahlowe.shared.math.Vector;
+import net.net16.jeremiahlowe.shared.math.VectorMath;
 import processing.core.PApplet;
 
 public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatistic{
@@ -43,7 +43,7 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 		i.add(this);
 	}
 	public long timeLeft() {
-		return lifetime - (t.millisPassed() - spawnTime);
+		return lifetime - (t.millis() - spawnTime);
 	}
 	public Vector nextPosition() {
 		return Vector.add(pos, vel.copy().mult((float) deltaTime));
@@ -78,7 +78,7 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 	public boolean collidesWith(PhysicsObject p) {
 		if (p == parent || p instanceof Bullet || p == null)
 			return false;
-		float dpcol = GeneralMath.dist2FromPolygon(p.pos, getColliderVerticies());
+		float dpcol = VectorMath.dist2FromPolygon(p.pos, getColliderVerticies());
 		float size2 = size * size;
 		if (p instanceof Fighter) {
 			float psize = ((Fighter) p).size / 2;
@@ -95,7 +95,7 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 	public void physics(Instance i, double dt) {
 		deltaTime = dt;
 		super.physics(i, dt);
-		long aliveTime = t.millisPassed() - spawnTime;
+		long aliveTime = t.millis() - spawnTime;
 		if (aliveTime > lifetime)
 			destroy();
 	}
