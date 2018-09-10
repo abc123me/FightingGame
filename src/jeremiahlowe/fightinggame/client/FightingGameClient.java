@@ -118,14 +118,14 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			localPlayer.shooting = false;
 		instance.updateLocalPlayer();
 	}
-	@Override public void onConnect(SocketWrapperThread cw) {}
-	@Override public void onReceiveRequest(SocketWrapperThread cw, Packet p) {}
-	@Override public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {}
-	@Override public void onDisconnect(SocketWrapperThread cw) {
+	public void onConnect(SocketWrapperThread cw) {}
+	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {}
+	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {}
+	public void onDisconnect(SocketWrapperThread cw) {
 		exit();
 	}
-	@Override public void onReceiveData(SocketWrapperThread cw, String data) {}
-	@Override public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
+	public void onReceiveData(SocketWrapperThread cw, String data) {}
+	public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
 	public void exit() {
 		System.out.println("Exiting now!");
 		System.exit(0);

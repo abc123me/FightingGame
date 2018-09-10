@@ -116,9 +116,10 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	public Packet waitForUpdate(int time, EPacketIdentity ident) {
 		return waitForPacket(time, Packet.createUpdate(ident, null));
 	}
-	private Packet waitForPacket(int time, Packet basedOff) {
+	private Packet waitForPacket(int time, Packet b) {
 		waitTransfer = null;
 		final Thread t = Thread.currentThread();
+		final Packet basedOff = b;
 		ISocketListener isl = new SocketAdapter() {
 			public void onPacket(Packet p) {
 				if(p.identity == basedOff.identity && p.type == basedOff.type) {

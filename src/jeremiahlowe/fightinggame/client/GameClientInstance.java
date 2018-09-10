@@ -138,9 +138,9 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 
 	public ITextStatistic getNetworkStatistics() {
 		return new ITextStatistic() {
-			@Override public int getLevel() { return 1; }
-			@Override public String getHeader() { return "Network"; }
-			@Override public String[] getStatisticText() {
+				public int getLevel() { return 1; }
+				public String getHeader() { return "Network"; }
+				public String[] getStatisticText() {
 				return new String[] {
 						"My UUID: " + localPlayer.uuid
 				};

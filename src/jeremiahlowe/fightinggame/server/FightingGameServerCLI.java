@@ -52,13 +52,13 @@ public class FightingGameServerCLI implements ISocketListener{
 			t.reset();
 			instance.physicsUpdate(deltaTime);
 			if(lagg) Timing.sleep(Math.round((Math.random() + 0.5) * 500));
-			deltaTime = t.secs();
-			if((1.0 / deltaTime) > maxTPS) {
+			if(tps > maxTPS) {
 				double waitFor = ((1.0 / maxTPS) - deltaTime) * 1000.0;
 				if(!Timing.sleep(Math.round(waitFor)))
 					break;
 			}
-			tps = 1.0 / t.secs(); 
+			deltaTime = t.secs();
+			tps = 1.0 / deltaTime; 
 		}
 	}
 	private void shutdownHook() {
