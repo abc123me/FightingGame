@@ -80,14 +80,15 @@ public class FightingGameServerCLI implements ISocketListener{
 	}
 	private void printHelp() {
 		System.out.println("Commands:");
-		System.out.println("help\t\tShows this help screen");
-		System.out.println("exit\t\tStops the server");
-		System.out.println("list\t\tLists all players");
-		System.out.println("kick <uuid>\tKicks a player");
-		System.out.println("debug <level>\tSets the debug level (0-3)");
-		System.out.println("tps\t\tGets the TPS the server is running at");
-		System.out.println("lag\t\tLags the server");
-		System.out.println("lsphys\tLists the physicsobjects the server is handling");
+		System.out.println("help: Shows this help screen");
+		System.out.println("exit: Stops the server");
+		System.out.println("list: Lists all players");
+		System.out.println("kick <uuid>: Kicks a player");
+		System.out.println("debug <level>: Sets the debug level (0-3)");
+		System.out.println("tps: Gets the TPS the server is running at");
+		System.out.println("lag: Lags the server");
+		System.out.println("lsphys: Lists the physicsobjects the server is handling");
+		System.out.println("kickall: Kicks all players");
 	}
 	public void handleUserInput(String input) {
 		input = input.trim();
@@ -145,6 +146,7 @@ public class FightingGameServerCLI implements ISocketListener{
 				System.out.println("\t\tEnabled: " + po.enabled());
 			}
 		}
+		
 		else System.out.println("Unknown command, type \"help\" for help!");
 	}
 

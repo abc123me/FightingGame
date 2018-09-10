@@ -5,6 +5,7 @@ import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.phys.Player;
 import jeremiahlowe.fightinggame.server.SocketWrapperThread;
+import jeremiahlowe.fightinggame.ui.IDrawable;
 import net.net16.jeremiahlowe.shared.math.Vector;
 import net.net16.jeremiahlowe.shared.math.Viewport;
 import processing.core.PApplet;
@@ -38,7 +39,8 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			System.exit(-1);
 		}
 		instance.localPlayer = localPlayer;
-		instance.addAll(localPlayer, instance.getNetworkStatistics());
+		instance.add(instance.getNetworkStatistics());
+		instance.add((IDrawable) localPlayer);
 		instance.getPlayerList();
 	}
 	@Override
