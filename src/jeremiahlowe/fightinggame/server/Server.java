@@ -89,6 +89,7 @@ public class Server extends Thread implements ISocketListener{
 				t.sendPacket(msg);
 	}
 	public void onDisconnect(SocketWrapperThread cw) {
+		System.out.println("disconncetion");
 		for(ISocketListener c : clientListeners)
 			if(c != null)
 				c.onDisconnect(cw);

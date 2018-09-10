@@ -64,6 +64,10 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			Player pl = gson.fromJson(p.contents, Player.class);
 			System.out.println("Adding new player based off of: " + p.contents);
 			if(pl == null) throw new RuntimeException("Server sent us invalid playerdata?!");
+			if(pl.uuid == localPlayer.uuid) {
+				System.out.println("Player being added has same UUID as localPlayer, Ignoring it!");
+				return;
+			}
 			Player pu = getPlayerWithUUID(pl.uuid);
 			if(pu != null) {
 				System.out.println("Duplicated player detected, fucking it off!");
@@ -142,7 +146,8 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 				public String getHeader() { return "Network"; }
 				public String[] getStatisticText() {
 				return new String[] {
-						"My UUID: " + localPlayer.uuid
+						"My UUID: " + localPlayer.uuid,
+						"My name: " + localPlayer.name
 				};
 			}
 		};

@@ -116,6 +116,9 @@ public class FightingGameServerCLI implements ISocketListener{
 				} catch(Exception e) { System.out.println("Invalid debug level \"" + parts[1] + "\""); }
 			}
 		}
+		else if(input.equals("kickall")) 
+			for(Player p : instance.getPlayerList())
+				instance.kickPlayerWithUUID(p.uuid);
 		else if(input.startsWith("kick")) {
 			String[] parts = input.split(" ");
 			long uuid = 0;
@@ -146,7 +149,6 @@ public class FightingGameServerCLI implements ISocketListener{
 				System.out.println("\t\tEnabled: " + po.enabled());
 			}
 		}
-		
 		else System.out.println("Unknown command, type \"help\" for help!");
 	}
 

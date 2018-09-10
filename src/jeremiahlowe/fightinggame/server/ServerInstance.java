@@ -96,9 +96,7 @@ public class ServerInstance extends Instance{
 			System.out.println("No player with UUID: " + uuid);
 			return;
 		}
-		w.close();
-		if(w.isAlive())
-			w.interrupt();
+		w.interrupt();
 		System.out.println("Kicked player with UUID: " + uuid);
 		removePlayerWithUUID(uuid);
 	}
