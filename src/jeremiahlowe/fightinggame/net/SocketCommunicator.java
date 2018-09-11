@@ -7,7 +7,6 @@ import java.util.Scanner;
 public class SocketCommunicator implements Closeable{
 	private Socket base;
 	private PrintWriter out;
-	//private BufferedReader in;
 	private Scanner in;
 	
 	public SocketCommunicator(Socket base) throws IOException{
@@ -15,7 +14,6 @@ public class SocketCommunicator implements Closeable{
 		if(base == null)
 			throw new NullPointerException("Base socket cannot be null!");
 		this.out = new PrintWriter(new BufferedOutputStream(base.getOutputStream()));
-		//this.in = new BufferedReader(new InputStreamReader(base.getInputStream()));
 		this.in = new Scanner(base.getInputStream());
 	}
 
@@ -24,21 +22,10 @@ public class SocketCommunicator implements Closeable{
 		out.flush();
 	}
 	public boolean hasNext() {
-		try {
-			return in.hasNext();
-		} catch (Exception e) {
-			close();
-			return false;
-		}
+		return in.hasNext();
 	}
 	public String readLine() {
-		try {
-			String s = in.nextLine(); 
-			return s;
-		} catch (Exception e) {
-			close();
-			return null;
-		}
+		return in.nextLine(); 
 	}
 	public boolean stillConnected() {
 		if(!base.isConnected())
@@ -48,6 +35,8 @@ public class SocketCommunicator implements Closeable{
 		if(base.isInputShutdown())
 			return false;
 		if(base.isOutputShutdown())
+			return false;
+		if(in.ioException() != null)
 			return false;
 		return true;
 	}
