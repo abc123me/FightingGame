@@ -17,7 +17,7 @@ public class FightingGameServerCLI implements ISocketListener{
 	private ServerInstance instance;
 	private static final Gson gson = new Gson();
 	private Thread userInputThread;
-	private int debugLevel = 0;
+	private int debugLevel = 1;
 	private double tps = 0, maxTPS = 30;
 	private boolean lagg = false;
 	

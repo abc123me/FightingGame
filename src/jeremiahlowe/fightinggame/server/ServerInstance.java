@@ -74,8 +74,7 @@ public class ServerInstance extends Instance{
 	public void removePlayer(RemotePlayer remote) {
 		players.remove(remote);
 		remove(remote.p);
-		String json = gson.toJson(remote.p);
-		server.broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_REMOVE, json));//, remote.cw.UUID);
+		server.broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_REMOVE, String.valueOf(remote.p.uuid)));
 	}
 	public void updatePlayerMovementData(PlayerMovementData pmd) {
 		String json = gson.toJson(pmd);
