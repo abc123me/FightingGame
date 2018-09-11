@@ -15,11 +15,11 @@ import jeremiahlowe.fightinggame.phys.PhysicsObject;
 import jeremiahlowe.fightinggame.phys.Player;
 import jeremiahlowe.fightinggame.server.SocketWrapperThread;
 import jeremiahlowe.fightinggame.ui.IStatistic.ITextStatistic;
-import net.net16.jeremiahlowe.shared.Timing;
 import processing.core.PApplet;
 
 public class GameClientInstance extends GraphicalInstance implements ISocketListener {
 	private SocketWrapperThread scomm;
+	private boolean connected = false;
 	
 	public Player localPlayer;
 	public final Gson gson;
@@ -53,14 +53,19 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 		scomm.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
 	}
 	public void disconnect() {
+		connected = false;
 		scomm.close();
 	}
 	public void onConnect(SocketWrapperThread cw) {
 		System.out.println("Sucesfully connected to server!");
+		connected = true;
 	}
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.VERSION_DATA)
 			scomm.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
+	}
+	public boolean isConnected() {
+		return connected;
 	}
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		System.out.println("Got update from server!");
@@ -109,6 +114,7 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 
 	public void onDisconnect(SocketWrapperThread cw) {
 		System.out.println("Disconnected from server!");
+		connected = false;
 	}
 	public void onReceiveData(SocketWrapperThread cw, String data) {
 		
@@ -151,7 +157,8 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 				public String[] getStatisticText() {
 				return new String[] {
 						"My UUID: " + localPlayer.uuid,
-						"My name: " + localPlayer.name
+						"My name: " + localPlayer.name,
+						"isConnected(): " + isConnected()
 				};
 			}
 		};
