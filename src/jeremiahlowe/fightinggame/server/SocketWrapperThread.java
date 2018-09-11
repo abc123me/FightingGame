@@ -38,13 +38,15 @@ public class SocketWrapperThread extends Thread implements Closeable{
 		baseThread = Thread.currentThread();
 		connect();
 		while(!Thread.interrupted()) {
-			if(!scomm.stillConnected()) 
-				break;
-			if(!scomm.hasNext()) 
+			if(scomm.hasNext()) {
+				String line = scomm.readLine();
+				onData(line);
+				parseData(line);
+			} else {
 				Timing.sleep(10);
-			String line = scomm.readLine();
-			onData(line);
-			parseData(line);
+				if(!scomm.stillConnected())
+					break;
+			}
 		}
 		disconnect();
 	}
