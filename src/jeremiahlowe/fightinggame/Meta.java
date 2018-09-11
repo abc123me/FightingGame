@@ -1,7 +1,7 @@
 package jeremiahlowe.fightinggame;
 
 public class Meta {
-	public static final String VERSION = "V0.12";
+	public static final String VERSION = "V0.15";
 	public static final long VERSION_ID;
 	static{
 		long calc = 0;
