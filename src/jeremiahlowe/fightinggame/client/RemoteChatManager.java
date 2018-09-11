@@ -29,6 +29,7 @@ public class RemoteChatManager implements ISocketListener, IChatListener {
 	@Override public void onReceiveRequest(SocketWrapperThread cw, Packet p) {}
 	@Override public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.CHAT_MESSAGE) {
+			System.out.println("CHAT MESSAGE");
 			ChatMessage cm = gson.fromJson(p.contents, ChatMessage.class);
 			String from = null;
 			if(cm.isFromServer) 

@@ -173,4 +173,7 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 	public void sendRawPacket(Packet p) {
 		scomm.sendPacket(p);
 	}
+	public void sendName(String name) {
+		scomm.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_NAME, name));
+	}
 }

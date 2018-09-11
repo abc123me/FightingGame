@@ -4,14 +4,16 @@ import java.util.ArrayList;
 
 import com.google.gson.Gson;
 
+import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
+import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.PlayerMovementData;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.Color;
 
-public class ServerInstance extends Instance{
+public class ServerInstance extends Instance implements ISocketListener{
 	private static final Gson gson = new Gson();
 	private ArrayList<RemotePlayer> players;
 	
@@ -21,6 +23,7 @@ public class ServerInstance extends Instance{
 		super();
 		this.server = server;
 		players = new ArrayList<RemotePlayer>();
+		
 	}
 
 	public Player[] getPlayerList() {
@@ -99,5 +102,72 @@ public class ServerInstance extends Instance{
 		w.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_KICK, reason));
 		System.out.println("Kicked player with UUID: " + uuid);
 		removePlayerWithUUID(uuid);
+	}
+
+	@Override
+	public void onConnect(SocketWrapperThread cw) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
+		if(p.identity == EPacketIdentity.PLAYER_MOVEMENT) {
+			PlayerMovementData pmd = gson.fromJson(p.contents, PlayerMovementData.class);
+			Player pl = getPlayerWithUUID(cw.UUID);
+			if(pl == null) {
+				Logger.log("Got playerdata for a nonexistant player, Killing it now!", 1);
+				if(cw.isAlive()) {
+					try{
+						cw.interrupt();
+						Logger.log("GG rest in spagetti @ " + cw.UUID, 2);
+					} catch(Exception e) {}
+				}
+				return;
+			}
+			pmd.copyTo(pl);
+			updatePlayerMovementData(pmd);
+			Logger.log("Updated player movement data", 4);
+		}
+	}
+
+	@Override
+	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
+		if(p.identity == EPacketIdentity.VERSION_DATA) {
+			Logger.log("Client requested version sending it to him now", 2);
+			cw.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
+		}
+		else if(p.identity == EPacketIdentity.CLIENT_PLAYER_DATA) {
+			Logger.log("Client requested their player data sending it to him now", 2);
+			Player player = getPlayerWithUUID(cw.UUID);
+			if(player == null) {
+				player = createPlayer(cw.UUID);
+				addPlayerIgnoreSelf(new RemotePlayer(player, cw));
+			}
+			cw.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_PLAYER_DATA, gson.toJson(player)));
+		}
+		else if(p.identity == EPacketIdentity.PLAYER_LIST) {
+			Logger.log("Client requested the player list, sending it to him", 2);
+			for(Player pl : getPlayerList()) 
+				cw.sendPacket(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, gson.toJson(pl)));
+		}
+	}
+
+	@Override
+	public void onDisconnect(SocketWrapperThread cw) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReceiveData(SocketWrapperThread cw, String data) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {
+		// TODO Auto-generated method stub
+		
 	}
 }

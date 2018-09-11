@@ -4,6 +4,8 @@ import jeremiahlowe.fightinggame.ins.Instance;
 import net.net16.jeremiahlowe.shared.math.Vector;
 
 public class Player extends DamageableFighter {
+	public static final int MAX_NAME_LENGTH = 20;
+	
 	public Vector keys;
 	public String name = "Unnamed";
 	public float speed, speedBoost;

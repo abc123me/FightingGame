@@ -21,6 +21,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.JTextField;
 
 public class Launcher extends JFrame {
 	public static final int MINIMUM_RES = 50;
@@ -34,6 +35,9 @@ public class Launcher extends JFrame {
 	private JSpinner heightSpinner;
 	private JComboBox<ResolutionPreset> presetBox;
 	private JCheckBox chckbxFullscreenplaysBest;
+	private JTextField txtName;
+	private JTextField txtLocalhost;
+	private JSpinner portSpinner;
 	
 	public static void main(String[] args) {
 		Launcher frame = new Launcher();
@@ -58,6 +62,12 @@ public class Launcher extends JFrame {
 		JLabel lblResolution = new JLabel("Resolution:");
 		lblResolution.setBounds(12, 12, 205, 15);
 		contentPane.add(lblResolution);
+		JLabel lblPlayerName = new JLabel("Player name:");
+		lblPlayerName.setBounds(12, 68, 117, 15);
+		contentPane.add(lblPlayerName);
+		JLabel lblIpPort = new JLabel("Hostname:");
+		lblIpPort.setBounds(12, 102, 117, 15);
+		contentPane.add(lblIpPort);
 		
 		JButton btnLaunch = new JButton("Launch");
 		btnLaunch.setBounds(12, 194, 117, 25);
@@ -81,6 +91,20 @@ public class Launcher extends JFrame {
 		chckbxFullscreenplaysBest.setBounds(12, 37, 117, 23);
 		contentPane.add(chckbxFullscreenplaysBest);
 		updateResolutionEntry(presetBox, widthSpinner, heightSpinner);
+		txtName = new JTextField();
+		txtName.setText("bob");
+		txtName.setBounds(137, 66, 226, 19);
+		contentPane.add(txtName);
+		txtName.setColumns(10);
+		portSpinner = new JSpinner();
+		portSpinner.setModel(new SpinnerNumberModel(1234, 0, 65535, 1));
+		portSpinner.setBounds(278, 97, 85, 20);
+		contentPane.add(portSpinner);
+		txtLocalhost = new JTextField();
+		txtLocalhost.setText("localhost");
+		txtLocalhost.setBounds(137, 97, 129, 19);
+		contentPane.add(txtLocalhost);
+		txtLocalhost.setColumns(10);
 		
 		ActionListener resUpdate = new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
@@ -112,9 +136,9 @@ public class Launcher extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String hax = "", full = "";
 				if(isFullscreen())
-					full = "-F";
+					full = "--full-screen";
 				if(haxEnabled())
-					hax = "-H";
+					hax = "--hax";
 				int w = getResolutionWidth(), h = getResolutionHeight();
 				Object obj = presetBox.getSelectedItem();
 				ResolutionPreset r = ResolutionPreset.Custom;
@@ -125,8 +149,11 @@ public class Launcher extends JFrame {
 					h = r.h;
 				}
 				FightingGameClient.main(new String[] { "launcher",
-					"-w", String.valueOf(w),
-					"-h", String.valueOf(h),
+					"--width", String.valueOf(w),
+					"--height", String.valueOf(h),
+					"--host", String.valueOf(txtLocalhost.getText()),
+					"--port", String.valueOf((int)portSpinner.getValue()),
+					"--name", String.valueOf(txtName.getText()),
 					full, hax
 				});
 			}

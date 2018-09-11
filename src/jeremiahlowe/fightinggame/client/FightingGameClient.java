@@ -19,6 +19,9 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	
 	public float worldSize = 10;
 	public boolean hax = true;
+	public String host = "localhost";
+	public String name = "Unnamed";
+	public int port = 1234;
 	
 	private Chat chat;
 	private RemoteChatManager rcm;
@@ -32,10 +35,12 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		instance = new GameClientInstance(this);
 		instance.screen = new Viewport(width, -height, width / 2, height / 2);
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
-		if(!instance.connectToServer("localhost", 1234))
+		if(!instance.connectToServer(host, port))
 			System.exit(1);
 		instance.sendVersionData();
 		localPlayer = instance.getLocalPlayerFromServer();
+		localPlayer.name = name;
+		instance.sendName(name);
 		if(localPlayer == null) {
 			System.err.println("Was unable to retrieve player from the server?!");
 			System.exit(-1);
@@ -46,6 +51,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		instance.getPlayerList();
 		rcm = new RemoteChatManager(instance, chat);
 		chat.addChatListener(rcm);
+		instance.add(rcm);
 	}
 	@Override
 	public void setup() {
@@ -153,14 +159,20 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			for(int i = 1; i < args.length; i++) {
 				String arg = args[i - 1];
 				String next = args[i];
-				if(arg == "-F")
+				if(arg == "--full-screen")
 					full = true;
-				if(arg == "-H")
+				if(arg == "--height")
 					this.hax = true;
-				if(arg == "-w")
+				if(arg == "--width")
 					w = Integer.parseInt(next);
-				if(arg == "-h")
+				if(arg == "--hax")
 					h = Integer.parseInt(next);
+				if(arg == "--host")
+					host = next;
+				if(arg == "--port")
+					port = Integer.parseInt(next);
+				if(arg == "--name")
+					name = next;
 			}
 		} else System.out.println("No arguments given :(");
 		if(w <= 10)
