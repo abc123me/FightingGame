@@ -89,6 +89,7 @@ public class FightingGameServerCLI implements ISocketListener{
 		System.out.println("lag: Lags the server");
 		System.out.println("lsphys: Lists the physicsobjects the server is handling");
 		System.out.println("kickall: Kicks all players");
+		System.out.println("ver: Prints out the server's version");
 	}
 	public void handleUserInput(String input) {
 		input = input.trim();
@@ -149,12 +150,35 @@ public class FightingGameServerCLI implements ISocketListener{
 				System.out.println("\t\tEnabled: " + po.enabled());
 			}
 		}
+		else if(input.equals("ver")) {
+			System.out.println("Version: " + Meta.VERSION);
+			System.out.println("Version ID: " + Meta.VERSION_ID);
+		}
 		else System.out.println("Unknown command, type \"help\" for help!");
 	}
 
 	public void onConnect(SocketWrapperThread cw) {
 		if(debugLevel > 0)
 			System.out.println("Client " + cw.UUID + " connected!");
+		Thread verThread = new Thread() {
+			@Override
+			public void run() {
+				Timing t = new Timing();
+				Packet p = cw.waitForUpdatePacket(1000, EPacketIdentity.VERSION_DATA);
+				if(debugLevel >= 2)
+					System.out.println("Got version data: " + p + " (took " + t.millis() + "ms)");
+				if(p == null)
+					cw.queueDisconnect();
+				else {
+					long cver = Long.parseLong(p.contents);
+					if(cver != Meta.VERSION_ID) {
+						System.out.println("Client tried to join with version " + cver + " but server is using version " + Meta.VERSION_ID);
+						cw.queueDisconnect();
+					}
+				}
+			}
+		};
+		verThread.start();
 	}
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		if(debugLevel >= 3)

@@ -11,27 +11,27 @@ import processing.core.PApplet;
 import processing.event.MouseEvent;
 
 public class FightingGameClient extends PApplet implements ISocketListener{
-	public static boolean DEBUG_MODE = false;
 
 	public static void main(String[] args) {
-		DEBUG_MODE = true;
 		Meta.setServerside(false);
-		main(FightingGameClient.class, args);
+		PApplet.main(FightingGameClient.class, args);
 	}
 	
 	public float worldSize = 10;
+	public boolean hax = true;
 	
 	private GameClientInstance instance;
 	private Player localPlayer;
 	
 	@Override
 	public void settings() {
-		size(500, 500);
+		parseArgs(this.args);
 		instance = new GameClientInstance(this);
 		instance.screen = new Viewport(width, -height, width / 2, height / 2);
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
 		if(!instance.connectToServer("localhost", 1234))
 			System.exit(1);
+		instance.sendVersionData();
 		localPlayer = instance.getLocalPlayerFromServer();
 		if(localPlayer == null) {
 			System.err.println("Was unable to retrieve player from the server?!");
@@ -43,7 +43,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	}
 	@Override
 	public void setup() {
-		if (DEBUG_MODE)
+		if (hax)
 			instance.statistics.level = 9000;
 		frameRate(60);
 	}
@@ -129,5 +129,30 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	public void exit() {
 		System.out.println("Exiting now!");
 		System.exit(0);
+	}
+	private void parseArgs(String[] args) {
+		int w = 500, h = 500;
+		boolean full = false;
+		if(args != null) {
+			for(int i = 1; i < args.length; i++) {
+				String arg = args[i - 1];
+				String next = args[i];
+				if(arg == "-F")
+					full = true;
+				if(arg == "-H")
+					this.hax = true;
+				if(arg == "-w")
+					w = Integer.parseInt(next);
+				if(arg == "-h")
+					h = Integer.parseInt(next);
+			}
+		} else System.out.println("No arguments given :(");
+		if(w <= 10)
+			w = 500;
+		if(h <= 10)
+			h = 500;
+		size(w, h);
+		if(full)
+			fullScreen();
 	}
 }

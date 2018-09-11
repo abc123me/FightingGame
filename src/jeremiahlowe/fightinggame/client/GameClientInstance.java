@@ -15,6 +15,7 @@ import jeremiahlowe.fightinggame.phys.PhysicsObject;
 import jeremiahlowe.fightinggame.phys.Player;
 import jeremiahlowe.fightinggame.server.SocketWrapperThread;
 import jeremiahlowe.fightinggame.ui.IStatistic.ITextStatistic;
+import net.net16.jeremiahlowe.shared.Timing;
 import processing.core.PApplet;
 
 public class GameClientInstance extends GraphicalInstance implements ISocketListener {
@@ -47,6 +48,9 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			System.err.println(ioe);
 			return false;
 		}
+	}
+	public void sendVersionData() {
+		scomm.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
 	}
 	public void disconnect() {
 		scomm.close();
@@ -117,7 +121,7 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 	}
 	public Player getLocalPlayerFromServer() {
 		scomm.sendPacket(Packet.createRequest(EPacketIdentity.CLIENT_PLAYER_DATA));
-		Packet p = scomm.waitForUpdate(1000, EPacketIdentity.CLIENT_PLAYER_DATA);
+		Packet p = scomm.waitForUpdatePacket(1000, EPacketIdentity.CLIENT_PLAYER_DATA);
 		if(p == null)
 			return null;
 		return gson.fromJson(p.contents, Player.class);

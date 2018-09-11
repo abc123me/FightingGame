@@ -23,6 +23,7 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	private CopyOnWriteArrayList<ISocketListener> clientListeners;
 	private Thread baseThread = null;
 	private Packet waitTransfer = null;
+	private boolean queueDisconnect = false;
 	
 	public SocketWrapperThread(long UUID, Socket baseSocket, boolean startWaitQueue) throws IOException {
 		this.scomm = new SocketCommunicator(baseSocket);
@@ -38,6 +39,8 @@ public class SocketWrapperThread extends Thread implements Closeable{
 		baseThread = Thread.currentThread();
 		connect();
 		while(!Thread.interrupted()) {
+			if(queueDisconnect)
+				break;
 			if(scomm.hasNext()) {
 				String line = scomm.readLine();
 				onData(line);
@@ -111,11 +114,13 @@ public class SocketWrapperThread extends Thread implements Closeable{
 		String j = gson.toJson(p);
 		scomm.println(j);
 	}
-
-	public Packet waitForRequest(int time, EPacketIdentity ident) {
+	public void queueDisconnect() {
+		queueDisconnect = true;
+	}
+	public Packet waitForReceivePacket(int time, EPacketIdentity ident) {
 		return waitForPacket(time, Packet.createRequest(ident));
 	}
-	public Packet waitForUpdate(int time, EPacketIdentity ident) {
+	public Packet waitForUpdatePacket(int time, EPacketIdentity ident) {
 		return waitForPacket(time, Packet.createUpdate(ident, null));
 	}
 	private Packet waitForPacket(int time, Packet b) {

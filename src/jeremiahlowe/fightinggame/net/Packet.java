@@ -25,4 +25,13 @@ public class Packet {
 	public Packet copy() {
 		return new Packet(type, identity, contents);
 	}
+	
+	@Override
+	public String toString() {
+		String t = String.valueOf(type);
+		if(type == REQUEST) t = "REQ";
+		if(type == UPDATE) t = "UPD";
+		if(type == INVALID) t = "INV";
+		return "Packet{type=" + t + ", ident=" + identity + ", contents=" + contents + "}";
+	}
 }
