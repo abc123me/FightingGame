@@ -193,7 +193,8 @@ public class FightingGameServerCLI implements ISocketListener{
 				else {
 					long cver = Long.parseLong(p.contents);
 					if(cver != Meta.VERSION_ID) {
-						System.out.println("Client tried to join with version " + cver + " but server is using version " + Meta.VERSION_ID);
+						if(debugLevel >= 1)
+							System.out.println("Client tried to join with version " + cver + " but server is using version " + Meta.VERSION_ID);
 						cw.queueDisconnect();
 					}
 				}
@@ -233,11 +234,13 @@ public class FightingGameServerCLI implements ISocketListener{
 			PlayerMovementData pmd = gson.fromJson(p.contents, PlayerMovementData.class);
 			Player pl = instance.getPlayerWithUUID(cw.UUID);
 			if(pl == null) {
-				System.out.println("Got playerdata for a nonexistant player, Killing it now!");
+				if(debugLevel >= 1)
+					System.out.println("Got playerdata for a nonexistant player, Killing it now!");
 				if(cw.isAlive()) {
 					try{
 						cw.interrupt();
-						System.out.println("GG rest in spagetti @ " + cw.UUID);
+						if(debugLevel >= 21)
+							System.out.println("GG rest in spagetti @ " + cw.UUID);
 					} catch(Exception e) {}
 				}
 				return;
