@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ui.IDrawable;
+import net.net16.jeremiahlowe.shared.Color;
 import net.net16.jeremiahlowe.shared.Timing;
 import net.net16.jeremiahlowe.shared.math.Vector;
 import processing.core.PApplet;
@@ -11,7 +12,7 @@ import processing.core.PApplet;
 public class Chat implements IDrawable{
 	private boolean cursorShowing = false;
 	private String typedMessage = "hello";
-	private String[] showing;
+	private Message[] showing;
 	private Timing cursorTiming;
 	private float border = 1;
 	private boolean cursorBlink = false;
@@ -47,8 +48,9 @@ public class Chat implements IDrawable{
 		for(int i = 0; i < showing.length; i++) {
 			if(showing[i] == null)
 				continue;
-			float tw = p.textWidth(showing[i]);
-			p.text(showing[i], pos.x, y);
+			float tw = p.textWidth(showing[i].text);
+			p.fill(showing[i].color.argb());
+			p.text(showing[i].text, pos.x, y);
 			if(tw > maxW) maxW = tw;
 			y -= th;
 		}
@@ -75,20 +77,26 @@ public class Chat implements IDrawable{
 		p.fill(0);
 		p.text(typedMessage, sx, pos.y);
 	}
-	private void pushMessage(String text) {
+	private void pushMessage(Message text) {
 		int len = showing.length;
-		String[] newText = new String[len];
+		Message[] newText = new Message[len];
 		newText[0] = text;
 		for(int i = 0; i < len - 1; i++) 
 			newText[i + 1] = showing[i];
 		showing = newText;
 	}
 	private void setLines(int lines) {
-		showing = new String[lines];
+		showing = new Message[lines];
 	}
 	
 	public void pushMessage(String msg, String from) {
-		pushMessage("[" + from + "]: " + msg);
+		pushMessage(msg, from, Color.BLACK);
+	}
+	public void pushMessage(String msg, String from, Color color) {
+		Message m = new Message();
+		m.text = "[" + from + "]: " + msg;
+		m.color = color;
+		pushMessage(m);
 	}
 	public boolean typing() {
 		return cursorShowing;
@@ -100,7 +108,7 @@ public class Chat implements IDrawable{
 	public void stopTyping(boolean send) {
 		cursorShowing = false;
 		if(send) {
-			pushMessage("[You]: " + typedMessage);
+			pushMessage(typedMessage, "You");
 			for(IChatListener i : chatListeners)
 				if(i != null)
 					i.onSendMessage(typedMessage);

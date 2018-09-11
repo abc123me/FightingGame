@@ -22,10 +22,15 @@ public class ServerInstance extends Instance implements ISocketListener{
 	public Server server;
 	
 	public ServerInstance(Server server) {
+		this(server, false);
+	}
+	public ServerInstance(Server server, boolean add) {
 		super();
 		this.server = server;
 		players = new ArrayList<RemotePlayer>();
 		scm = new ServerChatManager(this);
+		if(add)
+			addSocketListeners(server);
 	}
 
 	public void addSocketListeners(Server s) {

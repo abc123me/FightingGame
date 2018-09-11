@@ -9,6 +9,7 @@ import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.phys.Player;
 import jeremiahlowe.fightinggame.server.SocketWrapperThread;
+import net.net16.jeremiahlowe.shared.Color;
 
 public class RemoteChatManager implements ISocketListener, IChatListener {
 	public final GameClientInstance gci;
@@ -33,8 +34,11 @@ public class RemoteChatManager implements ISocketListener, IChatListener {
 			System.out.println("CHAT MESSAGE");
 			ChatMessage cm = gson.fromJson(p.contents, ChatMessage.class);
 			String from = null;
-			if(cm.isFromServer) 
+			Color c = Color.BLACK;
+			if(cm.isFromServer) {
 				from = "Server";
+				c = Color.RED;
+			}
 			else {
 				Player pl = gci.getPlayerWithUUID(cm.fromUUID);
 				if(pl != null) from = pl.name;
@@ -43,7 +47,7 @@ public class RemoteChatManager implements ISocketListener, IChatListener {
 				System.out.println("Origin of ChatMessage is null!");
 				from = "null";
 			}
-			chat.pushMessage(cm.message, from);
+			chat.pushMessage(cm.message, from, c);
 		}
 	}
 	@Override public void onDisconnect(SocketWrapperThread cw) {

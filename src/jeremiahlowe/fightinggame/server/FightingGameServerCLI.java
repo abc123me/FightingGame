@@ -23,8 +23,7 @@ public class FightingGameServerCLI implements ISocketListener{
 	public FightingGameServerCLI(int port) {
 		Server server = new Server(port);
 		server.addClientListener(this);
-		instance = new ServerInstance(server);
-		server.addClientListener(instance);
+		instance = new ServerInstance(server, true);
 	}
 	
 	public void start() {
