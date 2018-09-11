@@ -148,14 +148,24 @@ public class Launcher extends JFrame {
 					w = r.w;
 					h = r.h;
 				}
-				FightingGameClient.main(new String[] { "launcher",
-					"--width", String.valueOf(w),
-					"--height", String.valueOf(h),
-					"--host", String.valueOf(txtLocalhost.getText()),
-					"--port", String.valueOf((int)portSpinner.getValue()),
-					"--name", String.valueOf(txtName.getText()),
-					full, hax
-				});
+				final int fw = w, fh = h;
+				final String fhax = hax, ffull = full;
+				Thread t = new Thread() {
+					@Override
+					public void run() {
+						FightingGameClient.main(new String[] { "launcher",
+							"--width", String.valueOf(fw),
+							"--height", String.valueOf(fh),
+							"--host", String.valueOf(txtLocalhost.getText()),
+							"--port", String.valueOf((int)portSpinner.getValue()),
+							"--name", String.valueOf(txtName.getText()),
+							ffull, fhax
+						});
+					}
+				};
+				t.start();
+				try{t.join();}catch(Exception exc) {}
+				setVisible(false);
 			}
 		});
 	}
