@@ -7,7 +7,7 @@ public class Meta {
 		long calc = 0;
 		for(int i = 0; i < VERSION.length(); i++) 
 			calc += VERSION.charAt(i);
-		VERSION_ID = calc;
+		VERSION_ID = calc; //Just do a checksum
 	}
 	
 	private static boolean serversideSet = false;
