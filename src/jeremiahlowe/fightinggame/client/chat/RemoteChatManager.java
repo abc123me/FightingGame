@@ -1,7 +1,8 @@
-package jeremiahlowe.fightinggame.client;
+package jeremiahlowe.fightinggame.client.chat;
 
 import com.google.gson.Gson;
 
+import jeremiahlowe.fightinggame.client.GameClientInstance;
 import jeremiahlowe.fightinggame.net.ChatMessage;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.ISocketListener;

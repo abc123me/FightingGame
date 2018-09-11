@@ -1,6 +1,8 @@
 package jeremiahlowe.fightinggame.client;
 
 import jeremiahlowe.fightinggame.Meta;
+import jeremiahlowe.fightinggame.client.chat.Chat;
+import jeremiahlowe.fightinggame.client.chat.RemoteChatManager;
 import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.phys.Player;

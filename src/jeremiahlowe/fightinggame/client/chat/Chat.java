@@ -1,4 +1,4 @@
-package jeremiahlowe.fightinggame.client;
+package jeremiahlowe.fightinggame.client.chat;
 
 import java.util.ArrayList;
 
