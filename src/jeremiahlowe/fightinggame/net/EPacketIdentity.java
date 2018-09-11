@@ -31,9 +31,13 @@ public enum EPacketIdentity {
 	//Client -> Server
 	//Content: Raw chat message
 	
-	CLIENT_NAME,					//Updates the servers name for the client
+	CLIENT_NAME,			//Updates the servers name for the client
 	//Client -> Server
 	//Content: Client's name
+	
+	NAME_UPDATE,			//Updates a client's name to all clients
+	//Server -> Clients
+	//Content: Client UUID and name 
 	
 	PLAYER_LIST;			//When a client request a list of the players
 							

@@ -41,8 +41,9 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			System.exit(1);
 		instance.sendVersionData();
 		localPlayer = instance.getLocalPlayerFromServer();
-		localPlayer.name = name;
 		instance.sendName(name);
+		localPlayer.name = name;
+		
 		if(localPlayer == null) {
 			System.err.println("Was unable to retrieve player from the server?!");
 			System.exit(-1);

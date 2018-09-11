@@ -33,6 +33,58 @@ public class ServerInstance extends Instance implements ISocketListener{
 			addSocketListeners(server);
 	}
 
+	@Override 
+	public void onConnect(SocketWrapperThread cw) {
+		getClientVersionData(cw);
+	}
+	@Override 
+	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
+		if(p.identity == EPacketIdentity.PLAYER_MOVEMENT) {
+			PlayerMovementData pmd = gson.fromJson(p.contents, PlayerMovementData.class);
+			Player pl = getPlayerWithUUID(cw.UUID);
+			if(pl == null) {
+				Logger.log("Got playerdata for a nonexistant player, Killing it now!", 1);
+				if(cw.isAlive()) {
+					try{
+						cw.interrupt();
+						Logger.log("GG rest in spagetti @ " + cw.UUID, 2);
+					} catch(Exception e) {}
+				}
+				return;
+			}
+			pmd.copyTo(pl);
+			updatePlayerMovementData(pmd);
+			Logger.log("Updated player movement data", 4);
+		}
+	}
+	@Override 
+	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
+		if(p.identity == EPacketIdentity.VERSION_DATA) {
+			Logger.log("Client requested version sending it to him now", 2);
+			cw.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
+		}
+		else if(p.identity == EPacketIdentity.CLIENT_PLAYER_DATA) {
+			Logger.log("Client requested their player data sending it to him now", 2);
+			Player player = getPlayerWithUUID(cw.UUID);
+			if(player == null) {
+				player = createPlayer(cw.UUID);
+				addPlayerIgnoreSelf(new RemotePlayer(player, cw));
+			}
+			cw.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_PLAYER_DATA, gson.toJson(player)));
+		}
+		else if(p.identity == EPacketIdentity.PLAYER_LIST) {
+			Logger.log("Client requested the player list, sending it to him", 2);
+			for(Player pl : getPlayerList()) 
+				cw.sendPacket(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, gson.toJson(pl)));
+		}
+	}
+	@Override 
+	public void onDisconnect(SocketWrapperThread cw) {
+		removePlayerWithUUID(cw.UUID);
+	}
+	@Override public void onReceiveData(SocketWrapperThread cw, String data) {}
+	@Override public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
+	
 	public void addSocketListeners(Server s) {
 		s.addClientListener(this);
 		s.addClientListener(scm);
@@ -134,56 +186,4 @@ public class ServerInstance extends Instance implements ISocketListener{
 		};
 		verThread.start();
 	}
-
-	@Override 
-	public void onConnect(SocketWrapperThread cw) {
-		getClientVersionData(cw);
-	}
-	@Override 
-	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
-		if(p.identity == EPacketIdentity.PLAYER_MOVEMENT) {
-			PlayerMovementData pmd = gson.fromJson(p.contents, PlayerMovementData.class);
-			Player pl = getPlayerWithUUID(cw.UUID);
-			if(pl == null) {
-				Logger.log("Got playerdata for a nonexistant player, Killing it now!", 1);
-				if(cw.isAlive()) {
-					try{
-						cw.interrupt();
-						Logger.log("GG rest in spagetti @ " + cw.UUID, 2);
-					} catch(Exception e) {}
-				}
-				return;
-			}
-			pmd.copyTo(pl);
-			updatePlayerMovementData(pmd);
-			Logger.log("Updated player movement data", 4);
-		}
-	}
-	@Override 
-	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
-		if(p.identity == EPacketIdentity.VERSION_DATA) {
-			Logger.log("Client requested version sending it to him now", 2);
-			cw.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
-		}
-		else if(p.identity == EPacketIdentity.CLIENT_PLAYER_DATA) {
-			Logger.log("Client requested their player data sending it to him now", 2);
-			Player player = getPlayerWithUUID(cw.UUID);
-			if(player == null) {
-				player = createPlayer(cw.UUID);
-				addPlayerIgnoreSelf(new RemotePlayer(player, cw));
-			}
-			cw.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_PLAYER_DATA, gson.toJson(player)));
-		}
-		else if(p.identity == EPacketIdentity.PLAYER_LIST) {
-			Logger.log("Client requested the player list, sending it to him", 2);
-			for(Player pl : getPlayerList()) 
-				cw.sendPacket(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, gson.toJson(pl)));
-		}
-	}
-	@Override 
-	public void onDisconnect(SocketWrapperThread cw) {
-		removePlayerWithUUID(cw.UUID);
-	}
-	@Override public void onReceiveData(SocketWrapperThread cw, String data) {}
-	@Override public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
 }

@@ -11,6 +11,7 @@ import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.ISocketListener;
+import jeremiahlowe.fightinggame.net.NameChange;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.PlayerMovementData;
 import jeremiahlowe.fightinggame.phys.PhysicsObject;
@@ -85,6 +86,14 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 				remove(pu);
 			} //Either way add the player
 			add(pl);
+		}
+		else if(p.identity == EPacketIdentity.NAME_UPDATE) {
+			NameChange nc = NameChange.fromJSON(p.contents);
+			if(nc != null) {
+				Player pl = getPlayerWithUUID(nc.uuid);
+				if(pl != null)
+					pl.name = nc.name;
+			}
 		}
 		else if(p.identity == EPacketIdentity.CLIENT_KICK) {
 			JOptionPane.showMessageDialog(this.applet.frame, p.contents, "You were kicked!", JOptionPane.INFORMATION_MESSAGE);

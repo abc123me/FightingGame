@@ -2,6 +2,7 @@ package jeremiahlowe.fightinggame.server;
 
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.net.ISocketListener;
+import jeremiahlowe.fightinggame.net.NameChange;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.phys.Player;
@@ -87,6 +88,8 @@ public class FightingGameServerCLI implements ISocketListener{
 				name = name.substring(Player.MAX_NAME_LENGTH);
 			if(pl != null)
 				pl.name = name;
+			NameChange nc = new NameChange(name, cw.UUID);
+			instance.server.broadcastAllBut(nc.createPacket(), cw.UUID);
 			Logger.log("Set client " + cw.UUID + "'s name to " + pl.name, 2);
 		}
 	}
