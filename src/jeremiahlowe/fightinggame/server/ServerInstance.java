@@ -12,6 +12,7 @@ import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.PlayerMovementData;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.Color;
+import net.net16.jeremiahlowe.shared.Timing;
 
 public class ServerInstance extends Instance implements ISocketListener{
 	private static final Gson gson = new Gson();
@@ -108,9 +109,33 @@ public class ServerInstance extends Instance implements ISocketListener{
 		System.out.println("Kicked player with UUID: " + uuid);
 		removePlayerWithUUID(uuid);
 	}
+	private void getClientVersionData(SocketWrapperThread cw) {
+		Thread verThread = new Thread() {
+			@Override
+			public void run() {
+				Timing t = new Timing();
+				Packet p = cw.waitForUpdatePacket(1000, EPacketIdentity.VERSION_DATA);
+				Logger.log("Got version data: " + p + " (took " + t.millis() + "ms)", 2);
+				if(p == null)
+					cw.queueDisconnect();
+				else {
+					long cver = Long.parseLong(p.contents);
+					if(cver != Meta.VERSION_ID) {
+						Logger.log("Client tried to join with version " + cver + " but server is using version " + Meta.VERSION_ID, 1);
+						cw.queueDisconnect();
+					}
+				}
+			}
+		};
+		verThread.start();
+	}
 
-	@Override public void onConnect(SocketWrapperThread cw) {}
-	@Override public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
+	@Override 
+	public void onConnect(SocketWrapperThread cw) {
+		getClientVersionData(cw);
+	}
+	@Override 
+	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.PLAYER_MOVEMENT) {
 			PlayerMovementData pmd = gson.fromJson(p.contents, PlayerMovementData.class);
 			Player pl = getPlayerWithUUID(cw.UUID);
@@ -129,7 +154,8 @@ public class ServerInstance extends Instance implements ISocketListener{
 			Logger.log("Updated player movement data", 4);
 		}
 	}
-	@Override public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
+	@Override 
+	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.VERSION_DATA) {
 			Logger.log("Client requested version sending it to him now", 2);
 			cw.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
@@ -149,7 +175,10 @@ public class ServerInstance extends Instance implements ISocketListener{
 				cw.sendPacket(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, gson.toJson(pl)));
 		}
 	}
-	@Override public void onDisconnect(SocketWrapperThread cw) {}
+	@Override 
+	public void onDisconnect(SocketWrapperThread cw) {
+		removePlayerWithUUID(cw.UUID);
+	}
 	@Override public void onReceiveData(SocketWrapperThread cw, String data) {}
 	@Override public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
 }

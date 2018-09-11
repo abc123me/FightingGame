@@ -69,24 +69,6 @@ public class FightingGameServerCLI implements ISocketListener{
 
 	public void onConnect(SocketWrapperThread cw) {
 		Logger.log("Client " + cw.UUID + " connected!", 0);
-		Thread verThread = new Thread() {
-			@Override
-			public void run() {
-				Timing t = new Timing();
-				Packet p = cw.waitForUpdatePacket(1000, EPacketIdentity.VERSION_DATA);
-				Logger.log("Got version data: " + p + " (took " + t.millis() + "ms)", 2);
-				if(p == null)
-					cw.queueDisconnect();
-				else {
-					long cver = Long.parseLong(p.contents);
-					if(cver != Meta.VERSION_ID) {
-						Logger.log("Client tried to join with version " + cver + " but server is using version " + Meta.VERSION_ID, 1);
-						cw.queueDisconnect();
-					}
-				}
-			}
-		};
-		verThread.start();
 	}
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		Logger.log("Client sent request for: " + p.identity, 4);
@@ -106,14 +88,13 @@ public class FightingGameServerCLI implements ISocketListener{
 				name = name.substring(Player.MAX_NAME_LENGTH);
 			if(pl != null)
 				pl.name = name;
-			System.out.println(pl.name);
+			Logger.log("Set client " + cw.UUID + "'s name to " + pl.name, 2);
 		}
 	}
 	public void onDisconnect(SocketWrapperThread cw) {
 		if(cw == null)
 			return;
 		Logger.log("Client " + cw.UUID + " disconnected!", 1);
-		instance.removePlayerWithUUID(cw.UUID);
 	}
 	public void onReceiveData(SocketWrapperThread cw, String data) {
 		
