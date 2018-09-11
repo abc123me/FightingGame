@@ -11,7 +11,6 @@ public class FightingGameServerCLI implements ISocketListener{
 	private ServerInstance instance;
 	private InteractionThread userInputThread;
 	private Thread physicsThread;
-	private ServerChatManager scm;
 	private double tps = 0, maxTPS = 30;
 	private boolean lagg = false;
 	
@@ -26,8 +25,6 @@ public class FightingGameServerCLI implements ISocketListener{
 		server.addClientListener(this);
 		instance = new ServerInstance(server);
 		server.addClientListener(instance);
-		scm = new ServerChatManager(instance);
-		server.addClientListener(scm);
 	}
 	
 	public void start() {

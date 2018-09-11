@@ -17,15 +17,20 @@ public class ServerInstance extends Instance implements ISocketListener{
 	private static final Gson gson = new Gson();
 	private ArrayList<RemotePlayer> players;
 	
+	public ServerChatManager scm;
 	public Server server;
 	
 	public ServerInstance(Server server) {
 		super();
 		this.server = server;
 		players = new ArrayList<RemotePlayer>();
-		
+		scm = new ServerChatManager(this);
 	}
 
+	public void addSocketListeners(Server s) {
+		s.addClientListener(this);
+		s.addClientListener(scm);
+	}
 	public Player[] getPlayerList() {
 		int inc = 0;
 		Player[] out = new Player[players.size()];
@@ -104,14 +109,8 @@ public class ServerInstance extends Instance implements ISocketListener{
 		removePlayerWithUUID(uuid);
 	}
 
-	@Override
-	public void onConnect(SocketWrapperThread cw) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
+	@Override public void onConnect(SocketWrapperThread cw) {}
+	@Override public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.PLAYER_MOVEMENT) {
 			PlayerMovementData pmd = gson.fromJson(p.contents, PlayerMovementData.class);
 			Player pl = getPlayerWithUUID(cw.UUID);
@@ -130,9 +129,7 @@ public class ServerInstance extends Instance implements ISocketListener{
 			Logger.log("Updated player movement data", 4);
 		}
 	}
-
-	@Override
-	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
+	@Override public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.VERSION_DATA) {
 			Logger.log("Client requested version sending it to him now", 2);
 			cw.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
@@ -152,22 +149,7 @@ public class ServerInstance extends Instance implements ISocketListener{
 				cw.sendPacket(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, gson.toJson(pl)));
 		}
 	}
-
-	@Override
-	public void onDisconnect(SocketWrapperThread cw) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReceiveData(SocketWrapperThread cw, String data) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {
-		// TODO Auto-generated method stub
-		
-	}
+	@Override public void onDisconnect(SocketWrapperThread cw) {}
+	@Override public void onReceiveData(SocketWrapperThread cw, String data) {}
+	@Override public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
 }

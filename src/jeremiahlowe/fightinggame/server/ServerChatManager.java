@@ -12,6 +12,11 @@ public class ServerChatManager implements ISocketListener{
 		this.instance = instance;
 	}
 	
+	public void serverSay(String msg) {
+		ChatMessage sm = new ChatMessage(msg);
+		instance.server.broadcast(sm.toPacket());
+	}
+	
 	@Override public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.CHAT_MESSAGE) {
 			ChatMessage sm = new ChatMessage(p.contents, cw.UUID);
@@ -24,5 +29,4 @@ public class ServerChatManager implements ISocketListener{
 	@Override public void onDisconnect(SocketWrapperThread cw) {}
 	@Override public void onReceiveData(SocketWrapperThread cw, String data) {}
 	@Override public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
-
 }
