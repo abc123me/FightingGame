@@ -2,18 +2,21 @@ package jeremiahlowe.fightinggame.net;
 
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 public class SocketCommunicator implements Closeable{
 	private Socket base;
 	private PrintWriter out;
-	private BufferedReader in;
+	//private BufferedReader in;
+	private Scanner in;
 	
 	public SocketCommunicator(Socket base) throws IOException{
 		this.base = base;
 		if(base == null)
 			throw new NullPointerException("Base socket cannot be null!");
 		this.out = new PrintWriter(new BufferedOutputStream(base.getOutputStream()));
-		this.in = new BufferedReader(new InputStreamReader(base.getInputStream()));
+		//this.in = new BufferedReader(new InputStreamReader(base.getInputStream()));
+		this.in = new Scanner(base.getInputStream());
 	}
 
 	public void println(String text) {
@@ -22,17 +25,17 @@ public class SocketCommunicator implements Closeable{
 	}
 	public boolean hasNext() {
 		try {
-			return in.ready();
-		} catch (IOException e) {
+			return in.hasNext();
+		} catch (Exception e) {
 			close();
 			return false;
 		}
 	}
 	public String readLine() {
 		try {
-			String s = in.readLine(); 
+			String s = in.nextLine(); 
 			return s;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			close();
 			return null;
 		}
