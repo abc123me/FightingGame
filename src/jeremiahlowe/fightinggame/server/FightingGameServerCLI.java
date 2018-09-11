@@ -16,7 +16,7 @@ import net.net16.jeremiahlowe.shared.Timing;
 public class FightingGameServerCLI implements ISocketListener{
 	private ServerInstance instance;
 	private static final Gson gson = new Gson();
-	private Thread userInputThread;
+	private Thread userInputThread, physicsThread;
 	private int debugLevel = 1;
 	private double tps = 0, maxTPS = 30;
 	private boolean lagg = false;
@@ -37,12 +37,19 @@ public class FightingGameServerCLI implements ISocketListener{
 		userInputThread = new Thread() {
 			@Override public void run() { userInputLoop(); }
 		};
+		physicsThread = new Thread() {
+			@Override public void run() { physicsLoop(); }
+		};
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override public void run() { shutdownHook(); }
 		});
 		instance.server.start();
 		userInputThread.start();
-		physicsLoop();
+		physicsThread.start();
+		try{instance.server.join();}
+		catch(Exception e) {}
+		userInputThread.interrupt();
+		physicsThread.interrupt();
 	}
 	
 	private void physicsLoop() {
