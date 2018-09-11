@@ -21,6 +21,10 @@ public enum EPacketIdentity {
 	//Server -> Client ONLY
 	//Content: JSON Serialized PlayerMovementData
 	
+	CLIENT_KICK,			//When a player is kicked this is sent to them telling them why
+	//Server -> Client ONLY
+	//Content: Reason they got kicked
+	
 	PLAYER_LIST;			//When a client request a list of the players
 							
 }

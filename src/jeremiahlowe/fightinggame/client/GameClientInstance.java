@@ -3,6 +3,8 @@ package jeremiahlowe.fightinggame.client;
 import java.io.IOException;
 import java.net.Socket;
 
+import javax.swing.JOptionPane;
+
 import com.google.gson.Gson;
 
 import jeremiahlowe.fightinggame.Meta;
@@ -83,6 +85,10 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 				remove(pu);
 			} //Either way add the player
 			add(pl);
+		}
+		else if(p.identity == EPacketIdentity.CLIENT_KICK) {
+			JOptionPane.showMessageDialog(this.applet.frame, p.contents, "You were kicked!", JOptionPane.INFORMATION_MESSAGE);
+			System.exit(0);
 		}
 		else if(p.identity == EPacketIdentity.PLAYER_REMOVE) {
 			long uuid = Long.parseLong(p.contents);

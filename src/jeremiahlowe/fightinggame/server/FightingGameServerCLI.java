@@ -90,16 +90,17 @@ public class FightingGameServerCLI implements ISocketListener{
 		System.out.println("help: Shows this help screen");
 		System.out.println("exit: Stops the server");
 		System.out.println("list: Lists all players");
-		System.out.println("kick <uuid>: Kicks a player");
+		System.out.println("kick <uuid> [reason]: Kicks a player");
 		System.out.println("debug <level>: Sets the debug level (0-3)");
 		System.out.println("tps: Gets the TPS the server is running at");
 		System.out.println("lag: Lags the server");
 		System.out.println("lsphys: Lists the physicsobjects the server is handling");
-		System.out.println("kickall: Kicks all players");
+		System.out.println("kickall [reason]: Kicks all players");
 		System.out.println("ver: Prints out the server's version");
 	}
 	public void handleUserInput(String input) {
 		input = input.trim();
+		String[] parts = input.split(" ");
 		if(input.equals("exit")) {
 			System.out.println("Exiting now!");
 			System.exit(0);
@@ -114,7 +115,6 @@ public class FightingGameServerCLI implements ISocketListener{
 		else if(input.equals("help")) 
 			printHelp();
 		else if(input.startsWith("debug")) {
-			String[] parts = input.split(" ");
 			if(parts.length != 2) 
 				System.out.println("Debug needs a debug level parameter!");
 			else{
@@ -124,19 +124,33 @@ public class FightingGameServerCLI implements ISocketListener{
 				} catch(Exception e) { System.out.println("Invalid debug level \"" + parts[1] + "\""); }
 			}
 		}
-		else if(input.equals("kickall")) 
+		else if(input.equals("kickall")) {
+			String reason = "You were kicked, GG";
+			if(parts.length >= 2) {
+				reason = "";
+				for(int i = 1; i < parts.length; i++)
+					reason += " " + parts[i];
+				reason = reason.substring(1);
+			}
 			for(Player p : instance.getPlayerList())
-				instance.kickPlayerWithUUID(p.uuid);
+				instance.kickPlayerWithUUID(p.uuid, reason);
+		}
 		else if(input.startsWith("kick")) {
-			String[] parts = input.split(" ");
 			long uuid = 0;
-			if(parts.length != 2) {
-				System.out.println("Debug needs a debug level parameter!");
+			if(parts.length < 2) {
+				System.out.println("Kick command needs a debug level parameter!");
 				return;
 			}
 			try {
 				uuid = Long.parseLong(parts[1]);
-				instance.kickPlayerWithUUID(uuid);
+				String reason = "You were kicked, GG";
+				if(parts.length > 2) {
+					reason = "";
+					for(int i = 1; i < parts.length; i++)
+						reason += " " + parts[i];
+					reason = reason.substring(1);
+				}
+				instance.kickPlayerWithUUID(uuid, reason);
 			} catch(Exception e) { 
 				System.out.println("Error during kicking player with UUID \"" + parts[1] + "\": " + e); 
 			}

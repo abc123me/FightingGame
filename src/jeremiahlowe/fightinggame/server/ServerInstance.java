@@ -89,13 +89,14 @@ public class ServerInstance extends Instance{
 			return;
 		removePlayer(toRemove);
 	}
-	public void kickPlayerWithUUID(long uuid) {
+	public void kickPlayerWithUUID(long uuid, String reason) {
 		SocketWrapperThread w = getWrapperWithUUID(uuid);
 		if(w == null) {
 			System.out.println("No player with UUID: " + uuid);
 			return;
 		}
 		w.interrupt();
+		w.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_KICK, reason));
 		System.out.println("Kicked player with UUID: " + uuid);
 		removePlayerWithUUID(uuid);
 	}
