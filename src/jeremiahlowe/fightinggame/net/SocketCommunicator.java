@@ -22,23 +22,29 @@ public class SocketCommunicator implements Closeable{
 		out.flush();
 	}
 	public boolean hasNext() {
+		if(in.ioException() != null) {
+			System.out.println("ioe in hasNext()");
+			close();
+			return false;
+		}
 		return in.hasNext();
 	}
 	public String readLine() {
-		return in.nextLine(); 
+		String s = in.nextLine(); 
+		if(in.ioException() != null) {
+			System.out.println("ioe in readLine()");
+			close();
+			return null;
+		}
+		return s;
 	}
 	public boolean stillConnected() {
-		if(!base.isConnected())
+		try {
+			int i = base.getInputStream().read();
+			return i >= 0;
+		}catch(Exception e) {
 			return false;
-		if(base.isClosed())
-			return false;
-		if(base.isInputShutdown())
-			return false;
-		if(base.isOutputShutdown())
-			return false;
-		if(in.ioException() != null)
-			return false;
-		return true;
+		}
 	}
 	
 	public void close() {
