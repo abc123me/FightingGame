@@ -146,7 +146,7 @@ public class FightingGameServerCLI implements ISocketListener{
 				String reason = "You were kicked, GG";
 				if(parts.length > 2) {
 					reason = "";
-					for(int i = 1; i < parts.length; i++)
+					for(int i = 2; i < parts.length; i++)
 						reason += " " + parts[i];
 					reason = reason.substring(1);
 				}
