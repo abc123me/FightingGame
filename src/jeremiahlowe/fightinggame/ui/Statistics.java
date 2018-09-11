@@ -38,6 +38,7 @@ public class Statistics implements IDrawable {
 	}
 	
 	public void draw(PApplet p, GraphicalInstance gi) {
+		p.textAlign(PApplet.LEFT, PApplet.BOTTOM);
 		p.stroke(0); p.fill(0);
 		stats.update();
 		float x = 0, y = 0, h = p.textAscent();

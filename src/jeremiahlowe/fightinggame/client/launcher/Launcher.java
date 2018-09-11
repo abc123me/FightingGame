@@ -115,9 +115,18 @@ public class Launcher extends JFrame {
 					full = "-F";
 				if(haxEnabled())
 					hax = "-H";
+				int w = getResolutionWidth(), h = getResolutionHeight();
+				Object obj = presetBox.getSelectedItem();
+				ResolutionPreset r = ResolutionPreset.Custom;
+				if(obj instanceof ResolutionPreset)
+					r = (ResolutionPreset) obj;
+				if(r != ResolutionPreset.Custom) {
+					w = r.w;
+					h = r.h;
+				}
 				FightingGameClient.main(new String[] { "launcher",
-					"-w", String.valueOf(getResolutionWidth()),
-					"-h", String.valueOf(getResolutionHeight()),
+					"-w", String.valueOf(w),
+					"-h", String.valueOf(h),
 					full, hax
 				});
 			}

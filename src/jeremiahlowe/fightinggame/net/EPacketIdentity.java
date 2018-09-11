@@ -25,6 +25,12 @@ public enum EPacketIdentity {
 	//Server -> Client ONLY
 	//Content: Reason they got kicked
 	
+	CHAT_MESSAGE,			//When a player or the server types in chat
+	//Server -> Client
+	//Content: Serialized ChatMessage
+	//Client -> Server
+	//Content: Raw chat message
+	
 	PLAYER_LIST;			//When a client request a list of the players
 							
 }

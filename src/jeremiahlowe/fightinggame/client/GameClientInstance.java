@@ -169,4 +169,8 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			}
 		};
 	}
+
+	public void sendRawPacket(Packet p) {
+		scomm.sendPacket(p);
+	}
 }

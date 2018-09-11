@@ -20,8 +20,11 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	public float worldSize = 10;
 	public boolean hax = true;
 	
+	private Chat chat;
+	private RemoteChatManager rcm;
 	private GameClientInstance instance;
 	private Player localPlayer;
+	private boolean chatControl = false;
 	
 	@Override
 	public void settings() {
@@ -38,8 +41,11 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			System.exit(-1);
 		}
 		instance.localPlayer = localPlayer;
-		instance.addAll(instance.getNetworkStatistics(), localPlayer);
+		chat = new Chat(instance);
+		instance.addAll(instance.getNetworkStatistics(), localPlayer, chat);
 		instance.getPlayerList();
+		rcm = new RemoteChatManager(instance, chat);
+		chat.addChatListener(rcm);
 	}
 	@Override
 	public void setup() {
@@ -86,24 +92,34 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	}
 	@Override
 	public void keyPressed() {
-		if (keyCode == SHIFT)
-			localPlayer.setFastMovement(true);
 		char k = Character.toLowerCase(key);
-		if (k == 'w')
-			localPlayer.keys.y = 1;
-		if (k == 's')
-			localPlayer.keys.y = -1;
-		if (k == 'a')
-			localPlayer.keys.x = 1;
-		if (k == 'd')
-			localPlayer.keys.x = -1;
-		if (k == '=')
-			instance.statistics.incrStatLevel();
-		if (k == '-')
-			instance.statistics.decrStatLevel();
-		if (k == ' ')
-			localPlayer.shooting = true;
-		instance.updateLocalPlayer();
+		if(key == PApplet.ENTER) {
+			chatControl = !chatControl;
+			if(chatControl) chat.startTyping();
+			else chat.stopTyping(true);
+			return;
+		}
+		if(chatControl) {
+			chat.typeChar(key);
+		} else {
+			if (keyCode == SHIFT)
+				localPlayer.setFastMovement(true);
+			if (k == 'w')
+				localPlayer.keys.y = 1;
+			if (k == 's')
+				localPlayer.keys.y = -1;
+			if (k == 'a')
+				localPlayer.keys.x = 1;
+			if (k == 'd')
+				localPlayer.keys.x = -1;
+			if (k == '=')
+				instance.statistics.incrStatLevel();
+			if (k == '-')
+				instance.statistics.decrStatLevel();
+			if (k == ' ')
+				localPlayer.shooting = true;
+			instance.updateLocalPlayer();
+		}
 	}
 	@Override
 	public void keyReleased() {
