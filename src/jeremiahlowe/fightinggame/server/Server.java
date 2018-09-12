@@ -20,7 +20,7 @@ public class Server extends Thread implements ISocketListener{
 	private ArrayList<ISocketListener> clientListeners;
 	
 	public Server(int port) {
-		this(port, "127.0.0.1");
+		this(port, null);
 	}
 	public Server(int port, String host) {
 		this(port, host, 3);
@@ -60,8 +60,10 @@ public class Server extends Thread implements ISocketListener{
 	}
 	private ServerSocket createServerSocket() {
 		try {
-			InetAddress haddr = InetAddress.getByName(host);
-			return new ServerSocket(port, cnum, haddr);
+			if(host != null) {
+				InetAddress haddr = InetAddress.getByName(host);
+				return new ServerSocket(port, cnum, haddr);
+			} else return new ServerSocket(port);                
 		} catch (UnknownHostException uhe) {
 			System.err.println("Invalid host: " + host + "(" + uhe + ")");
 			uhe.printStackTrace();

@@ -17,7 +17,15 @@ public class FightingGameServerCLI implements ISocketListener{
 	
 	public static void main(String[] args) {
 		Meta.setServerside(true);
-		FightingGameServerCLI cli = new FightingGameServerCLI(1234);
+		int port = 1234;
+		for(int i = 1; i < args.length; i++) {
+			String arg = args[i - 1];
+			String next = args[i];
+			if(arg.equals("-p") || arg.equals("--port"))
+				port = Integer.parseInt(next);
+		}
+		System.out.println("Port set to " + port);
+		FightingGameServerCLI cli = new FightingGameServerCLI(port);
 		cli.start();
 	}
 	
