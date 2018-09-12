@@ -3,10 +3,10 @@ package jeremiahlowe.fightinggame.client;
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.client.chat.Chat;
 import jeremiahlowe.fightinggame.client.chat.RemoteChatManager;
-import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
+import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
+import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
 import jeremiahlowe.fightinggame.phys.Player;
-import jeremiahlowe.fightinggame.server.SocketWrapperThread;
 import net.net16.jeremiahlowe.shared.math.Vector;
 import net.net16.jeremiahlowe.shared.math.Viewport;
 import processing.core.PApplet;
@@ -24,6 +24,8 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	public String host = "localhost";
 	public String name = "Unnamed";
 	public int port = 1234;
+	public boolean followLocalPlayer = false;
+	public int simulatedNetworkLag = 0;
 	
 	private Chat chat;
 	private RemoteChatManager rcm;
@@ -39,15 +41,15 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
 		if(!instance.connectToServer(host, port))
 			System.exit(1);
+		instance.setNetworkLag(simulatedNetworkLag);
 		instance.sendVersionData();
 		localPlayer = instance.getLocalPlayerFromServer();
-		instance.sendName(name);
-		localPlayer.name = name;
-		
 		if(localPlayer == null) {
 			System.err.println("Was unable to retrieve player from the server?!");
 			System.exit(-1);
 		}
+		instance.sendName(name);
+		localPlayer.name = name;
 		instance.localPlayer = localPlayer;
 		chat = new Chat(instance);
 		instance.addAll(instance.getNetworkStatistics(), localPlayer, chat);
@@ -164,18 +166,22 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 				String next = args[i];
 				if(arg == "--full-screen")
 					full = true;
-				if(arg == "--height")
-					this.hax = true;
 				if(arg == "--width")
 					w = Integer.parseInt(next);
-				if(arg == "--hax")
+				if(arg == "--height")
 					h = Integer.parseInt(next);
 				if(arg == "--host")
 					host = next;
 				if(arg == "--port")
 					port = Integer.parseInt(next);
+				if(arg == "--hax")
+					this.hax = true;
 				if(arg == "--name")
 					name = next;
+				if(arg == "--follow")
+					followLocalPlayer = true;
+				if(arg == "--ping")
+					simulatedNetworkLag = Integer.parseInt(next);
 			}
 		} else System.out.println("No arguments given :(");
 		if(w <= 10)
@@ -183,7 +189,9 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		if(h <= 10)
 			h = 500;
 		size(w, h);
-		if(full)
+		if(full) {
 			fullScreen();
+			size(displayWidth, displayHeight);
+		}
 	}
 }
