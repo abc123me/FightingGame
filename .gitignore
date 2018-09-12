@@ -3,3 +3,4 @@ bin/
 
 # Compiled classes
 *.class
+/fg_last_config.properties
