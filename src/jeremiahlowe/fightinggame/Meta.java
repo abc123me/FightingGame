@@ -3,7 +3,7 @@ package jeremiahlowe.fightinggame;
 import net.net16.jeremiahlowe.shared.math.GeneralMath;
 
 public class Meta {
-	public static final String VERSION = "V0.25";
+	public static final String VERSION = "V0.27";
 	public static final long VERSION_ID;
 	public static final String[] names = new String[] {
 		"Bob", "Jeff", "Chuck", "Kevin", "Jeremiah", "Danielle",
