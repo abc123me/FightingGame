@@ -5,7 +5,7 @@ import net.net16.jeremiahlowe.shared.math.Vector;
 
 public class PlayerMovementData{
 	public Vector keys, look;
-	public boolean shooting;
+	public boolean shooting, speedboostActive;
 	public long forUUID;
 	
 	public PlayerMovementData(Player from) {
@@ -13,11 +13,13 @@ public class PlayerMovementData{
 		look = from.look;
 		shooting = from.shooting;
 		forUUID = from.uuid;
+		speedboostActive = from.speedboostActive;
 	}
 
 	public void copyTo(Player pl) {
 		pl.keys = keys;
 		pl.look = look;
 		pl.shooting = shooting;
+		pl.speedboostActive = speedboostActive;
 	}
 }
