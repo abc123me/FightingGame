@@ -18,32 +18,56 @@ import javax.swing.JComboBox;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Properties;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JTextField;
 
 public class Launcher extends JFrame {
+	private static final long serialVersionUID = 1L;
+	
+	public static final String CONFIG_FILE_NAME = "fg_last_config.properties";
 	public static final int MINIMUM_RES = 50;
 	public static final int DEFAULT_WIDTH = 500;
 	public static final int DEFAULT_HEIGHT = 500;
 	public static final int MAXIMUM_RES = 100000;
+
+	private static final String PROPERTY_KEY_PING = "ping";
+	private static final String PROPERTY_KEY_RES_PRESET = "resolution_preset";
+	private static final String PROPERTY_KEY_PORT = "port";
+	private static final String PROPERTY_KEY_HOST = "hostname";
+	private static final String PROPERTY_KEY_HACKS = "hacks";
+	private static final String PROPERTY_KEY_NAME = "player_name";
+	private static final String PROPERTY_KEY_HEIGHT = "height";
+	private static final String PROPERTY_KEY_WIDTH = "width";
+	private static final String PROPERTY_KEY_FULLSCREEN = "fullscreen";
+	private static final String PROPERTY_KEY_FOLLOW = "follow";
 	
 	private JPanel contentPane;
 	private JCheckBox chckbxHacks;
 	private JSpinner widthSpinner;
 	private JSpinner heightSpinner;
 	private JComboBox<ResolutionPreset> presetBox;
-	private JCheckBox chckbxFullscreenplaysBest;
+	private JCheckBox chckbxFullscreen;
 	private JTextField txtName;
 	private JTextField txtLocalhost;
 	private JSpinner portSpinner;
+	private JSpinner pingSpinner;
+	private JCheckBox chckbxFollowPlayer;
+	
+	private Properties props;
 	
 	public static void main(String[] args) {
 		Launcher frame = new Launcher();
 		frame.setVisible(true);
+		frame.loadConfig(CONFIG_FILE_NAME);
 	}
 	public Launcher() {
+		props = new Properties();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		setTitle("FightingGame Launcher (" + Meta.VERSION + " - " + Meta.VERSION_ID + ")");
@@ -68,6 +92,9 @@ public class Launcher extends JFrame {
 		JLabel lblIpPort = new JLabel("Hostname:");
 		lblIpPort.setBounds(12, 102, 117, 15);
 		contentPane.add(lblIpPort);
+		JLabel lblMs = new JLabel("simulated ping (in ms)");
+		lblMs.setBounds(126, 158, 237, 15);
+		contentPane.add(lblMs);
 		
 		JButton btnLaunch = new JButton("Launch");
 		btnLaunch.setBounds(12, 194, 117, 25);
@@ -87,12 +114,12 @@ public class Launcher extends JFrame {
 		presetBox.setModel(new DefaultComboBoxModel<ResolutionPreset>(ResolutionPreset.values()));
 		presetBox.setBounds(137, 3, 226, 24);
 		contentPane.add(presetBox);
-		chckbxFullscreenplaysBest = new JCheckBox("Fullscreen");
-		chckbxFullscreenplaysBest.setBounds(12, 37, 117, 23);
-		contentPane.add(chckbxFullscreenplaysBest);
+		chckbxFullscreen = new JCheckBox("Fullscreen");
+		chckbxFullscreen.setBounds(12, 37, 117, 23);
+		contentPane.add(chckbxFullscreen);
 		updateResolutionEntry(presetBox, widthSpinner, heightSpinner);
 		txtName = new JTextField();
-		txtName.setText("bob");
+		txtName.setText(Meta.getRandomName());
 		txtName.setBounds(137, 66, 226, 19);
 		contentPane.add(txtName);
 		txtName.setColumns(10);
@@ -105,6 +132,13 @@ public class Launcher extends JFrame {
 		txtLocalhost.setBounds(137, 97, 129, 19);
 		contentPane.add(txtLocalhost);
 		txtLocalhost.setColumns(10);
+		chckbxFollowPlayer = new JCheckBox("Follow player");
+		chckbxFollowPlayer.setBounds(12, 125, 129, 23);
+		contentPane.add(chckbxFollowPlayer);
+		pingSpinner = new JSpinner();
+		pingSpinner.setBounds(12, 156, 96, 20);
+		pingSpinner.setModel(new SpinnerNumberModel(0, 0, 1000, 50));
+		contentPane.add(pingSpinner);
 		
 		ActionListener resUpdate = new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
@@ -119,10 +153,10 @@ public class Launcher extends JFrame {
 		presetBox.addActionListener(resUpdate);
 		widthSpinner.addChangeListener(setRes);
 		heightSpinner.addChangeListener(setRes);
-		chckbxFullscreenplaysBest.addActionListener(new ActionListener() {
+		chckbxFullscreen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(chckbxFullscreenplaysBest.isSelected()) {
+				if(chckbxFullscreen.isSelected()) {
 					JOptionPane.showMessageDialog(gui, "Plays best on windowed", "Warning", JOptionPane.WARNING_MESSAGE);
 					widthSpinner.setEnabled(false);
 					heightSpinner.setEnabled(false);
@@ -134,33 +168,10 @@ public class Launcher extends JFrame {
 		btnLaunch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String hax = "", full = "";
-				if(isFullscreen())
-					full = "--full-screen";
-				if(haxEnabled())
-					hax = "--hax";
-				int w = getResolutionWidth(), h = getResolutionHeight();
-				Object obj = presetBox.getSelectedItem();
-				ResolutionPreset r = ResolutionPreset.Custom;
-				if(obj instanceof ResolutionPreset)
-					r = (ResolutionPreset) obj;
-				if(r != ResolutionPreset.Custom) {
-					w = r.w;
-					h = r.h;
-				}
-				final int fw = w, fh = h;
-				final String fhax = hax, ffull = full;
+				saveConfig(CONFIG_FILE_NAME);
 				Thread t = new Thread() {
-					@Override
-					public void run() {
-						FightingGameClient.main(new String[] { "launcher",
-							"--width", String.valueOf(fw),
-							"--height", String.valueOf(fh),
-							"--host", String.valueOf(txtLocalhost.getText()),
-							"--port", String.valueOf((int)portSpinner.getValue()),
-							"--name", String.valueOf(txtName.getText()),
-							ffull, fhax
-						});
+					@Override public void run() {
+						FightingGameClient.main(getLaunchArgs());
 					}
 				};
 				t.start();
@@ -168,6 +179,30 @@ public class Launcher extends JFrame {
 				setVisible(false);
 			}
 		});
+	}
+	public String[] getLaunchArgs() {
+		String hax = "", full = "", follow = "";
+		if(chckbxFullscreen.isSelected()) full = "--full-screen";
+		if(chckbxHacks.isSelected()) hax = "--hax";
+		if(chckbxFollowPlayer.isSelected()) follow = "--follow";
+		int w = getResolutionWidth(), h = getResolutionHeight();
+		Object obj = presetBox.getSelectedItem();
+		ResolutionPreset r = ResolutionPreset.Custom;
+		if(obj instanceof ResolutionPreset)
+			r = (ResolutionPreset) obj;
+		if(r != ResolutionPreset.Custom) {
+			w = r.w;
+			h = r.h;
+		}
+		return new String[] { "launcher",
+				"--width", String.valueOf(w),
+				"--height", String.valueOf(h),
+				"--host", String.valueOf(txtLocalhost.getText()),
+				"--port", String.valueOf((int)portSpinner.getValue()),
+				"--name", String.valueOf(txtName.getText()),
+				"--ping", String.valueOf(pingSpinner.getValue()),
+				full, hax, follow
+			};
 	}
 	private void updateResolutionEntry(JComboBox<ResolutionPreset> presetBox, JSpinner widthSpinner, JSpinner heightSpinner) {
 		Object obj = presetBox.getSelectedItem();
@@ -191,10 +226,55 @@ public class Launcher extends JFrame {
 	public int getResolutionHeight() {
 		return (int)heightSpinner.getValue();
 	}
-	public boolean isFullscreen() {
-		return chckbxFullscreenplaysBest.isSelected();
+	public void loadConfig(String fn) {
+		try{
+			File f = new File(fn);
+			if(!f.exists())
+				f.createNewFile();
+			FileInputStream fis = new FileInputStream(f);
+			props.load(fis);
+			fis.close();
+			boolean fullscreen = Boolean.parseBoolean(props.getProperty(PROPERTY_KEY_FULLSCREEN, "false"));
+			int width = Integer.parseInt(props.getProperty(PROPERTY_KEY_WIDTH, "500"));
+			int height = Integer.parseInt(props.getProperty(PROPERTY_KEY_HEIGHT, "500"));
+			String name = props.getProperty(PROPERTY_KEY_NAME, Meta.getRandomName());
+			boolean hax = Boolean.parseBoolean(props.getProperty(PROPERTY_KEY_HACKS, "true"));
+			String host = props.getProperty(PROPERTY_KEY_HOST, "localhost");
+			int port = Integer.parseInt(props.getProperty(PROPERTY_KEY_PORT, "1234"));
+			int pre = Integer.parseInt(props.getProperty(PROPERTY_KEY_RES_PRESET, "0"));
+			int ping = Integer.parseInt(props.getProperty(PROPERTY_KEY_PING, "0"));
+			boolean follow = Boolean.parseBoolean(props.getProperty(PROPERTY_KEY_FOLLOW, "true"));
+			portSpinner.setValue(port);
+			txtLocalhost.setText(host);
+			chckbxHacks.setSelected(hax);
+			chckbxFullscreen.setSelected(fullscreen);
+			widthSpinner.setValue(width);
+			heightSpinner.setValue(height);
+			txtName.setText(name);
+			presetBox.setSelectedIndex(pre);
+			pingSpinner.setValue(ping);
+			chckbxFollowPlayer.setSelected(follow);
+		} catch(Exception e) {
+			JOptionPane.showMessageDialog(this, "Error loading last config\n" + e, "Error!", JOptionPane.ERROR_MESSAGE);
+		}
 	}
-	public boolean haxEnabled() {
-		return chckbxHacks.isSelected();
+	public void saveConfig(String fn) {
+		try{
+			props.setProperty(PROPERTY_KEY_FULLSCREEN, String.valueOf(chckbxFullscreen.isSelected()));
+			props.setProperty(PROPERTY_KEY_HACKS, String.valueOf(chckbxHacks.isSelected()));
+			props.setProperty(PROPERTY_KEY_FOLLOW, String.valueOf(chckbxFollowPlayer.isSelected()));
+			props.setProperty(PROPERTY_KEY_HEIGHT, String.valueOf(heightSpinner.getValue()));
+			props.setProperty(PROPERTY_KEY_WIDTH, String.valueOf(widthSpinner.getValue()));
+			props.setProperty(PROPERTY_KEY_RES_PRESET, String.valueOf(presetBox.getSelectedIndex()));
+			props.setProperty(PROPERTY_KEY_NAME, String.valueOf(txtName.getText()));
+			props.setProperty(PROPERTY_KEY_HOST, String.valueOf(txtLocalhost.getText()));
+			props.setProperty(PROPERTY_KEY_PORT, String.valueOf(portSpinner.getValue()));
+			props.setProperty(PROPERTY_KEY_PING, String.valueOf(pingSpinner.getValue()));
+			FileOutputStream fos = new FileOutputStream(fn);
+			props.store(fos, "For F.G. laucher " + Meta.VERSION + " (" + Meta.VERSION_ID + ")");
+			fos.close();
+		} catch(Exception e) {
+			JOptionPane.showMessageDialog(this, "Error saving config\n" + e, "Error!", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }
