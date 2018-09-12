@@ -1,4 +1,4 @@
-package jeremiahlowe.fightinggame.server;
+package jeremiahlowe.fightinggame.net.sockets;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -8,10 +8,7 @@ import com.google.gson.Gson;
 import com.sun.xml.internal.ws.Closeable;
 
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
-import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
-import jeremiahlowe.fightinggame.net.SocketAdapter;
-import jeremiahlowe.fightinggame.net.SocketCommunicator;
 import net.net16.jeremiahlowe.shared.Timing;
 
 public class SocketWrapperThread extends Thread implements Closeable{
@@ -24,11 +21,18 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	private Thread baseThread = null;
 	private Packet waitTransfer = null;
 	private boolean queueDisconnect = false;
+	private int netLag = 0;
+	private long rxTime = 0, txTime = 0;
+	private Timing rx, tx;
+	private PacketQueue queue;
 	
 	public SocketWrapperThread(long UUID, Socket baseSocket, boolean startWaitQueue) throws IOException {
 		this.scomm = new SocketCommunicator(baseSocket);
 		this.clientListeners = new CopyOnWriteArrayList<ISocketListener>();
 		this.UUID = UUID;
+		queue = new PacketQueue();
+		rx = new Timing();
+		tx = new Timing();
 	}
 	public SocketWrapperThread(long UUID, Socket baseSocket) throws IOException {
 		this(UUID, baseSocket, true);
@@ -42,14 +46,23 @@ public class SocketWrapperThread extends Thread implements Closeable{
 			if(queueDisconnect)
 				break;
 			if(scomm.hasNext()) {
+				rx.reset();
 				String line = scomm.readLine();
+				if(netLag > 0)
+					Timing.sleep(netLag);
+				rxTime = rx.millis();
 				onData(line);
 				parseData(line);
-			} else {
-				Timing.sleep(10);
-				if(!scomm.stillConnected())
-					break;
 			}
+			if(queue.hasNextPacket()) {
+				tx.reset();
+				String j = gson.toJson(queue.nextPacket());
+				if(netLag > 0)
+					Timing.sleep(netLag);
+				scomm.println(j);
+				txTime = tx.millis();
+			}
+			Timing.sleep(5);
 		}
 		disconnect();
 	}
@@ -111,8 +124,13 @@ public class SocketWrapperThread extends Thread implements Closeable{
 		clientListeners.remove(d);
 	}
 	public void sendPacket(Packet p) {
+		queue.pushPacket(p);
+		/*tx.reset();
+		if(netLag > 0)
+			Timing.sleep(netLag);
 		String j = gson.toJson(p);
 		scomm.println(j);
+		txTime = tx.millis();*/
 	}
 	public void queueDisconnect() {
 		queueDisconnect = true;
@@ -147,5 +165,14 @@ public class SocketWrapperThread extends Thread implements Closeable{
 			removeClientListener(isl); //If we don't do this then bad shit happens so we must do this
 		}
 		return out;
+	}
+	public void setNetworkLag(int amount) {
+		netLag = amount;
+	}
+	public long getRxTime() {
+		return rxTime;
+	}
+	public long getTxTime() {
+		return txTime;
 	}
 }

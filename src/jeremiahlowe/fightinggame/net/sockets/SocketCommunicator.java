@@ -1,10 +1,10 @@
-package jeremiahlowe.fightinggame.net;
+package jeremiahlowe.fightinggame.net.sockets;
 
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
-public class SocketCommunicator implements Closeable{
+public class SocketCommunicator extends Thread implements Closeable{
 	private Socket base;
 	private PrintWriter out;
 	private Scanner in;
@@ -16,7 +16,7 @@ public class SocketCommunicator implements Closeable{
 		this.out = new PrintWriter(new BufferedOutputStream(base.getOutputStream()));
 		this.in = new Scanner(base.getInputStream());
 	}
-
+	
 	public void println(String text) {
 		out.println(text);
 		out.flush();
@@ -27,7 +27,10 @@ public class SocketCommunicator implements Closeable{
 			close();
 			return false;
 		}
-		return in.hasNext();
+		int a = 0;
+		try { a = base.getInputStream().available();
+		}catch(Exception e) { a = 0; }
+		return a > 0;
 	}
 	public String readLine() {
 		String s = in.nextLine(); 

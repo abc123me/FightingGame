@@ -1,6 +1,6 @@
-package jeremiahlowe.fightinggame.net;
+package jeremiahlowe.fightinggame.net.sockets;
 
-import jeremiahlowe.fightinggame.server.SocketWrapperThread;
+import jeremiahlowe.fightinggame.net.Packet;
 
 public class SocketAdapter implements ISocketListener {
 	public void onConnect(SocketWrapperThread cw) {}
