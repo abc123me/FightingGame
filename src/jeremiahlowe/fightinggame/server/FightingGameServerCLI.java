@@ -1,10 +1,11 @@
 package jeremiahlowe.fightinggame.server;
 
 import jeremiahlowe.fightinggame.Meta;
-import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.NameChange;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
+import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
+import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.Timing;
 

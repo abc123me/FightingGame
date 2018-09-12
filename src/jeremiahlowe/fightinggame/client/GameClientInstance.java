@@ -10,13 +10,13 @@ import com.google.gson.Gson;
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
-import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.NameChange;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.PlayerMovementData;
+import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
+import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
 import jeremiahlowe.fightinggame.phys.PhysicsObject;
 import jeremiahlowe.fightinggame.phys.Player;
-import jeremiahlowe.fightinggame.server.SocketWrapperThread;
 import jeremiahlowe.fightinggame.ui.IStatistic.ITextStatistic;
 import processing.core.PApplet;
 
@@ -167,13 +167,14 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 
 	public ITextStatistic getNetworkStatistics() {
 		return new ITextStatistic() {
-				public int getLevel() { return 1; }
-				public String getHeader() { return "Network"; }
-				public String[] getStatisticText() {
+			public int getLevel() { return 1; }
+			public String getHeader() { return "Network"; }
+			public String[] getStatisticText() {
 				return new String[] {
-						"My UUID: " + localPlayer.uuid,
-						"My name: " + localPlayer.name,
-						"isConnected(): " + isConnected()
+					"My UUID: " + localPlayer.uuid,
+					"My name: " + localPlayer.name,
+					"isConnected(): " + isConnected(),
+					"Ping (Rx, Tx): " + scomm.getRxTime() + ", " + scomm.getTxTime()
 				};
 			}
 		};
@@ -184,5 +185,9 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 	}
 	public void sendName(String name) {
 		scomm.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_NAME, name));
+	}
+	public void setNetworkLag(int amount) {
+		if(amount > 0)
+			scomm.setNetworkLag(amount);
 	}
 }

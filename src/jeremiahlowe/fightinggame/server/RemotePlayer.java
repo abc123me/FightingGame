@@ -1,5 +1,6 @@
 package jeremiahlowe.fightinggame.server;
 
+import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
 import jeremiahlowe.fightinggame.phys.Player;
 
 public class RemotePlayer {

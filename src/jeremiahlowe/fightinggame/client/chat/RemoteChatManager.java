@@ -5,10 +5,10 @@ import com.google.gson.Gson;
 import jeremiahlowe.fightinggame.client.GameClientInstance;
 import jeremiahlowe.fightinggame.net.ChatMessage;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
-import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
+import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
+import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
 import jeremiahlowe.fightinggame.phys.Player;
-import jeremiahlowe.fightinggame.server.SocketWrapperThread;
 import net.net16.jeremiahlowe.shared.Color;
 
 public class RemoteChatManager implements ISocketListener, IChatListener {
