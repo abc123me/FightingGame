@@ -7,8 +7,9 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import jeremiahlowe.fightinggame.net.ISocketListener;
 import jeremiahlowe.fightinggame.net.Packet;
+import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
+import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
 
 public class Server extends Thread implements ISocketListener{
 	public final int port, cnum;
