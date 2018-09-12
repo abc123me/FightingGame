@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.google.gson.Gson;
 import com.sun.xml.internal.ws.Closeable;
 
+import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import net.net16.jeremiahlowe.shared.Timing;
@@ -42,29 +43,31 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	public void run() {
 		baseThread = Thread.currentThread();
 		connect();
+		if(!Meta.serverside()) System.out.println("connected");
 		while(!Thread.interrupted()) {
 			if(queueDisconnect)
 				break;
 			if(scomm.hasNext()) {
 				rx.reset();
+				if(!Meta.serverside()) System.out.println("hasNext()");
 				String line = scomm.readLine();
-				if(netLag > 0)
-					Timing.sleep(netLag);
+				if(netLag > 0) Timing.sleep(netLag);
 				rxTime = rx.millis();
 				onData(line);
 				parseData(line);
 			}
-			while(queue.hasNextPacket()) {
+			if(queue.hasNextPacket()) {
 				tx.reset();
+				if(!Meta.serverside()) System.out.println("sendPacket()");
 				String j = gson.toJson(queue.nextPacket());
-				if(netLag > 0)
-					Timing.sleep(netLag);
+				if(netLag > 0) Timing.sleep(netLag);
 				scomm.println(j);
 				txTime = tx.millis();
 			}
 			/*if(!scomm.stillConnected())
 				break;*/
-			Timing.sleep(5);
+			if(!queue.hasNextPacket() || !scomm.hasNext())
+				Timing.sleep(5);
 		}
 		disconnect();
 	}

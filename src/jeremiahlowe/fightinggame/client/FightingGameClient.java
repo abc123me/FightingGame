@@ -70,6 +70,10 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		background(255);
 		instance.physicsUpdate((1 / frameRate));
 		instance.drawAll(this);
+		if(followLocalPlayer) {
+			instance.world.x = localPlayer.pos.x;
+			instance.world.y = localPlayer.pos.y;
+		}
 	}
 	
 	@Override
@@ -174,26 +178,32 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		int w = 500, h = 500;
 		boolean full = false;
 		if(args != null) {
-			for(int i = 1; i < args.length; i++) {
-				String arg = args[i - 1];
-				String next = args[i];
-				if(arg == "--full-screen")
+			System.out.println("Got arguments: ");
+			for(String arg : args)
+				System.out.print(arg + " ");
+			System.out.println();
+			for(int i = 1; i < args.length + 1; i++) {
+				String arg = args[i - 1].trim();
+				String next = "";
+				if(i < args.length)
+					next = args[i].trim();
+				if(arg.equals("--full-screen"))
 					full = true;
-				if(arg == "--width")
+				if(arg.equals("--width"))
 					w = Integer.parseInt(next);
-				if(arg == "--height")
+				if(arg.equals("--height"))
 					h = Integer.parseInt(next);
-				if(arg == "--host")
+				if(arg.equals("--host"))
 					host = next;
-				if(arg == "--port")
+				if(arg.equals("--port"))
 					port = Integer.parseInt(next);
-				if(arg == "--hax")
+				if(arg.equals("--hax"))
 					this.hax = true;
-				if(arg == "--name")
+				if(arg.equals("--name"))
 					name = next;
-				if(arg == "--follow")
+				if(arg.equals("--follow")) 
 					followLocalPlayer = true;
-				if(arg == "--ping")
+				if(arg.equals("--ping"))
 					simulatedNetworkLag = Integer.parseInt(next);
 			}
 		} else System.out.println("No arguments given :(");
