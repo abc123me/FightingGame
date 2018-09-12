@@ -43,8 +43,8 @@ public class SocketCommunicator extends Thread implements Closeable{
 	}
 	public boolean stillConnected() {
 		try {
-			int i = base.getInputStream().read();
-			return i >= 0;
+			base.getOutputStream().write('\n');
+			return true;
 		}catch(Exception e) {
 			return false;
 		}

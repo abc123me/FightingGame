@@ -54,7 +54,7 @@ public class SocketWrapperThread extends Thread implements Closeable{
 				onData(line);
 				parseData(line);
 			}
-			if(queue.hasNextPacket()) {
+			while(queue.hasNextPacket()) {
 				tx.reset();
 				String j = gson.toJson(queue.nextPacket());
 				if(netLag > 0)
@@ -62,6 +62,8 @@ public class SocketWrapperThread extends Thread implements Closeable{
 				scomm.println(j);
 				txTime = tx.millis();
 			}
+			/*if(!scomm.stillConnected())
+				break;*/
 			Timing.sleep(5);
 		}
 		disconnect();
@@ -125,12 +127,6 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	}
 	public void sendPacket(Packet p) {
 		queue.pushPacket(p);
-		/*tx.reset();
-		if(netLag > 0)
-			Timing.sleep(netLag);
-		String j = gson.toJson(p);
-		scomm.println(j);
-		txTime = tx.millis();*/
 	}
 	public void queueDisconnect() {
 		queueDisconnect = true;
