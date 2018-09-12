@@ -8,6 +8,7 @@ import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.math.Vector;
+import net.net16.jeremiahlowe.shared.math.VectorMath;
 import net.net16.jeremiahlowe.shared.math.Viewport;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
@@ -73,8 +74,11 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	
 	@Override
 	public void mouseMoved() {
-		localPlayer.setLookPosition(instance.screen.transform(new Vector(mouseX, mouseY), instance.world));
-		instance.updateLocalPlayer();
+		Vector newLookPos = instance.screen.transform(new Vector(mouseX, mouseY), instance.world);
+		Vector lookPos = localPlayer.look;
+		localPlayer.setLookPosition(newLookPos);
+		if(VectorMath.dist2(newLookPos, lookPos) > 1)
+			instance.updateLocalPlayer();
 	}
 	@Override
 	public void mousePressed() {
@@ -88,9 +92,12 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	}
 	@Override
 	public void mouseDragged() {
-		localPlayer.setLookPosition(instance.screen.transform(new Vector(mouseX, mouseY), instance.world));
-		instance.updateLocalPlayer();
+		Vector newLookPos = instance.screen.transform(new Vector(mouseX, mouseY), instance.world);
+		Vector lookPos = localPlayer.look;
+		localPlayer.setLookPosition(newLookPos);
 		localPlayer.shoot();
+		if(VectorMath.dist2(newLookPos, lookPos) > 1)
+			instance.updateLocalPlayer();
 	}
 	@Override
 	public void mouseWheel(MouseEvent m) {
@@ -115,35 +122,41 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		} else {
 			if (keyCode == SHIFT)
 				localPlayer.setFastMovement(true);
-			if (k == 'w')
+			else if (k == 'w')
 				localPlayer.keys.y = 1;
-			if (k == 's')
+			else if (k == 's')
 				localPlayer.keys.y = -1;
-			if (k == 'a')
+			else if (k == 'a')
 				localPlayer.keys.x = 1;
-			if (k == 'd')
+			else if (k == 'd')
 				localPlayer.keys.x = -1;
-			if (k == '=')
+			else if (k == '=')
 				instance.statistics.incrStatLevel();
-			if (k == '-')
+			else if (k == '-')
 				instance.statistics.decrStatLevel();
-			if (k == ' ')
+			else if (k == ' ')
 				localPlayer.shooting = true;
+			else
+				return;
 			instance.updateLocalPlayer();
 		}
 	}
 	@Override
 	public void keyReleased() {
-		if (keyCode == SHIFT)
-			localPlayer.setFastMovement(false);
-		char k = Character.toLowerCase(key);
-		if (k == 'w' || k == 's')
-			localPlayer.keys.y = 0;
-		if (k == 'a' || k == 'd')
-			localPlayer.keys.x = 0;
-		if (k == ' ')
-			localPlayer.shooting = false;
-		instance.updateLocalPlayer();
+		if(!chatControl) {
+			char k = Character.toLowerCase(key);
+			if (keyCode == SHIFT)
+				localPlayer.setFastMovement(false);
+			else if (k == 'w' || k == 's')
+				localPlayer.keys.y = 0;
+			else if (k == 'a' || k == 'd')
+				localPlayer.keys.x = 0;
+			else if (k == ' ')
+				localPlayer.shooting = false;
+			else
+				return;
+			instance.updateLocalPlayer();
+		}
 	}
 	public void onConnect(SocketWrapperThread cw) {}
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {}
