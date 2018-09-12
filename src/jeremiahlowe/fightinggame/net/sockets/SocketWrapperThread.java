@@ -175,4 +175,7 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	public long getTxTime() {
 		return txTime;
 	}
+	public int getPacketsWaiting() {
+		return queue.packetsWaiting();
+	}
 }

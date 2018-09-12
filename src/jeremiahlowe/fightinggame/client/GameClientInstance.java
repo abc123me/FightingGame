@@ -174,7 +174,8 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 					"My UUID: " + localPlayer.uuid,
 					"My name: " + localPlayer.name,
 					"isConnected(): " + isConnected(),
-					"Ping (Rx, Tx): " + scomm.getRxTime() + ", " + scomm.getTxTime()
+					"Ping (Rx, Tx): " + scomm.getRxTime() + ", " + scomm.getTxTime(),
+					"Packets waiting: " + scomm.getPacketsWaiting()
 				};
 			}
 		};
