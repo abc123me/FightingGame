@@ -75,7 +75,6 @@ public class Launcher extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		Launcher gui = this;
 		
 		JLabel lblImUsingAn = new JLabel("I'm using an absolute layout because im lazy");
 		lblImUsingAn.setBounds(12, 231, 424, 15);
@@ -117,7 +116,6 @@ public class Launcher extends JFrame {
 		chckbxFullscreen = new JCheckBox("Fullscreen");
 		chckbxFullscreen.setBounds(12, 37, 117, 23);
 		contentPane.add(chckbxFullscreen);
-		updateResolutionEntry(presetBox, widthSpinner, heightSpinner);
 		txtName = new JTextField();
 		txtName.setText(Meta.getRandomName());
 		txtName.setBounds(137, 66, 226, 19);
@@ -142,29 +140,18 @@ public class Launcher extends JFrame {
 		
 		ActionListener resUpdate = new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
-				updateResolutionEntry(presetBox, widthSpinner, heightSpinner);
+				updateResolutionEntry();
 			}
 		};
 		ChangeListener setRes = new ChangeListener() {
 			@Override public void stateChanged(ChangeEvent e) {
-				resUpdate.actionPerformed(null);
+				updateResolutionEntry();
 			}
 		};
 		presetBox.addActionListener(resUpdate);
+		chckbxFullscreen.addActionListener(resUpdate);
 		widthSpinner.addChangeListener(setRes);
 		heightSpinner.addChangeListener(setRes);
-		chckbxFullscreen.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(chckbxFullscreen.isSelected()) {
-					JOptionPane.showMessageDialog(gui, "Plays best on windowed", "Warning", JOptionPane.WARNING_MESSAGE);
-					widthSpinner.setEnabled(false);
-					heightSpinner.setEnabled(false);
-					presetBox.setEnabled(false);
-				}
-				else updateResolutionEntry(presetBox, widthSpinner, heightSpinner);
-			}
-		});
 		btnLaunch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -179,6 +166,7 @@ public class Launcher extends JFrame {
 				setVisible(false);
 			}
 		});
+		updateResolutionEntry();
 	}
 	public String[] getLaunchArgs() {
 		String hax = "", full = "", follow = "";
@@ -204,7 +192,7 @@ public class Launcher extends JFrame {
 				full, hax, follow
 			};
 	}
-	private void updateResolutionEntry(JComboBox<ResolutionPreset> presetBox, JSpinner widthSpinner, JSpinner heightSpinner) {
+	private void updateResolutionEntry() {
 		Object obj = presetBox.getSelectedItem();
 		if(obj instanceof ResolutionPreset) {
 			ResolutionPreset r = (ResolutionPreset) obj;
@@ -219,6 +207,11 @@ public class Launcher extends JFrame {
 			}
 		}
 		else JOptionPane.showMessageDialog(this, "WTF? presetBox.getSelectedItem() isn't instance of ResolutionPreset?", "WTF?", JOptionPane.ERROR_MESSAGE);
+		if(chckbxFullscreen.isSelected()) {
+			widthSpinner.setEnabled(false);
+			heightSpinner.setEnabled(false);
+			presetBox.setEnabled(false);
+		}
 	}
 	public int getResolutionWidth() {
 		return (int)widthSpinner.getValue();
@@ -254,6 +247,7 @@ public class Launcher extends JFrame {
 			presetBox.setSelectedIndex(pre);
 			pingSpinner.setValue(ping);
 			chckbxFollowPlayer.setSelected(follow);
+			updateResolutionEntry();
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(this, "Error loading last config\n" + e, "Error!", JOptionPane.ERROR_MESSAGE);
 		}
