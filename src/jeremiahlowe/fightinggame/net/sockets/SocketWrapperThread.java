@@ -23,7 +23,7 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	private boolean queueDisconnect = false;
 	private int netLag = 0;
 	private long rxTime = 0, txTime = 0;
-	private Timing rx, tx;
+	private Timing rx, tx, ct;
 	private PacketQueue queue;
 	
 	public SocketWrapperThread(long UUID, Socket baseSocket, boolean startWaitQueue) throws IOException {
@@ -33,6 +33,7 @@ public class SocketWrapperThread extends Thread implements Closeable{
 		queue = new PacketQueue();
 		rx = new Timing();
 		tx = new Timing();
+		ct = new Timing();
 	}
 	public SocketWrapperThread(long UUID, Socket baseSocket) throws IOException {
 		this(UUID, baseSocket, true);
@@ -45,7 +46,7 @@ public class SocketWrapperThread extends Thread implements Closeable{
 		while(!Thread.interrupted()) {
 			if(queueDisconnect)
 				break;
-			if(scomm.hasNext()) {
+			while(scomm.hasNext()) {
 				rx.reset();
 				String line = scomm.readLine();
 				if(netLag > 0) Timing.sleep(netLag);
@@ -53,17 +54,19 @@ public class SocketWrapperThread extends Thread implements Closeable{
 				onData(line);
 				parseData(line);
 			}
-			if(queue.hasNextPacket()) {
+			while(queue.hasNextPacket()) {
 				tx.reset();
 				String j = gson.toJson(queue.nextPacket());
 				if(netLag > 0) Timing.sleep(netLag);
 				scomm.println(j);
 				txTime = tx.millis();
 			}
-			if(!scomm.stillConnected())
-				break;
-			if(!queue.hasNextPacket() || !scomm.hasNext())
-				Timing.sleep(5);
+			if(ct.secs() > 0.5) {
+				if(!scomm.stillConnected())
+					break;
+				ct.reset();
+			}
+			Timing.sleep(5);
 		}
 		disconnect();
 	}
