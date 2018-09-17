@@ -1,5 +1,7 @@
 package jeremiahlowe.fightinggame.phys;
 
+import java.util.ArrayList;
+
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.ins.Instance;
 import net.net16.jeremiahlowe.shared.math.Vector;
@@ -8,39 +10,47 @@ import processing.core.PApplet;
 public class DamageableFighter extends Fighter {
 	public float health, maxHealth;
 	public boolean invincible = false;
+	
+	private transient ArrayList<IDamageListener> damageListeners;
 
 	public DamageableFighter() {
+		super();
 		health = 75;
 		maxHealth = 100;
+		damageListeners = new ArrayList<IDamageListener>();
 	}
 
-	public void onHeal(Instance i, Object from, float by) {
-		if (by < 0) {
-			onHit(i, from, -by);
-			return;
-		}
-		health += by;
-		if (health > maxHealth)
-			health = maxHealth;
-	}
 	public void onHit(Instance i, Object from, float damage) {
 		if (invincible)
 			return;
-		if (damage < 0) {
-			onHeal(i, from, -damage);
-			return;
-		}
-		health -= damage;
-		if (health <= 0) {
+		damage(i, from, -damage);
+	}
+	private void damage(Instance i, Object from, float amt) {
+		health += amt;
+		if (health > maxHealth)
+			health = maxHealth;
+		if(health <= 0) {
 			health = 0;
 			onDeath(i);
 		}
+		for(IDamageListener d : damageListeners)
+			if(d != null)
+				d.onTakeDamage(i, from, this, amt);
 	}
 	public void onDeath(Instance i) {
+		for(IDamageListener d : damageListeners)
+			if(d != null)
+				d.onDeath(i, this);
 		alive = false;
 		destroy();
 		if(i != null)
 			i.remove(this);
+	}
+	public void addDamageListener(IDamageListener dl) {
+		damageListeners.add(dl);
+	}
+	public void removeDamageListener(IDamageListener dl) {
+		damageListeners.remove(dl);
 	}
 	
 	@Override
