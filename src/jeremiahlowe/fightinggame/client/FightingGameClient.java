@@ -220,11 +220,9 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		}
 	}
 	public void fatalError(Exception e, int code, String msg) {
-		String estr = "";
 		if(e != null) {
 			System.err.println(e);
 			e.printStackTrace();
-			estr = "\n" + e.toString();
 		} else System.err.println(msg);
 		System.exit(code);
 	}

@@ -295,10 +295,15 @@ public class Launcher extends JFrame {
 		String classpath = System.getProperty("java.class.path");
 		String className = klass.getCanonicalName();
 		
-		String argGrp = "";
-		for(String a : args)
-			argGrp += a;
-		ProcessBuilder pb = new ProcessBuilder(javaBin, "-cp", classpath, className, argGrp);
+		int o = 4;
+		String[] realArgs = new String[o + args.length];
+		realArgs[0] = javaBin;
+		realArgs[1] = "-cp";
+		realArgs[2] = classpath;
+		realArgs[3] = className;
+		for(int i = o, j = 0; i < realArgs.length; i++, j++)
+			realArgs[i] = args[j];
+		ProcessBuilder pb = new ProcessBuilder(realArgs);
 		pb.inheritIO();
 		Process p = pb.start();
 		p.waitFor();
