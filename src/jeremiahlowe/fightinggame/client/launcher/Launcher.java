@@ -21,6 +21,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 import javax.swing.DefaultComboBoxModel;
@@ -93,7 +94,7 @@ public class Launcher extends JFrame {
 		contentPane.add(lblIpPort);
 		JLabel lblMs = new JLabel("simulated ping (in ms)");
 		lblMs.setBounds(126, 158, 237, 15);
-		contentPane.add(lblMs);
+		contentPane.add(lblMs)  ;
 		
 		JButton btnLaunch = new JButton("Launch");
 		btnLaunch.setBounds(12, 194, 117, 25);
@@ -152,18 +153,34 @@ public class Launcher extends JFrame {
 		chckbxFullscreen.addActionListener(resUpdate);
 		widthSpinner.addChangeListener(setRes);
 		heightSpinner.addChangeListener(setRes);
+		Launcher gui = this;
 		btnLaunch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				saveConfig(CONFIG_FILE_NAME);
-				Thread t = new Thread() {
-					@Override public void run() {
-						FightingGameClient.main(getLaunchArgs());
-					}
-				};
-				t.start();
-				try{t.join();}catch(Exception exc) {}
-				setVisible(false);
+				try {
+					setVisible(false);
+					int exit = exec(FightingGameClient.class, getLaunchArgs());
+					if(exit == FightingGameClient.NORMAL_EXITCODE)
+						System.exit(0);
+					gui.setVisible(true); 
+					if(exit == FightingGameClient.CONNECTION_ERROR_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "Can't connect to server", "Error", JOptionPane.ERROR_MESSAGE);
+					if(exit == FightingGameClient.DISCONNECT_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "Disconnected from server, reason unknown", "Error", JOptionPane.INFORMATION_MESSAGE);
+					if(exit == FightingGameClient.FATAL_ERROR_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "Unknown fatal error, wow this is a helpful dialog!", "Error", JOptionPane.ERROR_MESSAGE);
+					if(exit == FightingGameClient.PLAYER_ERROR_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "Couldn't get localPlayer from the server?!", "Error", JOptionPane.ERROR_MESSAGE);
+				} catch (IOException ioe) {
+					JOptionPane.showMessageDialog(gui, "Launcher had ioerror: \n" + ioe, 
+							"Launch error", JOptionPane.ERROR_MESSAGE);
+					ioe.printStackTrace();
+				} catch (InterruptedException ie) {
+					JOptionPane.showMessageDialog(gui, "Launcher was interrupted: \n" + ie, 
+							"Launch error", JOptionPane.ERROR_MESSAGE);
+					ie.printStackTrace();
+				}
 			}
 		});
 		updateResolutionEntry();
@@ -189,7 +206,7 @@ public class Launcher extends JFrame {
 				"--port", String.valueOf((int)portSpinner.getValue()),
 				"--name", String.valueOf(txtName.getText()),
 				"--ping", String.valueOf(pingSpinner.getValue()),
-				full, hax, follow
+				full, hax, follow, "--dialogs"
 			};
 	}
 	private void updateResolutionEntry() {
@@ -270,5 +287,21 @@ public class Launcher extends JFrame {
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(this, "Error saving config\n" + e, "Error!", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	
+	public static int exec(Class<?> klass, String[] args) throws IOException, InterruptedException {
+		String javaHome = System.getProperty("java.home");
+		String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
+		String classpath = System.getProperty("java.class.path");
+		String className = klass.getCanonicalName();
+		
+		String argGrp = "";
+		for(String a : args)
+			argGrp += a;
+		ProcessBuilder pb = new ProcessBuilder(javaBin, "-cp", classpath, className, argGrp);
+		pb.inheritIO();
+		Process p = pb.start();
+		p.waitFor();
+		return p.exitValue();
 	}
 }

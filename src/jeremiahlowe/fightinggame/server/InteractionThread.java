@@ -34,6 +34,7 @@ public class InteractionThread extends Thread{
 		System.out.println("exit: Stops the server");
 		System.out.println("list: Lists all players");
 		System.out.println("kick <uuid> [reason]: Kicks a player");
+		System.out.println("close <uuid>: Closes a player's socket");
 		System.out.println("debug <level>: Sets the debug level (0-3)");
 		System.out.println("tps: Gets the TPS the server is running at");
 		System.out.println("lag: Lags the server");
@@ -56,7 +57,9 @@ public class InteractionThread extends Thread{
 		else if(input.equals("kickall")) 
 			kickAll(parts);
 		else if(input.startsWith("kick")) 
-			kick(parts);
+			kick(parts, false);
+		else if(input.startsWith("close"))
+			kick(parts, true);
 		else if(input.equals("tps")) 
 			System.out.println("TPS: " + fgs.tps());
 		else if(input.equals("lag")) 
@@ -111,7 +114,7 @@ public class InteractionThread extends Thread{
 		for(Player p : instance.getPlayerList())
 			instance.kickPlayerWithUUID(p.uuid, reason);
 	}
-	private void kick(String[] parts) {
+	private void kick(String[] parts, boolean close) {
 		long uuid = 0;
 		if(parts.length < 2) {
 			System.out.println("Kick command needs a uuid parameter!");
@@ -126,7 +129,10 @@ public class InteractionThread extends Thread{
 					reason += " " + parts[i];
 				reason = reason.substring(1);
 			}
-			instance.kickPlayerWithUUID(uuid, reason);
+			if(close)
+				instance.getWrapperWithUUID(uuid).close();
+			else
+				instance.kickPlayerWithUUID(uuid, reason);
 		} catch(Exception e) { 
 			System.out.println("Error during kicking player with UUID \"" + parts[1] + "\": " + e); 
 		}
