@@ -11,14 +11,14 @@ public class DamageableFighter extends Fighter {
 	public float health, maxHealth;
 	public boolean invincible = false;
 	
-	private final transient ArrayList<IDamageListener> damageListeners = new ArrayList<IDamageListener>();
+	private transient ArrayList<IDamageListener> damageListeners;
 
 	public DamageableFighter() {
 		super();
 		health = 75;
 		maxHealth = 100;
 	}
-
+	
 	public void onHit(Instance i, Object from, float damage) {
 		if (invincible)
 			return;
@@ -32,23 +32,29 @@ public class DamageableFighter extends Fighter {
 			health = 0;
 			onDeath(i);
 		}
-		for(IDamageListener d : damageListeners)
-			if(d != null)
-				d.onTakeDamage(i, from, this, amt);
+		if(damageListeners != null)
+			for(IDamageListener d : damageListeners)
+				if(d != null)
+					d.onTakeDamage(i, from, this, amt);
 	}
 	public void onDeath(Instance i) {
-		for(IDamageListener d : damageListeners)
-			if(d != null)
-				d.onDeath(i, this);
+		if(damageListeners != null)
+			for(IDamageListener d : damageListeners)
+				if(d != null)
+					d.onDeath(i, this);
 		alive = false;
 		destroy();
 		if(i != null)
 			i.remove(this);
 	}
 	public void addDamageListener(IDamageListener dl) {
+		if(damageListeners == null)
+			damageListeners = new ArrayList<IDamageListener>();
 		damageListeners.add(dl);
 	}
 	public void removeDamageListener(IDamageListener dl) {
+		if(damageListeners == null)
+			damageListeners = new ArrayList<IDamageListener>();
 		damageListeners.remove(dl);
 	}
 	
