@@ -2,7 +2,6 @@ package jeremiahlowe.fightinggame.client;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
@@ -75,7 +74,7 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			Player pl = Meta.gson.fromJson(p.contents, Player.class);
 			System.out.println("Adding new player based off of: " + p.contents);
 			if(pl == null) throw new RuntimeException("Server sent us invalid playerdata?!");
-			pl.invincible = true;
+			//pl.invincible = true;
 			if(pl.uuid == localPlayer.uuid) {
 				System.out.println("Player being added has same UUID as localPlayer, Ignoring it!");
 				return;
