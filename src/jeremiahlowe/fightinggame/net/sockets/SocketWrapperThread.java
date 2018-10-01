@@ -9,6 +9,7 @@ import com.sun.xml.internal.ws.Closeable;
 
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
+import jeremiahlowe.fightinggame.server.Logger;
 import net.net16.jeremiahlowe.shared.Timing;
 
 public class SocketWrapperThread extends Thread implements Closeable{
@@ -177,5 +178,13 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	}
 	public int getPacketsWaiting() {
 		return queue.packetsWaiting();
+	}
+	public void killCommunications() {
+		if(isAlive()) {
+			try{
+				interrupt();
+				Logger.log("GG rest in spagetti @ " + UUID, 2);
+			} catch(Exception e) {}
+		}
 	}
 }

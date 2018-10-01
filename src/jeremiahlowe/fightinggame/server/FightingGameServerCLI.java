@@ -1,15 +1,19 @@
 package jeremiahlowe.fightinggame.server;
 
 import jeremiahlowe.fightinggame.Meta;
-import jeremiahlowe.fightinggame.net.NameChange;
+import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
+import jeremiahlowe.fightinggame.net.struct.HealthData;
+import jeremiahlowe.fightinggame.net.struct.NameChange;
+import jeremiahlowe.fightinggame.phys.DamageableFighter;
+import jeremiahlowe.fightinggame.phys.IDamageListener;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.Timing;
 
-public class FightingGameServerCLI implements ISocketListener{
+public class FightingGameServerCLI implements ISocketListener, IDamageListener{
 	private ServerInstance instance;
 	private InteractionThread userInputThread;
 	private Thread physicsThread;
@@ -81,7 +85,6 @@ public class FightingGameServerCLI implements ISocketListener{
 	}
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		Logger.log("Client sent request for: " + p.identity, 4);
-		
 	}
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		Logger.log("Client sent update for: " + p.identity, 4);
@@ -121,5 +124,20 @@ public class FightingGameServerCLI implements ISocketListener{
 	}
 	public void toggleLagg() {
 		lagg = !lagg;
+	}
+
+	@Override
+	public void onDeath(Instance i, DamageableFighter from) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void onTakeDamage(Instance i, Object from, DamageableFighter to, float amount) {
+		if(to instanceof Player) {
+			Player p = (Player) to;
+			HealthData toData = new HealthData(p);
+			Packet pkt = toData.toPacket();
+			instance.server.broadcast(pkt);
+		}
 	}
 }

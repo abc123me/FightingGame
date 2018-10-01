@@ -11,13 +11,12 @@ public class DamageableFighter extends Fighter {
 	public float health, maxHealth;
 	public boolean invincible = false;
 	
-	private transient ArrayList<IDamageListener> damageListeners;
+	private final transient ArrayList<IDamageListener> damageListeners = new ArrayList<IDamageListener>();
 
 	public DamageableFighter() {
 		super();
 		health = 75;
 		maxHealth = 100;
-		damageListeners = new ArrayList<IDamageListener>();
 	}
 
 	public void onHit(Instance i, Object from, float damage) {

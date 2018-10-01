@@ -1,14 +1,17 @@
 package jeremiahlowe.fightinggame.client;
 
+
 import javax.swing.JOptionPane;
 
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.client.chat.Chat;
 import jeremiahlowe.fightinggame.client.chat.RemoteChatManager;
+import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
 import jeremiahlowe.fightinggame.phys.Player;
+import net.net16.jeremiahlowe.shared.Timing;
 import net.net16.jeremiahlowe.shared.math.Vector;
 import net.net16.jeremiahlowe.shared.math.VectorMath;
 import net.net16.jeremiahlowe.shared.math.Viewport;
@@ -40,6 +43,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	private GameClientInstance instance;
 	private Player localPlayer;
 	private boolean chatControl = false;
+	private Timing syncTimer = new Timing();
 	
 	@Override
 	public void settings() {
@@ -79,6 +83,12 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			instance.world.x = localPlayer.pos.x;
 			instance.world.y = localPlayer.pos.y;
 		}
+		if(syncTimer.secs() > 0.25) sync();
+	}
+	
+	public void sync() {
+		syncTimer.reset();
+		instance.requestPositions();
 	}
 	
 	@Override

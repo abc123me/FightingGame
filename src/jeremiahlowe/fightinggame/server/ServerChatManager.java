@@ -1,10 +1,10 @@
 package jeremiahlowe.fightinggame.server;
 
-import jeremiahlowe.fightinggame.net.ChatMessage;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
+import jeremiahlowe.fightinggame.net.struct.ChatMessage;
 
 public class ServerChatManager implements ISocketListener{
 	public final ServerInstance instance;

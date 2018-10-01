@@ -2,21 +2,19 @@ package jeremiahlowe.fightinggame.server;
 
 import java.util.ArrayList;
 
-import com.google.gson.Gson;
-
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.ins.Instance;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
-import jeremiahlowe.fightinggame.net.PlayerMovementData;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
+import jeremiahlowe.fightinggame.net.struct.MovementData;
+import jeremiahlowe.fightinggame.net.struct.PositionData;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.Color;
 import net.net16.jeremiahlowe.shared.Timing;
 
 public class ServerInstance extends Instance implements ISocketListener{
-	private static final Gson gson = new Gson();
 	private ArrayList<RemotePlayer> players;
 	
 	public ServerChatManager scm;
@@ -37,20 +35,15 @@ public class ServerInstance extends Instance implements ISocketListener{
 	@Override 
 	public void onConnect(SocketWrapperThread cw) {
 		getClientVersionData(cw);
-	}
+	} 
 	@Override 
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.PLAYER_MOVEMENT) {
-			PlayerMovementData pmd = gson.fromJson(p.contents, PlayerMovementData.class);
+			MovementData pmd = Meta.gson.fromJson(p.contents, MovementData.class);
 			Player pl = getPlayerWithUUID(cw.UUID);
 			if(pl == null) {
 				Logger.log("Got playerdata for a nonexistant player, Killing it now!", 1);
-				if(cw.isAlive()) {
-					try{
-						cw.interrupt();
-						Logger.log("GG rest in spagetti @ " + cw.UUID, 2);
-					} catch(Exception e) {}
-				}
+				cw.killCommunications();
 				return;
 			}
 			pmd.copyTo(pl);
@@ -71,12 +64,17 @@ public class ServerInstance extends Instance implements ISocketListener{
 				player = createPlayer(cw.UUID);
 				addPlayerIgnoreSelf(new RemotePlayer(player, cw));
 			}
-			cw.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_PLAYER_DATA, gson.toJson(player)));
+			cw.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_PLAYER_DATA, Meta.gson.toJson(player)));
 		}
 		else if(p.identity == EPacketIdentity.PLAYER_LIST) {
 			Logger.log("Client requested the player list, sending it to him", 2);
 			for(Player pl : getPlayerList()) 
-				cw.sendPacket(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, gson.toJson(pl)));
+				cw.sendPacket(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, Meta.gson.toJson(pl)));
+		}
+		else if(p.identity == EPacketIdentity.PLAYER_POSITIONS) {
+			for(RemotePlayer pl : players)
+				cw.sendPacket(Packet.createUpdate(EPacketIdentity.PLAYER_POSITION, 
+						Meta.gson.toJson(new PositionData(pl.p))));
 		}
 	}
 	@Override 
@@ -130,12 +128,12 @@ public class ServerInstance extends Instance implements ISocketListener{
 	public void addPlayer(RemotePlayer remote) {
 		players.add(remote);
 		add(remote.p);
-		server.broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, gson.toJson(remote.p)));
+		server.broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, Meta.gson.toJson(remote.p)));
 	}
 	public void addPlayerIgnoreSelf(RemotePlayer remote) {
 		players.add(remote);
 		add(remote.p);
-		String json = gson.toJson(remote.p);
+		String json = Meta.gson.toJson(remote.p);
 		server.broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, json), remote.cw.UUID);//, remote.cw.UUID);
 	}
 	public void removePlayer(RemotePlayer remote) {
@@ -143,8 +141,8 @@ public class ServerInstance extends Instance implements ISocketListener{
 		remove(remote.p);
 		server.broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_REMOVE, String.valueOf(remote.p.uuid)));
 	}
-	public void updatePlayerMovementData(PlayerMovementData pmd) {
-		String json = gson.toJson(pmd);
+	public void updatePlayerMovementData(MovementData pmd) {
+		String json = Meta.gson.toJson(pmd);
 		server.broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, json), pmd.forUUID);
 	}
 	public void removePlayerWithUUID(long uuid) {

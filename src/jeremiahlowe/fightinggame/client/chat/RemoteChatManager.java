@@ -3,11 +3,11 @@ package jeremiahlowe.fightinggame.client.chat;
 import com.google.gson.Gson;
 
 import jeremiahlowe.fightinggame.client.GameClientInstance;
-import jeremiahlowe.fightinggame.net.ChatMessage;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
+import jeremiahlowe.fightinggame.net.struct.ChatMessage;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.Color;
 

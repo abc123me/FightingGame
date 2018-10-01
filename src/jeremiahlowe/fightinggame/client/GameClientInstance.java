@@ -2,19 +2,20 @@ package jeremiahlowe.fightinggame.client;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
-
-import com.google.gson.Gson;
 
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.ins.GraphicalInstance;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
-import jeremiahlowe.fightinggame.net.NameChange;
 import jeremiahlowe.fightinggame.net.Packet;
-import jeremiahlowe.fightinggame.net.PlayerMovementData;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
+import jeremiahlowe.fightinggame.net.struct.HealthData;
+import jeremiahlowe.fightinggame.net.struct.MovementData;
+import jeremiahlowe.fightinggame.net.struct.NameChange;
+import jeremiahlowe.fightinggame.net.struct.PositionData;
 import jeremiahlowe.fightinggame.phys.PhysicsObject;
 import jeremiahlowe.fightinggame.phys.Player;
 import jeremiahlowe.fightinggame.ui.IStatistic.ITextStatistic;
@@ -25,11 +26,9 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 	private boolean connected = false;
 	
 	public Player localPlayer;
-	public final Gson gson;
 	
 	public GameClientInstance(PApplet applet) {
 		super(applet);
-		gson = new Gson();
 	}
 	
 	@SuppressWarnings("resource") //Will be closed by either hook or disconnect
@@ -73,9 +72,10 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		System.out.println("Got update from server!");
 		if(p.identity == EPacketIdentity.PLAYER_ADD) {
-			Player pl = gson.fromJson(p.contents, Player.class);
+			Player pl = Meta.gson.fromJson(p.contents, Player.class);
 			System.out.println("Adding new player based off of: " + p.contents);
 			if(pl == null) throw new RuntimeException("Server sent us invalid playerdata?!");
+			pl.invincible = true;
 			if(pl.uuid == localPlayer.uuid) {
 				System.out.println("Player being added has same UUID as localPlayer, Ignoring it!");
 				return;
@@ -107,11 +107,24 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			else remove(pl);
 		}
 		else if(p.identity == EPacketIdentity.PLAYER_MOVEMENT) {
-			PlayerMovementData pd = gson.fromJson(p.contents, PlayerMovementData.class);
+			MovementData pd = Meta.gson.fromJson(p.contents, MovementData.class);
 			if(pd == null) throw new RuntimeException("Server sent us invalid playerdata?!");
-			System.out.println("Updating player " + pd.forUUID + "'s movement data on the client");
 			Player pl = getPlayerWithUUID(pd.forUUID);
 			pd.copyTo(pl);
+		}
+		else if(p.identity == EPacketIdentity.PLAYER_HEALTH) {
+			HealthData hd = Meta.gson.fromJson(p.contents, HealthData.class);
+			if(hd == null) throw new RuntimeException("Server sent us invalid healthdata!");
+			System.out.println("Updating player " + hd.forUUID + "'s health data on the client to: " + hd);
+			Player pl = getPlayerWithUUID(hd.forUUID);
+			hd.copyTo(pl);
+		}
+		else if(p.identity == EPacketIdentity.PLAYER_POSITION) {
+			PositionData pd = Meta.gson.fromJson(p.contents, PositionData.class);
+			if(pd != null) {
+				Player pl = getPlayerWithUUID(pd.forUUID);
+				if(pl != null) pd.copyTo(pl);
+			}
 		}
 	}
 	public Player getPlayerWithUUID(long uuid) {
@@ -145,12 +158,15 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 		Packet p = scomm.waitForUpdatePacket(1000, EPacketIdentity.CLIENT_PLAYER_DATA);
 		if(p == null)
 			return null;
-		return gson.fromJson(p.contents, Player.class);
+		return Meta.gson.fromJson(p.contents, Player.class);
+	}
+	public void requestPositions() {
+		scomm.sendPacket(Packet.createRequest(EPacketIdentity.PLAYER_POSITIONS));
 	}
 	public void updateLocalPlayer() {
 		scomm.sendPacket(
 				Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, //Packet type
-				gson.toJson(new PlayerMovementData(localPlayer)))); //Movement data
+				Meta.gson.toJson(new MovementData(localPlayer)))); //Movement data
 	}
 	@Override
 	public void add(Object p) {

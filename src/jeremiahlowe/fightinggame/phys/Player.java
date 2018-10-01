@@ -9,7 +9,6 @@ public class Player extends DamageableFighter {
 	public Vector keys;
 	public String name = "Unnamed";
 	public float speed, speedBoost;
-	public boolean speedboostActive;
 	public float lookOffset = (float) (1.5f * Math.PI);
 	public final long uuid;
 	
@@ -40,10 +39,12 @@ public class Player extends DamageableFighter {
 	}
 
 	public void setFastMovement(boolean b) {
-		speedboostActive = b;
 		if(b)
 			realSpeed = speed * speedBoost;
 		else
 			realSpeed = speed;
+	}
+	public boolean hasSpeedBoost() {
+		return realSpeed > speed;
 	}
 }
