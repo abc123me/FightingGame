@@ -140,12 +140,12 @@ public class Launcher extends JFrame {
 		contentPane.add(pingSpinner);
 		
 		ActionListener resUpdate = new ActionListener() {
-			@Override public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				updateResolutionEntry();
 			}
 		};
 		ChangeListener setRes = new ChangeListener() {
-			@Override public void stateChanged(ChangeEvent e) {
+			public void stateChanged(ChangeEvent e) {
 				updateResolutionEntry();
 			}
 		};
@@ -153,9 +153,8 @@ public class Launcher extends JFrame {
 		chckbxFullscreen.addActionListener(resUpdate);
 		widthSpinner.addChangeListener(setRes);
 		heightSpinner.addChangeListener(setRes);
-		Launcher gui = this;
+		final Launcher gui = this;
 		btnLaunch.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				saveConfig(CONFIG_FILE_NAME);
 				try {
@@ -203,7 +202,7 @@ public class Launcher extends JFrame {
 				"--width", String.valueOf(w),
 				"--height", String.valueOf(h),
 				"--host", String.valueOf(txtLocalhost.getText()),
-				"--port", String.valueOf((int)portSpinner.getValue()),
+				"--port", String.valueOf(((Integer) portSpinner.getValue()).intValue()),
 				"--name", String.valueOf(txtName.getText()),
 				"--ping", String.valueOf(pingSpinner.getValue()),
 				full, hax, follow, "--dialogs"
@@ -231,10 +230,10 @@ public class Launcher extends JFrame {
 		}
 	}
 	public int getResolutionWidth() {
-		return (int)widthSpinner.getValue();
+		return ((Integer) widthSpinner.getValue()).intValue();
 	}
 	public int getResolutionHeight() {
-		return (int)heightSpinner.getValue();
+		return ((Integer) heightSpinner.getValue()).intValue();
 	}
 	public void loadConfig(String fn) {
 		try{

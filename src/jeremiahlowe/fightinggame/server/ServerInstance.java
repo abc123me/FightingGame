@@ -31,12 +31,10 @@ public class ServerInstance extends Instance implements ISocketListener{
 		if(add)
 			addSocketListeners(server);
 	}
-
-	@Override 
+ 
 	public void onConnect(SocketWrapperThread cw) {
 		getClientVersionData(cw);
-	} 
-	@Override 
+	}  
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.PLAYER_MOVEMENT) {
 			MovementData pmd = Meta.gson.fromJson(p.contents, MovementData.class);
@@ -50,8 +48,7 @@ public class ServerInstance extends Instance implements ISocketListener{
 			updatePlayerMovementData(pmd);
 			Logger.log("Updated player movement data", 4);
 		}
-	}
-	@Override 
+	} 
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.VERSION_DATA) {
 			Logger.log("Client requested version sending it to him now", 2);
@@ -76,13 +73,12 @@ public class ServerInstance extends Instance implements ISocketListener{
 				cw.sendPacket(Packet.createUpdate(EPacketIdentity.PLAYER_POSITION, 
 						Meta.gson.toJson(new PositionData(pl.p))));
 		}
-	}
-	@Override 
+	} 
 	public void onDisconnect(SocketWrapperThread cw) {
 		removePlayerWithUUID(cw.UUID);
 	}
-	@Override public void onReceiveData(SocketWrapperThread cw, String data) {}
-	@Override public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
+	public void onReceiveData(SocketWrapperThread cw, String data) {}
+	public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
 	
 	public void addSocketListeners(Server s) {
 		s.addClientListener(this);
@@ -165,7 +161,8 @@ public class ServerInstance extends Instance implements ISocketListener{
 		System.out.println("Kicked player with UUID: " + uuid);
 		removePlayerWithUUID(uuid);
 	}
-	private void getClientVersionData(SocketWrapperThread cw) {
+	private void getClientVersionData(SocketWrapperThread c) {
+		final SocketWrapperThread cw = c;
 		Thread verThread = new Thread() {
 			@Override
 			public void run() {

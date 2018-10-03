@@ -126,12 +126,7 @@ public class FightingGameServerCLI implements ISocketListener, IDamageListener{
 		lagg = !lagg;
 	}
 
-	@Override
-	public void onDeath(Instance i, DamageableFighter from) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
+	public void onDeath(Instance i, DamageableFighter from) { }
 	public void onTakeDamage(Instance i, Object from, DamageableFighter to, float amount) {
 		if(to instanceof Player) {
 			Player p = (Player) to;
