@@ -6,11 +6,11 @@ import javax.swing.JOptionPane;
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.client.chat.Chat;
 import jeremiahlowe.fightinggame.client.chat.RemoteChatManager;
-import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
 import jeremiahlowe.fightinggame.phys.Player;
+import net.net16.jeremiahlowe.shared.SwingUtility;
 import net.net16.jeremiahlowe.shared.Timing;
 import net.net16.jeremiahlowe.shared.math.Vector;
 import net.net16.jeremiahlowe.shared.math.VectorMath;
@@ -24,6 +24,8 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	public static final int PLAYER_ERROR_EXITCODE = 2;
 	public static final int DISCONNECT_EXITCODE = 1;
 	public static final int CONNECTION_ERROR_EXITCODE = 3;
+	public static final int DEATH_EXITCODE = 4;
+	public static final int KICKED_EXITCODE = 5;
 
 	public static void main(String[] args) {
 		Meta.setServerside(false);
@@ -73,6 +75,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		if (hax)
 			instance.statistics.level = 9000;
 		frameRate(60);
+		SwingUtility.centerFrame(frame);
 	}
 	@Override
 	public void draw() {

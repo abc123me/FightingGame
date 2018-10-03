@@ -8,13 +8,18 @@ import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
+import jeremiahlowe.fightinggame.net.struct.AttackData;
 import jeremiahlowe.fightinggame.net.struct.MovementData;
 import jeremiahlowe.fightinggame.net.struct.PositionData;
+import jeremiahlowe.fightinggame.phys.Bullet;
+import jeremiahlowe.fightinggame.phys.DamageableFighter;
+import jeremiahlowe.fightinggame.phys.Fighter;
+import jeremiahlowe.fightinggame.phys.IDamageListener;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.Color;
 import net.net16.jeremiahlowe.shared.Timing;
 
-public class ServerInstance extends Instance implements ISocketListener{
+public class ServerInstance extends Instance implements ISocketListener, IDamageListener{
 	private ArrayList<RemotePlayer> players;
 	
 	public ServerChatManager scm;
@@ -32,6 +37,11 @@ public class ServerInstance extends Instance implements ISocketListener{
 			addSocketListeners(server);
 	}
  
+	/**
+	 * 
+	 * ISocketListener
+	 * 
+	 */
 	public void onConnect(SocketWrapperThread cw) {
 		getClientVersionData(cw);
 	}  
@@ -79,11 +89,56 @@ public class ServerInstance extends Instance implements ISocketListener{
 	}
 	public void onReceiveData(SocketWrapperThread cw, String data) {}
 	public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
-	
-	public void addSocketListeners(Server s) {
-		s.addClientListener(this);
-		s.addClientListener(scm);
+	/**
+	 * 
+	 * IDamageListener
+	 * 
+	 */
+	public void onDeath(Instance i, Object killer, DamageableFighter victim) { 
+		if(victim instanceof Player) {
+			Player p = (Player) victim;
+			AttackData toData = AttackData.createMurder(null, p);
+			if(killer instanceof Player)
+				toData.setAttacker((Player) killer);
+			broadcast(toData.toPacket());
+		}
 	}
+	public void onTakeDamage(Instance i, Object from, DamageableFighter to, float amount) {
+		if(to instanceof Player) {
+			Player p = (Player) to;
+			AttackData toData = AttackData.createDamage(null, p);
+			Player f = null;
+			if(from instanceof Player)
+				f = (Player) from;
+			else if(from instanceof Bullet) {
+				Fighter par = ((Bullet) from).getParent();
+				if(par instanceof Player)
+					f = (Player) par;
+			}
+			toData.setAttacker((Player) f);
+			broadcast(toData.toPacket());
+		}
+	}
+	/**
+	 * 
+	 * Raw packet sending
+	 * 
+	 */
+	public void broadcast(Packet packet) {
+		server.broadcast(packet);
+	}
+	public void broadcastAllBut(Packet packet, long uuid) {
+		server.broadcastAllBut(packet, uuid);
+	}
+	public void sendPacket(Packet packet, long toUUID) {
+		SocketWrapperThread w = getWrapperWithUUID(toUUID);
+		w.sendPacket(packet);
+	}
+	/**
+	 * 
+	 * Player management
+	 * 
+	 */
 	public Player[] getPlayerList() {
 		int inc = 0;
 		Player[] out = new Player[players.size()];
@@ -121,25 +176,34 @@ public class ServerInstance extends Instance implements ISocketListener{
 		p.invincible = false;
 		return p;
 	}
+	public void addPlayerListeners(Player p) {
+		p.addDamageListener(this);
+	}
+	public void removePlayerListeners(Player p) {
+		p.removeDamageListener(this);
+	}
 	public void addPlayer(RemotePlayer remote) {
+		addPlayerListeners(remote.p);
 		players.add(remote);
 		add(remote.p);
-		server.broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, Meta.gson.toJson(remote.p)));
+		broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, Meta.gson.toJson(remote.p)));
 	}
 	public void addPlayerIgnoreSelf(RemotePlayer remote) {
+		addPlayerListeners(remote.p);
 		players.add(remote);
 		add(remote.p);
 		String json = Meta.gson.toJson(remote.p);
-		server.broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, json), remote.cw.UUID);//, remote.cw.UUID);
+		broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_ADD, json), remote.cw.UUID);//, remote.cw.UUID);
 	}
 	public void removePlayer(RemotePlayer remote) {
+		removePlayerListeners(remote.p);
 		players.remove(remote);
 		remove(remote.p);
-		server.broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_REMOVE, String.valueOf(remote.p.uuid)));
+		broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_REMOVE, String.valueOf(remote.p.uuid)));
 	}
 	public void updatePlayerMovementData(MovementData pmd) {
 		String json = Meta.gson.toJson(pmd);
-		server.broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, json), pmd.forUUID);
+		broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, json), pmd.forUUID);
 	}
 	public void removePlayerWithUUID(long uuid) {
 		RemotePlayer toRemove = null;
@@ -181,5 +245,14 @@ public class ServerInstance extends Instance implements ISocketListener{
 			}
 		};
 		verThread.start();
+	}
+	/**
+	 * 
+	 * VERY Low-Level stuff
+	 * 
+	 */
+	public void addSocketListeners(Server s) {
+		s.addClientListener(this);
+		s.addClientListener(scm);
 	}
 }

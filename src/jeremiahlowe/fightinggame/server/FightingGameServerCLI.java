@@ -6,14 +6,16 @@ import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
-import jeremiahlowe.fightinggame.net.struct.HealthData;
+import jeremiahlowe.fightinggame.net.struct.AttackData;
 import jeremiahlowe.fightinggame.net.struct.NameChange;
+import jeremiahlowe.fightinggame.phys.Bullet;
 import jeremiahlowe.fightinggame.phys.DamageableFighter;
+import jeremiahlowe.fightinggame.phys.Fighter;
 import jeremiahlowe.fightinggame.phys.IDamageListener;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.Timing;
 
-public class FightingGameServerCLI implements ISocketListener, IDamageListener{
+public class FightingGameServerCLI implements ISocketListener{
 	private ServerInstance instance;
 	private InteractionThread userInputThread;
 	private Thread physicsThread;
@@ -124,15 +126,5 @@ public class FightingGameServerCLI implements ISocketListener, IDamageListener{
 	}
 	public void toggleLagg() {
 		lagg = !lagg;
-	}
-
-	public void onDeath(Instance i, DamageableFighter from) { }
-	public void onTakeDamage(Instance i, Object from, DamageableFighter to, float amount) {
-		if(to instanceof Player) {
-			Player p = (Player) to;
-			HealthData toData = new HealthData(p);
-			Packet pkt = toData.toPacket();
-			instance.server.broadcast(pkt);
-		}
 	}
 }

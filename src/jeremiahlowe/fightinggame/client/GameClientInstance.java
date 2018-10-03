@@ -11,7 +11,7 @@ import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
-import jeremiahlowe.fightinggame.net.struct.HealthData;
+import jeremiahlowe.fightinggame.net.struct.AttackData;
 import jeremiahlowe.fightinggame.net.struct.MovementData;
 import jeremiahlowe.fightinggame.net.struct.NameChange;
 import jeremiahlowe.fightinggame.net.struct.PositionData;
@@ -96,7 +96,7 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 		}
 		else if(p.identity == EPacketIdentity.CLIENT_KICK) {
 			JOptionPane.showMessageDialog(this.applet.frame, p.contents, "You were kicked!", JOptionPane.INFORMATION_MESSAGE);
-			System.exit(0);
+			System.exit(FightingGameClient.KICKED_EXITCODE);
 		}
 		else if(p.identity == EPacketIdentity.PLAYER_REMOVE) {
 			long uuid = Long.parseLong(p.contents);
@@ -111,12 +111,17 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			Player pl = getPlayerWithUUID(pd.forUUID);
 			pd.copyTo(pl);
 		}
-		else if(p.identity == EPacketIdentity.PLAYER_HEALTH) {
-			HealthData hd = Meta.gson.fromJson(p.contents, HealthData.class);
-			if(hd == null) throw new RuntimeException("Server sent us invalid healthdata!");
-			System.out.println("Updating player " + hd.forUUID + "'s health data on the client to: " + hd);
-			Player pl = getPlayerWithUUID(hd.forUUID);
-			hd.copyTo(pl);
+		else if(p.identity == EPacketIdentity.ATTACK_UPDATE) {
+			AttackData ad = Meta.gson.fromJson(p.contents, AttackData.class);
+			if(ad == null) throw new RuntimeException("Server sent us invalid attackdata!");
+			Player victim = getPlayerWithUUID(ad.getVictimUUID());
+			String attackerName = "Unknown", victimName = "Unknown";
+			Player attacker = getPlayerWithUUID(ad.getAttackerUUID());
+			if(attacker != null)
+				attackerName = attacker.name;
+			if(victim != null)
+				victimName = victim.name;
+			System.out.println("Got AttackData: " + ad.toString(attackerName, victimName));
 		}
 		else if(p.identity == EPacketIdentity.PLAYER_POSITION) {
 			PositionData pd = Meta.gson.fromJson(p.contents, PositionData.class);
@@ -127,7 +132,7 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 		}
 	}
 	public Player getPlayerWithUUID(long uuid) {
-		return getPlayerWithUUID(uuid, false);
+		return getPlayerWithUUID(uuid, true);
 	}
 	public Player getPlayerWithUUID(long uuid, boolean includeLocal) {
 		if(includeLocal && uuid == localPlayer.uuid)

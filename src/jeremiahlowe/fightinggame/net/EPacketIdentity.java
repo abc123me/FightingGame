@@ -21,7 +21,7 @@ public enum EPacketIdentity {
 	//Server -> Client ONLY
 	//Content: JSON Serialized PlayerMovementData
 	
-	PLAYER_HEALTH,			//When a player is shot this gets sent to ALL clients
+	ATTACK_UPDATE,			//When a player is shot this gets sent to ALL clients
 	//Server -> Client ONLY
 	//Content: JSON Serialized HealthData
 	

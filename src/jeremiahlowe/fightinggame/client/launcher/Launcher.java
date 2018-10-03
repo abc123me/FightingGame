@@ -8,6 +8,7 @@ import javax.swing.event.ChangeListener;
 
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.client.FightingGameClient;
+import net.net16.jeremiahlowe.shared.SwingUtility;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -163,13 +164,17 @@ public class Launcher extends JFrame {
 					if(exit == FightingGameClient.NORMAL_EXITCODE)
 						System.exit(0);
 					gui.setVisible(true); 
-					if(exit == FightingGameClient.CONNECTION_ERROR_EXITCODE)
+					if(exit == FightingGameClient.KICKED_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "You were kicked, GG!", "RIP You", JOptionPane.INFORMATION_MESSAGE);
+					else if(exit == FightingGameClient.DEATH_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "You died!", "RIP You", JOptionPane.INFORMATION_MESSAGE);
+					else if(exit == FightingGameClient.CONNECTION_ERROR_EXITCODE)
 						JOptionPane.showMessageDialog(gui, "Can't connect to server", "Error", JOptionPane.ERROR_MESSAGE);
-					if(exit == FightingGameClient.DISCONNECT_EXITCODE)
+					else if(exit == FightingGameClient.DISCONNECT_EXITCODE)
 						JOptionPane.showMessageDialog(gui, "Disconnected from server, reason unknown", "Error", JOptionPane.INFORMATION_MESSAGE);
-					if(exit == FightingGameClient.FATAL_ERROR_EXITCODE)
+					else if(exit == FightingGameClient.FATAL_ERROR_EXITCODE)
 						JOptionPane.showMessageDialog(gui, "Unknown fatal error, wow this is a helpful dialog!", "Error", JOptionPane.ERROR_MESSAGE);
-					if(exit == FightingGameClient.PLAYER_ERROR_EXITCODE)
+					else if(exit == FightingGameClient.PLAYER_ERROR_EXITCODE)
 						JOptionPane.showMessageDialog(gui, "Couldn't get localPlayer from the server?!", "Error", JOptionPane.ERROR_MESSAGE);
 				} catch (IOException ioe) {
 					JOptionPane.showMessageDialog(gui, "Launcher had ioerror: \n" + ioe, 
@@ -183,6 +188,7 @@ public class Launcher extends JFrame {
 			}
 		});
 		updateResolutionEntry();
+		SwingUtility.centerJFrame(this);
 	}
 	public String[] getLaunchArgs() {
 		String hax = "", full = "", follow = "";

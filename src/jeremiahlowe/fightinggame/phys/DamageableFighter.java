@@ -30,18 +30,18 @@ public class DamageableFighter extends Fighter {
 			health = maxHealth;
 		if(health <= 0) {
 			health = 0;
-			onDeath(i);
+			onDeath(i, from);
 		}
 		if(damageListeners != null)
 			for(IDamageListener d : damageListeners)
 				if(d != null)
 					d.onTakeDamage(i, from, this, amt);
 	}
-	public void onDeath(Instance i) {
+	public void onDeath(Instance i, Object killer) {
 		if(damageListeners != null)
 			for(IDamageListener d : damageListeners)
 				if(d != null)
-					d.onDeath(i, this);
+					d.onDeath(i, killer, this);
 		alive = false;
 		destroy();
 		if(i != null)
