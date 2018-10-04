@@ -1,12 +1,8 @@
 package jeremiahlowe.fightinggame.server;
 
 import jeremiahlowe.fightinggame.Meta;
-import jeremiahlowe.fightinggame.net.EPacketIdentity;
-import jeremiahlowe.fightinggame.net.Packet;
-import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
-import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
-import jeremiahlowe.fightinggame.net.struct.NameChange;
-import jeremiahlowe.fightinggame.phys.Player;
+import jeremiahlowe.fightinggame.net.*;
+import jeremiahlowe.fightinggame.net.sockets.*;
 import net.net16.jeremiahlowe.shared.Timing;
 
 public class FightingGameServerCLI implements ISocketListener{

@@ -1,15 +1,10 @@
 package jeremiahlowe.fightinggame.server;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-
-import jeremiahlowe.fightinggame.net.Packet;
-import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
-import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import jeremiahlowe.fightinggame.net.*;
+import jeremiahlowe.fightinggame.net.sockets.*;
 
 public class Server extends Thread implements ISocketListener{
 	public final int port, cnum;

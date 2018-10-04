@@ -4,21 +4,11 @@ import java.util.ArrayList;
 
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.ins.Instance;
-import jeremiahlowe.fightinggame.net.EPacketIdentity;
-import jeremiahlowe.fightinggame.net.Packet;
-import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
-import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
-import jeremiahlowe.fightinggame.net.struct.AttackData;
-import jeremiahlowe.fightinggame.net.struct.MovementData;
-import jeremiahlowe.fightinggame.net.struct.NameChange;
-import jeremiahlowe.fightinggame.net.struct.PositionData;
-import jeremiahlowe.fightinggame.phys.Bullet;
-import jeremiahlowe.fightinggame.phys.DamageableFighter;
-import jeremiahlowe.fightinggame.phys.Fighter;
-import jeremiahlowe.fightinggame.phys.IDamageListener;
-import jeremiahlowe.fightinggame.phys.Player;
-import net.net16.jeremiahlowe.shared.Color;
-import net.net16.jeremiahlowe.shared.Timing;
+import jeremiahlowe.fightinggame.net.*;
+import jeremiahlowe.fightinggame.net.sockets.*;
+import jeremiahlowe.fightinggame.net.struct.*;
+import jeremiahlowe.fightinggame.phys.*;
+import net.net16.jeremiahlowe.shared.*;
 
 public class ServerInstance extends Instance implements ISocketListener, IDamageListener{
 	private ArrayList<RemotePlayer> players;

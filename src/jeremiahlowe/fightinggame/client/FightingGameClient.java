@@ -1,20 +1,14 @@
 package jeremiahlowe.fightinggame.client;
 
-
 import javax.swing.JOptionPane;
 
 import jeremiahlowe.fightinggame.Meta;
-import jeremiahlowe.fightinggame.client.chat.Chat;
-import jeremiahlowe.fightinggame.client.chat.RemoteChatManager;
-import jeremiahlowe.fightinggame.net.Packet;
-import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
-import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
-import jeremiahlowe.fightinggame.phys.Player;
-import net.net16.jeremiahlowe.shared.SwingUtility;
-import net.net16.jeremiahlowe.shared.Timing;
-import net.net16.jeremiahlowe.shared.math.Vector;
-import net.net16.jeremiahlowe.shared.math.VectorMath;
-import net.net16.jeremiahlowe.shared.math.Viewport;
+import jeremiahlowe.fightinggame.client.chat.*;
+import jeremiahlowe.fightinggame.net.*;
+import jeremiahlowe.fightinggame.net.sockets.*;
+import jeremiahlowe.fightinggame.phys.*;
+import net.net16.jeremiahlowe.shared.*;
+import net.net16.jeremiahlowe.shared.math.*;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
 
