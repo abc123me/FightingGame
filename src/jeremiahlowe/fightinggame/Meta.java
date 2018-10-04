@@ -6,7 +6,7 @@ import net.net16.jeremiahlowe.shared.math.GeneralMath;
 
 public class Meta {
 	public static final Gson gson;
-	public static final String VERSION = "V0.32";
+	public static final String VERSION = "V0.321";
 	public static final long VERSION_ID;
 	public static final String[] names = new String[] {
 		"Bob", "Jeff", "Chuck", "Kevin", "Jeremiah", "Danielle",
