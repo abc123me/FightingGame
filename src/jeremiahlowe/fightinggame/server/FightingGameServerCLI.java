@@ -84,22 +84,6 @@ public class FightingGameServerCLI implements ISocketListener{
 	}
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		Logger.log("Client sent update for: " + p.identity, 4);
-		if(p.identity == EPacketIdentity.CLIENT_NAME) {
-			Player pl = instance.getPlayerWithUUID(cw.UUID);
-			String name = "";
-			for(int i = 0; i < p.contents.length(); i++) {
-				char c = p.contents.charAt(i);
-				if(c >= ' ' && c <= '~')
-					name += c;
-			}
-			if(name.length() > Player.MAX_NAME_LENGTH)
-				name = name.substring(Player.MAX_NAME_LENGTH);
-			if(pl != null)
-				pl.name = name;
-			NameChange nc = new NameChange(name, cw.UUID);
-			instance.server.broadcastAllBut(nc.createPacket(), cw.UUID);
-			Logger.log("Set client " + cw.UUID + "'s name to " + pl.name, 2);
-		}
 	}
 	public void onDisconnect(SocketWrapperThread cw) {
 		if(cw == null)
