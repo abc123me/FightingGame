@@ -74,7 +74,6 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			Player pl = Meta.gson.fromJson(p.contents, Player.class);
 			System.out.println("Adding new player based off of: " + p.contents);
 			if(pl == null) throw new RuntimeException("Server sent us invalid playerdata?!");
-			//pl.invincible = true;
 			if(pl.uuid == localPlayer.uuid) {
 				System.out.println("Player being added has same UUID as localPlayer, Ignoring it!");
 				return;
@@ -117,11 +116,13 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			Player victim = getPlayerWithUUID(ad.getVictimUUID());
 			String attackerName = "Unknown", victimName = "Unknown";
 			Player attacker = getPlayerWithUUID(ad.getAttackerUUID());
-			if(attacker != null)
+			if(attacker != null) 
 				attackerName = attacker.name;
-			if(victim != null)
+			if(victim != null) 
 				victimName = victim.name;
+			ad.copyTo(attacker, victim);
 			System.out.println("Got AttackData: " + ad.toString(attackerName, victimName));
+			System.out.println("Attacker, Victim health: " + ad.getAttackerHealth() + ", " + ad.getVictimHealth());
 		}
 		else if(p.identity == EPacketIdentity.PLAYER_POSITION) {
 			PositionData pd = Meta.gson.fromJson(p.contents, PositionData.class);

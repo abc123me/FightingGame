@@ -20,6 +20,8 @@ public class AttackData {
 		victimKilled = !victim.alive();
 		victimUUID = victim.uuid;
 		setAttacker(attacker);
+		victimHp = victim.health;
+		victimMaxHp = victim.maxHealth;
 	}
 	
 	public boolean isAttackerKnown() {
@@ -33,14 +35,17 @@ public class AttackData {
 	}
 	
 	public void copyTo(Player attacker, Player victim) {
-		if(hasAttacker) {
+		if(hasAttacker && attacker != null) {
 			attacker.health = attackerHp;
 			attacker.maxHealth = attackerMaxHp;
 		}
-		if(victimKilled) 
-			victim.alive = false;
-		victim.health = victimHp;
-		victim.maxHealth = victimMaxHp;
+		if(victim != null) {
+			victim.alive = true;
+			if(victimKilled) 
+				victim.alive = false;
+			victim.health = victimHp;
+			victim.maxHealth = victimMaxHp;
+		}
 	}
 	public Packet toPacket() {
 		return Packet.createUpdate(EPacketIdentity.ATTACK_UPDATE, gson.toJson(this));
@@ -58,6 +63,10 @@ public class AttackData {
 		hasAttacker = attacker != null;
 		if(hasAttacker) 
 			attackerUUID = attacker.uuid;
+		if(hasAttacker) {
+			attackerHp = attacker.health;
+			attackerMaxHp = attacker.maxHealth;
+		}
 	}
 	public String toString() {
 		return toString("Unknown");
@@ -71,5 +80,12 @@ public class AttackData {
 			return aname + " killed " + vname;
 		else
 			return aname + " attacked " + vname;
+	}
+
+	public float getAttackerHealth() {
+		return attackerHp;
+	}
+	public float getVictimHealth() {
+		return victimHp;
 	}
 }

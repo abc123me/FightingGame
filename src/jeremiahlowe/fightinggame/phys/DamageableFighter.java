@@ -24,7 +24,7 @@ public class DamageableFighter extends Fighter {
 			return;
 		damage(i, from, -damage);
 	}
-	private void damage(Instance i, Object from, float amt) {
+	protected void damage(Instance i, Object from, float amt) {
 		health += amt;
 		if (health > maxHealth)
 			health = maxHealth;

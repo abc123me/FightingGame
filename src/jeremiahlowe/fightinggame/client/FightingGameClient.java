@@ -86,7 +86,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			instance.world.x = localPlayer.pos.x;
 			instance.world.y = localPlayer.pos.y;
 		}
-		if(syncTimer.secs() > 0.25) sync();
+		if(syncTimer.secs() > 0.05) sync();
 	}
 	
 	public void sync() {
