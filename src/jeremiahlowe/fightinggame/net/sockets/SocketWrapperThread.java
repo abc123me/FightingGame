@@ -7,9 +7,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.google.gson.Gson;
 import com.sun.xml.internal.ws.Closeable;
 
-import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
+import jeremiahlowe.fightinggame.server.Logger;
 import net.net16.jeremiahlowe.shared.Timing;
 
 public class SocketWrapperThread extends Thread implements Closeable{
@@ -24,7 +24,7 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	private boolean queueDisconnect = false;
 	private int netLag = 0;
 	private long rxTime = 0, txTime = 0;
-	private Timing rx, tx;
+	private Timing rx, tx, ct;
 	private PacketQueue queue;
 	
 	public SocketWrapperThread(long UUID, Socket baseSocket, boolean startWaitQueue) throws IOException {
@@ -34,6 +34,7 @@ public class SocketWrapperThread extends Thread implements Closeable{
 		queue = new PacketQueue();
 		rx = new Timing();
 		tx = new Timing();
+		ct = new Timing();
 	}
 	public SocketWrapperThread(long UUID, Socket baseSocket) throws IOException {
 		this(UUID, baseSocket, true);
@@ -43,31 +44,30 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	public void run() {
 		baseThread = Thread.currentThread();
 		connect();
-		if(!Meta.serverside()) System.out.println("connected");
 		while(!Thread.interrupted()) {
 			if(queueDisconnect)
 				break;
-			if(scomm.hasNext()) {
+			while(scomm.hasNext()) {
 				rx.reset();
-				if(!Meta.serverside()) System.out.println("hasNext()");
 				String line = scomm.readLine();
 				if(netLag > 0) Timing.sleep(netLag);
 				rxTime = rx.millis();
 				onData(line);
 				parseData(line);
 			}
-			if(queue.hasNextPacket()) {
+			while(queue.hasNextPacket()) {
 				tx.reset();
-				if(!Meta.serverside()) System.out.println("sendPacket()");
 				String j = gson.toJson(queue.nextPacket());
 				if(netLag > 0) Timing.sleep(netLag);
 				scomm.println(j);
 				txTime = tx.millis();
 			}
-			/*if(!scomm.stillConnected())
-				break;*/
-			if(!queue.hasNextPacket() || !scomm.hasNext())
-				Timing.sleep(5);
+			if(ct.secs() > 0.5) {
+				if(!scomm.stillConnected())
+					break;
+				ct.reset();
+			}
+			Timing.sleep(5);
 		}
 		disconnect();
 	}
@@ -76,6 +76,8 @@ public class SocketWrapperThread extends Thread implements Closeable{
 		try {
 			Packet p = gson.fromJson(data, Packet.class);
 			if(p == null)
+				return;
+			if(p.type == Packet.CONNECTION_CHECK) 
 				return;
 			if(p.type == Packet.REQUEST) {
 				for(ISocketListener c : clientListeners)
@@ -176,5 +178,13 @@ public class SocketWrapperThread extends Thread implements Closeable{
 	}
 	public int getPacketsWaiting() {
 		return queue.packetsWaiting();
+	}
+	public void killCommunications() {
+		if(isAlive()) {
+			try{
+				interrupt();
+				Logger.log("GG rest in spagetti @ " + UUID, 2);
+			} catch(Exception e) {}
+		}
 	}
 }

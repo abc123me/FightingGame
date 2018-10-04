@@ -8,6 +8,7 @@ import javax.swing.event.ChangeListener;
 
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.client.FightingGameClient;
+import net.net16.jeremiahlowe.shared.SwingUtility;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -21,6 +22,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 import javax.swing.DefaultComboBoxModel;
@@ -75,7 +77,6 @@ public class Launcher extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		Launcher gui = this;
 		
 		JLabel lblImUsingAn = new JLabel("I'm using an absolute layout because im lazy");
 		lblImUsingAn.setBounds(12, 231, 424, 15);
@@ -94,7 +95,7 @@ public class Launcher extends JFrame {
 		contentPane.add(lblIpPort);
 		JLabel lblMs = new JLabel("simulated ping (in ms)");
 		lblMs.setBounds(126, 158, 237, 15);
-		contentPane.add(lblMs);
+		contentPane.add(lblMs)  ;
 		
 		JButton btnLaunch = new JButton("Launch");
 		btnLaunch.setBounds(12, 194, 117, 25);
@@ -117,7 +118,6 @@ public class Launcher extends JFrame {
 		chckbxFullscreen = new JCheckBox("Fullscreen");
 		chckbxFullscreen.setBounds(12, 37, 117, 23);
 		contentPane.add(chckbxFullscreen);
-		updateResolutionEntry(presetBox, widthSpinner, heightSpinner);
 		txtName = new JTextField();
 		txtName.setText(Meta.getRandomName());
 		txtName.setBounds(137, 66, 226, 19);
@@ -141,44 +141,54 @@ public class Launcher extends JFrame {
 		contentPane.add(pingSpinner);
 		
 		ActionListener resUpdate = new ActionListener() {
-			@Override public void actionPerformed(ActionEvent e) {
-				updateResolutionEntry(presetBox, widthSpinner, heightSpinner);
+			public void actionPerformed(ActionEvent e) {
+				updateResolutionEntry();
 			}
 		};
 		ChangeListener setRes = new ChangeListener() {
-			@Override public void stateChanged(ChangeEvent e) {
-				resUpdate.actionPerformed(null);
+			public void stateChanged(ChangeEvent e) {
+				updateResolutionEntry();
 			}
 		};
 		presetBox.addActionListener(resUpdate);
+		chckbxFullscreen.addActionListener(resUpdate);
 		widthSpinner.addChangeListener(setRes);
 		heightSpinner.addChangeListener(setRes);
-		chckbxFullscreen.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(chckbxFullscreen.isSelected()) {
-					JOptionPane.showMessageDialog(gui, "Plays best on windowed", "Warning", JOptionPane.WARNING_MESSAGE);
-					widthSpinner.setEnabled(false);
-					heightSpinner.setEnabled(false);
-					presetBox.setEnabled(false);
-				}
-				else updateResolutionEntry(presetBox, widthSpinner, heightSpinner);
-			}
-		});
+		final Launcher gui = this;
 		btnLaunch.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				saveConfig(CONFIG_FILE_NAME);
-				Thread t = new Thread() {
-					@Override public void run() {
-						FightingGameClient.main(getLaunchArgs());
-					}
-				};
-				t.start();
-				try{t.join();}catch(Exception exc) {}
-				setVisible(false);
+				try {
+					setVisible(false);
+					int exit = exec(FightingGameClient.class, getLaunchArgs());
+					if(exit == FightingGameClient.NORMAL_EXITCODE)
+						System.exit(0);
+					gui.setVisible(true); 
+					if(exit == FightingGameClient.KICKED_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "You were kicked, GG!", "RIP You", JOptionPane.INFORMATION_MESSAGE);
+					else if(exit == FightingGameClient.DEATH_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "You died!", "RIP You", JOptionPane.INFORMATION_MESSAGE);
+					else if(exit == FightingGameClient.CONNECTION_ERROR_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "Can't connect to server", "Error", JOptionPane.ERROR_MESSAGE);
+					else if(exit == FightingGameClient.DISCONNECT_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "Disconnected from server, reason unknown", "Error", JOptionPane.INFORMATION_MESSAGE);
+					else if(exit == FightingGameClient.FATAL_ERROR_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "Unknown fatal error, wow this is a helpful dialog!", "Error", JOptionPane.ERROR_MESSAGE);
+					else if(exit == FightingGameClient.PLAYER_ERROR_EXITCODE)
+						JOptionPane.showMessageDialog(gui, "Couldn't get localPlayer from the server?!", "Error", JOptionPane.ERROR_MESSAGE);
+				} catch (IOException ioe) {
+					JOptionPane.showMessageDialog(gui, "Launcher had ioerror: \n" + ioe, 
+							"Launch error", JOptionPane.ERROR_MESSAGE);
+					ioe.printStackTrace();
+				} catch (InterruptedException ie) {
+					JOptionPane.showMessageDialog(gui, "Launcher was interrupted: \n" + ie, 
+							"Launch error", JOptionPane.ERROR_MESSAGE);
+					ie.printStackTrace();
+				}
 			}
 		});
+		updateResolutionEntry();
+		SwingUtility.centerJFrame(this);
 	}
 	public String[] getLaunchArgs() {
 		String hax = "", full = "", follow = "";
@@ -198,13 +208,13 @@ public class Launcher extends JFrame {
 				"--width", String.valueOf(w),
 				"--height", String.valueOf(h),
 				"--host", String.valueOf(txtLocalhost.getText()),
-				"--port", String.valueOf((int)portSpinner.getValue()),
+				"--port", String.valueOf(((Integer) portSpinner.getValue()).intValue()),
 				"--name", String.valueOf(txtName.getText()),
 				"--ping", String.valueOf(pingSpinner.getValue()),
-				full, hax, follow
+				full, hax, follow, "--dialogs"
 			};
 	}
-	private void updateResolutionEntry(JComboBox<ResolutionPreset> presetBox, JSpinner widthSpinner, JSpinner heightSpinner) {
+	private void updateResolutionEntry() {
 		Object obj = presetBox.getSelectedItem();
 		if(obj instanceof ResolutionPreset) {
 			ResolutionPreset r = (ResolutionPreset) obj;
@@ -219,12 +229,17 @@ public class Launcher extends JFrame {
 			}
 		}
 		else JOptionPane.showMessageDialog(this, "WTF? presetBox.getSelectedItem() isn't instance of ResolutionPreset?", "WTF?", JOptionPane.ERROR_MESSAGE);
+		if(chckbxFullscreen.isSelected()) {
+			widthSpinner.setEnabled(false);
+			heightSpinner.setEnabled(false);
+			presetBox.setEnabled(false);
+		}
 	}
 	public int getResolutionWidth() {
-		return (int)widthSpinner.getValue();
+		return ((Integer) widthSpinner.getValue()).intValue();
 	}
 	public int getResolutionHeight() {
-		return (int)heightSpinner.getValue();
+		return ((Integer) heightSpinner.getValue()).intValue();
 	}
 	public void loadConfig(String fn) {
 		try{
@@ -254,6 +269,7 @@ public class Launcher extends JFrame {
 			presetBox.setSelectedIndex(pre);
 			pingSpinner.setValue(ping);
 			chckbxFollowPlayer.setSelected(follow);
+			updateResolutionEntry();
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(this, "Error loading last config\n" + e, "Error!", JOptionPane.ERROR_MESSAGE);
 		}
@@ -276,5 +292,26 @@ public class Launcher extends JFrame {
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(this, "Error saving config\n" + e, "Error!", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	
+	public static int exec(Class<?> klass, String[] args) throws IOException, InterruptedException {
+		String javaHome = System.getProperty("java.home");
+		String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
+		String classpath = System.getProperty("java.class.path");
+		String className = klass.getCanonicalName();
+		
+		int o = 4;
+		String[] realArgs = new String[o + args.length];
+		realArgs[0] = javaBin;
+		realArgs[1] = "-cp";
+		realArgs[2] = classpath;
+		realArgs[3] = className;
+		for(int i = o, j = 0; i < realArgs.length; i++, j++)
+			realArgs[i] = args[j];
+		ProcessBuilder pb = new ProcessBuilder(realArgs);
+		pb.inheritIO();
+		Process p = pb.start();
+		p.waitFor();
+		return p.exitValue();
 	}
 }

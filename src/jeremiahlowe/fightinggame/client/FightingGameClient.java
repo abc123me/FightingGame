@@ -1,5 +1,8 @@
 package jeremiahlowe.fightinggame.client;
 
+
+import javax.swing.JOptionPane;
+
 import jeremiahlowe.fightinggame.Meta;
 import jeremiahlowe.fightinggame.client.chat.Chat;
 import jeremiahlowe.fightinggame.client.chat.RemoteChatManager;
@@ -7,6 +10,8 @@ import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
 import jeremiahlowe.fightinggame.phys.Player;
+import net.net16.jeremiahlowe.shared.SwingUtility;
+import net.net16.jeremiahlowe.shared.Timing;
 import net.net16.jeremiahlowe.shared.math.Vector;
 import net.net16.jeremiahlowe.shared.math.VectorMath;
 import net.net16.jeremiahlowe.shared.math.Viewport;
@@ -14,6 +19,13 @@ import processing.core.PApplet;
 import processing.event.MouseEvent;
 
 public class FightingGameClient extends PApplet implements ISocketListener{
+	public static final int FATAL_ERROR_EXITCODE = -1;
+	public static final int NORMAL_EXITCODE = 0;
+	public static final int PLAYER_ERROR_EXITCODE = 2;
+	public static final int DISCONNECT_EXITCODE = 1;
+	public static final int CONNECTION_ERROR_EXITCODE = 3;
+	public static final int DEATH_EXITCODE = 4;
+	public static final int KICKED_EXITCODE = 5;
 
 	public static void main(String[] args) {
 		Meta.setServerside(false);
@@ -33,6 +45,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	private GameClientInstance instance;
 	private Player localPlayer;
 	private boolean chatControl = false;
+	private Timing syncTimer = new Timing();
 	
 	@Override
 	public void settings() {
@@ -41,17 +54,16 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		instance.screen = new Viewport(width, -height, width / 2, height / 2);
 		instance.world = new Viewport(worldSize * instance.screen.aspRatio(), worldSize, 0, 0);
 		if(!instance.connectToServer(host, port))
-			System.exit(1);
+			fatalError(null, CONNECTION_ERROR_EXITCODE, "Unable to connecct to server!");
 		instance.setNetworkLag(simulatedNetworkLag);
 		instance.sendVersionData();
 		localPlayer = instance.getLocalPlayerFromServer();
-		if(localPlayer == null) {
-			System.err.println("Was unable to retrieve player from the server?!");
-			System.exit(-1);
-		}
+		if(localPlayer == null) 
+			fatalError(null, PLAYER_ERROR_EXITCODE, "Unable to get player from server!");
 		instance.sendName(name);
 		localPlayer.name = name;
 		instance.localPlayer = localPlayer;
+		localPlayer.ignoreKeys = false;
 		chat = new Chat(instance);
 		instance.addAll(instance.getNetworkStatistics(), localPlayer, chat);
 		instance.getPlayerList();
@@ -64,6 +76,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		if (hax)
 			instance.statistics.level = 9000;
 		frameRate(60);
+		SwingUtility.centerFrame(frame);
 	}
 	@Override
 	public void draw() {
@@ -74,6 +87,12 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			instance.world.x = localPlayer.pos.x;
 			instance.world.y = localPlayer.pos.y;
 		}
+		if(syncTimer.secs() > 0.05) sync();
+	}
+	
+	public void sync() {
+		syncTimer.reset();
+		instance.requestPositions();
 	}
 	
 	@Override
@@ -166,14 +185,11 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {}
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {}
 	public void onDisconnect(SocketWrapperThread cw) {
-		exit();
+		JOptionPane.showMessageDialog(frame, "Disconnected from server", "Disconnected", JOptionPane.INFORMATION_MESSAGE);
+		System.exit(DISCONNECT_EXITCODE);
 	}
 	public void onReceiveData(SocketWrapperThread cw, String data) {}
 	public void onReceiveUnknownPacket(SocketWrapperThread cw, Packet p) {}
-	public void exit() {
-		System.out.println("Exiting now!");
-		System.exit(0);
-	}
 	private void parseArgs(String[] args) {
 		int w = 500, h = 500;
 		boolean full = false;
@@ -216,5 +232,12 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			fullScreen();
 			size(displayWidth, displayHeight);
 		}
+	}
+	public void fatalError(Exception e, int code, String msg) {
+		if(e != null) {
+			System.err.println(e);
+			e.printStackTrace();
+		} else System.err.println(msg);
+		System.exit(code);
 	}
 }

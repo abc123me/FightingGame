@@ -21,6 +21,16 @@ public enum EPacketIdentity {
 	//Server -> Client ONLY
 	//Content: JSON Serialized PlayerMovementData
 	
+	ATTACK_UPDATE,			//When a player is shot this gets sent to ALL clients
+	//Server -> Client ONLY
+	//Content: JSON Serialized HealthData
+	
+	PLAYER_POSITIONS,		
+	//Client -> Server		//If the server get it as a request it sends back all player positions to the client
+	//Content: PlayerPos Vector
+	PLAYER_POSITION,
+	//Server -> Client		//The client uses this to make sure all its positions are correct
+	
 	CLIENT_KICK,			//When a player is kicked this is sent to them telling them why
 	//Server -> Client ONLY
 	//Content: Reason they got kicked

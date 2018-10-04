@@ -1,9 +1,14 @@
 package jeremiahlowe.fightinggame.net;
 
+import com.google.gson.Gson;
+
 public class Packet {
+	private static Gson gson = new Gson();
+	
 	public static final int INVALID = -1;
 	public static final int REQUEST = 0;
 	public static final int UPDATE = 1;
+	public static final int CONNECTION_CHECK = 2;
 	
 	public final int type;
 	public final EPacketIdentity identity;
@@ -22,6 +27,9 @@ public class Packet {
 	public static Packet createUpdate(EPacketIdentity identity, String content) {
 		return new Packet(UPDATE, identity, content);
 	}
+	public static Packet createConnCheck() {
+		return new Packet(CONNECTION_CHECK, null, null);
+	}
 	public Packet copy() {
 		return new Packet(type, identity, contents);
 	}
@@ -33,5 +41,11 @@ public class Packet {
 		if(type == UPDATE) t = "UPD";
 		if(type == INVALID) t = "INV";
 		return "Packet{type=" + t + ", ident=" + identity + ", contents=" + contents + "}";
+	}
+	public String toJSON() {
+		return gson.toJson(this);
+	}
+	public static Packet fromJSON(String json) {
+		return gson.fromJson(json, Packet.class);
 	}
 }

@@ -1,6 +1,9 @@
-package jeremiahlowe.fightinggame.net;
+package jeremiahlowe.fightinggame.net.struct;
 
 import com.google.gson.Gson;
+
+import jeremiahlowe.fightinggame.net.EPacketIdentity;
+import jeremiahlowe.fightinggame.net.Packet;
 
 public class NameChange {
 	private static final Gson gson = new Gson();

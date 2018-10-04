@@ -1,11 +1,11 @@
 package jeremiahlowe.fightinggame.server;
 
 import jeremiahlowe.fightinggame.Meta;
-import jeremiahlowe.fightinggame.net.NameChange;
 import jeremiahlowe.fightinggame.net.EPacketIdentity;
 import jeremiahlowe.fightinggame.net.Packet;
 import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
+import jeremiahlowe.fightinggame.net.struct.NameChange;
 import jeremiahlowe.fightinggame.phys.Player;
 import net.net16.jeremiahlowe.shared.Timing;
 
@@ -81,26 +81,9 @@ public class FightingGameServerCLI implements ISocketListener{
 	}
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		Logger.log("Client sent request for: " + p.identity, 4);
-		
 	}
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		Logger.log("Client sent update for: " + p.identity, 4);
-		if(p.identity == EPacketIdentity.CLIENT_NAME) {
-			Player pl = instance.getPlayerWithUUID(cw.UUID);
-			String name = "";
-			for(int i = 0; i < p.contents.length(); i++) {
-				char c = p.contents.charAt(i);
-				if(c >= ' ' && c <= '~')
-					name += c;
-			}
-			if(name.length() > Player.MAX_NAME_LENGTH)
-				name = name.substring(Player.MAX_NAME_LENGTH);
-			if(pl != null)
-				pl.name = name;
-			NameChange nc = new NameChange(name, cw.UUID);
-			instance.server.broadcastAllBut(nc.createPacket(), cw.UUID);
-			Logger.log("Set client " + cw.UUID + "'s name to " + pl.name, 2);
-		}
 	}
 	public void onDisconnect(SocketWrapperThread cw) {
 		if(cw == null)
