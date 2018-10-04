@@ -63,6 +63,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		instance.sendName(name);
 		localPlayer.name = name;
 		instance.localPlayer = localPlayer;
+		localPlayer.ignoreKeys = false;
 		chat = new Chat(instance);
 		instance.addAll(instance.getNetworkStatistics(), localPlayer, chat);
 		instance.getPlayerList();

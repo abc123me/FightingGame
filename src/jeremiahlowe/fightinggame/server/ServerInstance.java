@@ -10,6 +10,7 @@ import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
 import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
 import jeremiahlowe.fightinggame.net.struct.AttackData;
 import jeremiahlowe.fightinggame.net.struct.MovementData;
+import jeremiahlowe.fightinggame.net.struct.NameChange;
 import jeremiahlowe.fightinggame.net.struct.PositionData;
 import jeremiahlowe.fightinggame.phys.Bullet;
 import jeremiahlowe.fightinggame.phys.DamageableFighter;
@@ -57,6 +58,22 @@ public class ServerInstance extends Instance implements ISocketListener, IDamage
 			pmd.copyTo(pl);
 			updatePlayerMovementData(pmd);
 			Logger.log("Updated player movement data", 4);
+		}
+		else if(p.identity == EPacketIdentity.CLIENT_NAME) {
+			Player pl = getPlayerWithUUID(cw.UUID);
+			String name = "";
+			for(int i = 0; i < p.contents.length(); i++) {
+				char c = p.contents.charAt(i);
+				if(c >= ' ' && c <= '~')
+					name += c;
+			}
+			if(name.length() > Player.MAX_NAME_LENGTH)
+				name = name.substring(Player.MAX_NAME_LENGTH);
+			if(pl != null)
+				pl.name = name;
+			NameChange nc = new NameChange(name, cw.UUID);
+			server.broadcastAllBut(nc.createPacket(), cw.UUID);
+			Logger.log("Set client " + cw.UUID + "'s name to " + pl.name, 2);
 		}
 	} 
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
