@@ -12,7 +12,7 @@ public class AIFighter extends AIFighterBase{
 	}
 
 	@Override
-	public void onHit(Instance i, Object b, float damage) {
+	public void damage(Instance i, Object b, float damage) {
 		if (b instanceof Bullet) {
 			Fighter f = ((Bullet) b).getParent();
 			if (health / maxHealth < 0.75)
@@ -23,7 +23,7 @@ public class AIFighter extends AIFighterBase{
 				else
 					lookAround();
 		}
-		super.onHit(i, b, damage);
+		super.damage(i, b, damage);
 	}
 
 	@Override

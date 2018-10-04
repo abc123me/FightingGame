@@ -19,13 +19,23 @@ public class DamageableFighter extends Fighter {
 		maxHealth = 100;
 	}
 	
-	public void onHit(Instance i, Object from, float damage) {
+	public void damage(Instance i, Object from, float by) {
 		if (invincible)
 			return;
-		damage(i, from, -damage);
+		updateHealth(i, from, health - by);
 	}
-	protected void damage(Instance i, Object from, float amt) {
-		health += amt;
+	public void heal(Instance i, Object from, float by) {
+		updateHealth(i, from, health + by);
+	}
+	public void heal(Instance i, Object from) {
+		heal(i, from, maxHealth);
+	}
+	public void kill(Instance i, Object killer) {
+		onDeath(i, killer);
+	}
+	
+	protected void updateHealth(Instance i, Object from, float amt) {
+		health = amt;
 		if (health > maxHealth)
 			health = maxHealth;
 		if(health <= 0) {
@@ -37,7 +47,7 @@ public class DamageableFighter extends Fighter {
 				if(d != null)
 					d.onTakeDamage(i, from, this, amt);
 	}
-	public void onDeath(Instance i, Object killer) {
+	private void onDeath(Instance i, Object killer) {
 		if(damageListeners != null)
 			for(IDamageListener d : damageListeners)
 				if(d != null)

@@ -48,45 +48,63 @@ public class InteractionThread extends Thread{
 		System.out.println("heal <uuid> [by]: Heals a player, negative health deals damage");
 		System.out.println("kill <uuid>: Kills a player");
 	}
-	private long getUUID(String from) throws InvalidValueException{
-		try{
-			return Long.parseLong(from);
-		}catch(NumberFormatException e) {
-			Player pl = instance.getPlayerWithName(from);
-			if(pl == null)
-				throw new InvalidValueException("name", from);
-			throw new InvalidValueException("uuid", from);
-		}
-	}
+	
 	private void tp(String[] parts) {
-		if(parts.length != 2 && parts.length != 3)
+		if(parts.length != 3 && parts.length != 4)
 			System.out.println("Usage: tp <player> <to player, x> <y>");
 		else {
-			long uuid = 0;
+			Player p = null;
 			Vector pos = new Vector();
-			try{ uuid = getUUID(parts[1]); }catch(InvalidValueException e) { System.out.println(e); return; }
+			try{ p = getPlayer(parts[1]); }catch(InvalidArgumentException e) { System.out.println(e); return; }
 			if(parts.length == 2) {
-				try{ 
-					long tuuid = getUUID(parts[2]);
-					pos = instance.getPlayerWithUUID(tuuid).pos.copy();
-					
-				}catch(InvalidValueException e) { System.out.println(e); return; }
+				try{
+					pos = getPlayer(parts[2]).pos.copy();
+				}catch(InvalidArgumentException e) { System.out.println(e); return; }
 			} else {
 				try{ pos.x = Float.parseFloat(parts[2]); } catch(Exception e) { System.out.println("Invalid X coordinate!"); return; }
 				try{ pos.y = Float.parseFloat(parts[3]); } catch(Exception e) { System.out.println("Invalid Y coordinate!"); return; }
 			}
-			instance.teleportPlayerTo(uuid, pos);
-			System.out.println("Teleported player " + uuid + " to " + pos);
+			instance.teleportPlayerTo(p, pos);
+			System.out.println("Teleported player " + p.uuid + " to " + pos);
 		}
 	}
 	private void kill(String[] parts) {
-		
+		if(parts.length != 2)
+			System.out.println("Usage: kill <uuid>");
+		else {
+			try {
+				getPlayer(parts[1]).kill(instance, "server");
+			} catch(InvalidArgumentException ie) {
+				System.out.println(ie);
+			}
+		}
 	}
 	private void hp(String[] parts) {
-		
+		if(parts.length != 2)
+			System.out.println("Usage: hp <uuid>");
+		else {
+			try {
+				Player p = getPlayer(parts[1]);
+				System.out.printf("%f / %f%s", p.health, p.maxHealth, System.lineSeparator());
+			} catch(InvalidArgumentException ie) {
+				System.out.println(ie);
+			}
+		}
 	}
 	private void heal(String[] parts) {
-		
+		if(parts.length != 2 && parts.length != 3)
+			System.out.println("Usage: heal <uuid> [by]");
+		else {
+			try {
+				Player p = getPlayer(parts[1]);
+				if(parts.length == 2)
+					p.heal(instance, "server");
+				if(parts.length == 3)
+					p.heal(instance, Float.parseFloat(parts[2]));
+			} catch(InvalidArgumentException ie) {
+				System.out.println(ie);
+			}
+		}
 	}
 	private void say(String[] parts) {
 		if(parts.length < 2) 
@@ -208,16 +226,38 @@ public class InteractionThread extends Thread{
 			kill(parts);
 		else System.out.println("Unknown command, type \"help\" for help!");
 	}
-}
-class InvalidValueException extends RuntimeException{
-	public final String part, content;
-	
-	public InvalidValueException(String part, String content) {
-		this.part = part; this.content = content;
+	private long getUUID(String from) throws InvalidArgumentException{
+		try{
+			return Long.parseLong(from);
+		}catch(NumberFormatException e) {
+			Player pl = instance.getPlayerWithName(from);
+			if(pl == null)
+				throw new InvalidArgumentException("Invalid name: " + from);
+			throw new InvalidArgumentException("Invalid UUID: " + from);
+		}
 	}
+	private Player getPlayer(String from) throws InvalidArgumentException{
+		return getPlayer(from, true);
+	}
+	private Player getPlayer(String from, boolean noNull) throws InvalidArgumentException{
+		long uuid = getUUID(from);
+		Player p = instance.getPlayerWithUUID(uuid);
+		if(noNull && p == null)
+			throw new InvalidArgumentException("No player with name/uuid: " + from);
+		return p;
+	}
+}
+class InvalidArgumentException extends RuntimeException{
+	private static final long serialVersionUID = 1L;
 	
+	public InvalidArgumentException(String msg) {
+		super(msg);
+	}
+	public InvalidArgumentException() {
+		super("Invalid argument");
+	}
 	@Override
 	public String toString() {
-		return "invalid " + part + ": " + content;
+		return super.getMessage();
 	}
 }

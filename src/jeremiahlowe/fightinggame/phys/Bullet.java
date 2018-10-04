@@ -85,7 +85,7 @@ public class Bullet extends PhysicsObject implements IDrawable, IDrawableStatist
 			size2 += psize * psize;
 			boolean hit = dpcol <= size2;
 			if (hit && p instanceof DamageableFighter)
-				((DamageableFighter) p).onHit(i, this, damage);
+				((DamageableFighter) p).damage(i, this, damage);
 			if(hit)
 				destroy();
 		}

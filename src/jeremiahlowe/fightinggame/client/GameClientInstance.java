@@ -66,7 +66,6 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			scomm.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
 	}
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
-		System.out.println("Got update from server!");
 		if(p.identity == EPacketIdentity.PLAYER_ADD) {
 			Player pl = Meta.gson.fromJson(p.contents, Player.class);
 			System.out.println("Adding new player based off of: " + p.contents);
@@ -105,7 +104,6 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			MovementData pd = Meta.gson.fromJson(p.contents, MovementData.class);
 			if(pd == null) throw new RuntimeException("Server sent us invalid playerdata?!");
 			Player pl = getPlayerWithUUID(pd.forUUID);
-			if(pl == localPlayer) System.out.println("LocalPlayer keys");
 			pd.copyTo(pl);
 		}
 		else if(p.identity == EPacketIdentity.ATTACK_UPDATE) {
