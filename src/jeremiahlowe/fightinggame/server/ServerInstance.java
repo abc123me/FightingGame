@@ -9,6 +9,7 @@ import jeremiahlowe.fightinggame.net.sockets.*;
 import jeremiahlowe.fightinggame.net.struct.*;
 import jeremiahlowe.fightinggame.phys.*;
 import net.net16.jeremiahlowe.shared.*;
+import net.net16.jeremiahlowe.shared.math.Vector;
 
 public class ServerInstance extends Instance implements ISocketListener, IDamageListener{
 	private ArrayList<RemotePlayer> players;
@@ -128,24 +129,22 @@ public class ServerInstance extends Instance implements ISocketListener, IDamage
 	}
 	/**
 	 * 
-	 * Raw packet sending
-	 * 
-	 */
-	public void broadcast(Packet packet) {
-		server.broadcast(packet);
-	}
-	public void broadcastAllBut(Packet packet, long uuid) {
-		server.broadcastAllBut(packet, uuid);
-	}
-	public void sendPacket(Packet packet, long toUUID) {
-		SocketWrapperThread w = getWrapperWithUUID(toUUID);
-		w.sendPacket(packet);
-	}
-	/**
-	 * 
 	 * Player management
 	 * 
 	 */
+	public void updatePlayerMovementData(MovementData pmd) {
+		String json = Meta.gson.toJson(pmd);
+		broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, json));
+		//broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, json), pmd.forUUID);
+	}
+	public Player getPlayerWithName(String name) {
+		if(name == null)
+			return null;
+		for(RemotePlayer p : players) 
+			if(p != null && p.p != null && name.contentEquals(p.p.name))
+				return p.p;
+		return null;
+	}
 	public Player[] getPlayerList() {
 		int inc = 0;
 		Player[] out = new Player[players.size()];
@@ -208,10 +207,6 @@ public class ServerInstance extends Instance implements ISocketListener, IDamage
 		remove(remote.p);
 		broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_REMOVE, String.valueOf(remote.p.uuid)));
 	}
-	public void updatePlayerMovementData(MovementData pmd) {
-		String json = Meta.gson.toJson(pmd);
-		broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, json), pmd.forUUID);
-	}
 	public void removePlayerWithUUID(long uuid) {
 		RemotePlayer toRemove = null;
 		for(RemotePlayer p : players)
@@ -255,11 +250,41 @@ public class ServerInstance extends Instance implements ISocketListener, IDamage
 	}
 	/**
 	 * 
-	 * VERY Low-Level stuff
+	 * Player position management
+	 * 
+	 */
+	public void broadcastPlayerPosition(long uuid) { getPlayerWithUUID(uuid); }
+	public void broadcastPlayerPosition(Player p) {
+		Packet.createUpdate(EPacketIdentity.PLAYER_POSITION, Meta.gson.toJson(new PositionData(p)));
+	}
+	public void teleportPlayerTo(long uuid, Vector pos) { teleportPlayerTo(getPlayerWithUUID(uuid), pos); }
+	public void teleportPlayerTo(Player p, Vector pos) { teleportPlayerTo(p, pos, true); }
+	public void teleportPlayerTo(Player p, Vector pos, boolean bcast) {
+		p.pos = pos.copy();
+		if(bcast) broadcastPlayerPosition(p);
+	}
+	/**
+	 * 
+	 * Socket stuff
 	 * 
 	 */
 	public void addSocketListeners(Server s) {
 		s.addClientListener(this);
 		s.addClientListener(scm);
+	}
+	/**
+	 * 
+	 * Raw packet sending
+	 * 
+	 */
+	public void broadcast(Packet packet) {
+		server.broadcast(packet);
+	}
+	public void broadcastAllBut(Packet packet, long uuid) {
+		server.broadcastAllBut(packet, uuid);
+	}
+	public void sendPacket(Packet packet, long toUUID) {
+		SocketWrapperThread w = getWrapperWithUUID(toUUID);
+		w.sendPacket(packet);
 	}
 }

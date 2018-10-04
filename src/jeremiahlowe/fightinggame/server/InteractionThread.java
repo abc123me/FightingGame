@@ -3,9 +3,9 @@ package jeremiahlowe.fightinggame.server;
 import java.util.Scanner;
 
 import jeremiahlowe.fightinggame.Meta;
-import jeremiahlowe.fightinggame.phys.PhysicsObject;
-import jeremiahlowe.fightinggame.phys.Player;
-import net.net16.jeremiahlowe.shared.Timing;
+import jeremiahlowe.fightinggame.phys.*;
+import net.net16.jeremiahlowe.shared.*;
+import net.net16.jeremiahlowe.shared.math.*;
 
 public class InteractionThread extends Thread{
 	public final ServerInstance instance;
@@ -42,35 +42,51 @@ public class InteractionThread extends Thread{
 		System.out.println("kickall [reason]: Kicks all players");
 		System.out.println("ver: Prints out the server's version");
 		System.out.println("say <msg>: Sends a chat message to all clients");
+		System.out.println("tp <uuid> <x> <y>: Teleports a player to x, y");
+		System.out.println("tp <uuid> <to_uuid>: Teleports a player to another player");
+		System.out.println("hp <uuid>: Shows a players health");
+		System.out.println("heal <uuid> [by]: Heals a player, negative health deals damage");
+		System.out.println("kill <uuid>: Kills a player");
 	}
-	public void handleUserInput(String input) {
-		input = input.trim();
-		String[] parts = input.split(" ");
-		if(input.equals("exit")) 
-			exit();
-		else if(input.equals("list")) 
-			listPlayers();
-		else if(input.equals("help")) 
-			printHelp();
-		else if(input.startsWith("debug")) 
-			debug(parts);
-		else if(input.equals("kickall")) 
-			kickAll(parts);
-		else if(input.startsWith("kick")) 
-			kick(parts, false);
-		else if(input.startsWith("close"))
-			kick(parts, true);
-		else if(input.equals("tps")) 
-			System.out.println("TPS: " + fgs.tps());
-		else if(input.equals("lag")) 
-			toggleLag();
-		else if(input.equals("lsphys")) 
-			listPhysics();
-		else if(input.equals("ver")) 
-			version();
-		else if(input.startsWith("say"))
-			say(parts);
-		else System.out.println("Unknown command, type \"help\" for help!");
+	private long getUUID(String from) throws InvalidValueException{
+		try{
+			return Long.parseLong(from);
+		}catch(NumberFormatException e) {
+			Player pl = instance.getPlayerWithName(from);
+			if(pl == null)
+				throw new InvalidValueException("name", from);
+			throw new InvalidValueException("uuid", from);
+		}
+	}
+	private void tp(String[] parts) {
+		if(parts.length != 2 && parts.length != 3)
+			System.out.println("Usage: tp <player> <to player, x> <y>");
+		else {
+			long uuid = 0;
+			Vector pos = new Vector();
+			try{ uuid = getUUID(parts[1]); }catch(InvalidValueException e) { System.out.println(e); return; }
+			if(parts.length == 2) {
+				try{ 
+					long tuuid = getUUID(parts[2]);
+					pos = instance.getPlayerWithUUID(tuuid).pos.copy();
+					
+				}catch(InvalidValueException e) { System.out.println(e); return; }
+			} else {
+				try{ pos.x = Float.parseFloat(parts[2]); } catch(Exception e) { System.out.println("Invalid X coordinate!"); return; }
+				try{ pos.y = Float.parseFloat(parts[3]); } catch(Exception e) { System.out.println("Invalid Y coordinate!"); return; }
+			}
+			instance.teleportPlayerTo(uuid, pos);
+			System.out.println("Teleported player " + uuid + " to " + pos);
+		}
+	}
+	private void kill(String[] parts) {
+		
+	}
+	private void hp(String[] parts) {
+		
+	}
+	private void heal(String[] parts) {
+		
 	}
 	private void say(String[] parts) {
 		if(parts.length < 2) 
@@ -117,11 +133,11 @@ public class InteractionThread extends Thread{
 	private void kick(String[] parts, boolean close) {
 		long uuid = 0;
 		if(parts.length < 2) {
-			System.out.println("Kick command needs a uuid parameter!");
+			System.out.println("Usage: kick <uuid>!");
 			return;
 		}
 		try {
-			uuid = Long.parseLong(parts[1]);
+			uuid = getUUID(parts[1]);
 			String reason = "You were kicked, GG";
 			if(parts.length > 2) {
 				reason = "";
@@ -154,5 +170,54 @@ public class InteractionThread extends Thread{
 			System.out.println("\t\tVelocity: " + po.vel);
 			System.out.println("\t\tEnabled: " + po.enabled());
 		}
+	}
+	public void handleUserInput(String input) {
+		input = input.trim();
+		String[] parts = input.split(" ");
+		if(input.equals("exit")) 
+			exit();
+		else if(input.equals("list")) 
+			listPlayers();
+		else if(input.equals("help")) 
+			printHelp();
+		else if(input.startsWith("debug")) 
+			debug(parts);
+		else if(input.equals("kickall")) 
+			kickAll(parts);
+		else if(input.startsWith("kick")) 
+			kick(parts, false);
+		else if(input.startsWith("close"))
+			kick(parts, true);
+		else if(input.equals("tps")) 
+			System.out.println("TPS: " + fgs.tps());
+		else if(input.equals("lag")) 
+			toggleLag();
+		else if(input.equals("lsphys")) 
+			listPhysics();
+		else if(input.equals("ver")) 
+			version();
+		else if(input.startsWith("say"))
+			say(parts);
+		else if(input.startsWith("tp"))
+			tp(parts);
+		else if(input.startsWith("hp"))
+			hp(parts);
+		else if(input.startsWith("heal"))
+			heal(parts);
+		else if(input.startsWith("kill"))
+			kill(parts);
+		else System.out.println("Unknown command, type \"help\" for help!");
+	}
+}
+class InvalidValueException extends RuntimeException{
+	public final String part, content;
+	
+	public InvalidValueException(String part, String content) {
+		this.part = part; this.content = content;
+	}
+	
+	@Override
+	public String toString() {
+		return "invalid " + part + ": " + content;
 	}
 }

@@ -32,6 +32,8 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	public String name = "Unnamed";
 	public int port = 1234;
 	public boolean followLocalPlayer = false;
+	public boolean syncNext = false;
+	public float syncTime = 1000000000f;
 	public int simulatedNetworkLag = 0;
 	
 	private Chat chat;
@@ -54,10 +56,9 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		localPlayer = instance.getLocalPlayerFromServer();
 		if(localPlayer == null) 
 			fatalError(null, PLAYER_ERROR_EXITCODE, "Unable to get player from server!");
-		instance.sendName(name);
+		instance.updateLocalplayerName(name);
 		localPlayer.name = name;
 		instance.localPlayer = localPlayer;
-		localPlayer.ignoreKeys = false;
 		chat = new Chat(instance);
 		instance.addAll(instance.getNetworkStatistics(), localPlayer, chat);
 		instance.getPlayerList();
@@ -81,12 +82,14 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			instance.world.x = localPlayer.pos.x;
 			instance.world.y = localPlayer.pos.y;
 		}
-		if(syncTimer.secs() > 0.05) sync();
+		//localPlayer.ignoreKeys = true;
+		//if(syncTimer.secs() > syncTime || syncNext) sync();
 	}
 	
 	public void sync() {
 		syncTimer.reset();
 		instance.requestPositions();
+		syncNext = false;
 	}
 	
 	@Override
@@ -94,7 +97,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		Vector newLookPos = instance.screen.transform(new Vector(mouseX, mouseY), instance.world);
 		Vector lookPos = localPlayer.look;
 		localPlayer.setLookPosition(newLookPos);
-		if(VectorMath.dist2(newLookPos, lookPos) > 1)
+		if(VectorMath.dist2(newLookPos, lookPos) > 1) 
 			instance.updateLocalPlayer();
 	}
 	@Override
@@ -113,7 +116,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		Vector lookPos = localPlayer.look;
 		localPlayer.setLookPosition(newLookPos);
 		localPlayer.shoot();
-		if(VectorMath.dist2(newLookPos, lookPos) > 1)
+		if(VectorMath.dist2(newLookPos, lookPos) > 1) 
 			instance.updateLocalPlayer();
 	}
 	@Override

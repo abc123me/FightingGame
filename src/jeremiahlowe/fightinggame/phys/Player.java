@@ -27,7 +27,7 @@ public class Player extends DamageableFighter {
 	}
 
 	public void updateControls() {
-		if(!ignoreKeys)
+		if(!ignoreKeys) 
 			vel = keys.copy().rotate(heading() + lookOffset).normalize().mult(realSpeed);
 	}
 	

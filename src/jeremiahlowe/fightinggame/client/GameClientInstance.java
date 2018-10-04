@@ -1,23 +1,16 @@
 package jeremiahlowe.fightinggame.client;
 
-import java.io.IOException;
-import java.net.Socket;
-
-import javax.swing.JOptionPane;
+import java.net.*;
+import java.io.*;
+import javax.swing.*;
 
 import jeremiahlowe.fightinggame.Meta;
-import jeremiahlowe.fightinggame.ins.GraphicalInstance;
-import jeremiahlowe.fightinggame.net.EPacketIdentity;
-import jeremiahlowe.fightinggame.net.Packet;
-import jeremiahlowe.fightinggame.net.sockets.ISocketListener;
-import jeremiahlowe.fightinggame.net.sockets.SocketWrapperThread;
-import jeremiahlowe.fightinggame.net.struct.AttackData;
-import jeremiahlowe.fightinggame.net.struct.MovementData;
-import jeremiahlowe.fightinggame.net.struct.NameChange;
-import jeremiahlowe.fightinggame.net.struct.PositionData;
-import jeremiahlowe.fightinggame.phys.PhysicsObject;
-import jeremiahlowe.fightinggame.phys.Player;
-import jeremiahlowe.fightinggame.ui.IStatistic.ITextStatistic;
+import jeremiahlowe.fightinggame.ins.*;
+import jeremiahlowe.fightinggame.net.*;
+import jeremiahlowe.fightinggame.net.sockets.*;
+import jeremiahlowe.fightinggame.net.struct.*;
+import jeremiahlowe.fightinggame.phys.*;
+import jeremiahlowe.fightinggame.ui.IStatistic.*;
 import processing.core.PApplet;
 
 public class GameClientInstance extends GraphicalInstance implements ISocketListener {
@@ -56,16 +49,21 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 		connected = false;
 		scomm.close();
 	}
+	public boolean isConnected() {
+		return connected;
+	}
 	public void onConnect(SocketWrapperThread cw) {
 		System.out.println("Sucesfully connected to server!");
 		connected = true;
 	}
+	/**
+	 * 
+	 * ISocketListener
+	 * 
+	 */
 	public void onReceiveRequest(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.VERSION_DATA)
 			scomm.sendPacket(Packet.createUpdate(EPacketIdentity.VERSION_DATA, String.valueOf(Meta.VERSION_ID)));
-	}
-	public boolean isConnected() {
-		return connected;
 	}
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		System.out.println("Got update from server!");
@@ -107,6 +105,7 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			MovementData pd = Meta.gson.fromJson(p.contents, MovementData.class);
 			if(pd == null) throw new RuntimeException("Server sent us invalid playerdata?!");
 			Player pl = getPlayerWithUUID(pd.forUUID);
+			if(pl == localPlayer) System.out.println("LocalPlayer keys");
 			pd.copyTo(pl);
 		}
 		else if(p.identity == EPacketIdentity.ATTACK_UPDATE) {
@@ -131,6 +130,21 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			}
 		}
 	}
+	public void onDisconnect(SocketWrapperThread cw) {
+		System.out.println("Disconnected from server!");
+		connected = false;
+	}
+	public void onReceiveData(SocketWrapperThread cw, String data) {
+		
+	}
+	public void onReceiveUnknownPacket(SocketWrapperThread clientWrapper, Packet p) {
+		System.out.println("Got an unknown packet???!!!");
+	}
+	/**
+	 * 
+	 * Player management
+	 * 
+	 */
 	public Player getPlayerWithUUID(long uuid) {
 		return getPlayerWithUUID(uuid, true);
 	}
@@ -142,17 +156,6 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 				if(((Player) po).uuid == uuid)
 					return (Player) po;
 		return null;
-	}
-
-	public void onDisconnect(SocketWrapperThread cw) {
-		System.out.println("Disconnected from server!");
-		connected = false;
-	}
-	public void onReceiveData(SocketWrapperThread cw, String data) {
-		
-	}
-	public void onReceiveUnknownPacket(SocketWrapperThread clientWrapper, Packet p) {
-		System.out.println("Got an unknown packet???!!!");
 	}
 	public void getPlayerList() {
 		scomm.sendPacket(Packet.createRequest(EPacketIdentity.PLAYER_LIST));
@@ -172,19 +175,6 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 				Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, //Packet type
 				Meta.gson.toJson(new MovementData(localPlayer)))); //Movement data
 	}
-	@Override
-	public void add(Object p) {
-		if(p instanceof ISocketListener)
-			scomm.addClientListener((ISocketListener) p);
-		super.add(p);
-	}
-	@Override
-	public void remove(Object p) {
-		if(p instanceof ISocketListener)
-			scomm.removeClientListener((ISocketListener) p);
-		super.remove(p);
-	}
-
 	public ITextStatistic getNetworkStatistics() {
 		return new ITextStatistic() {
 			public int getLevel() { return 1; }
@@ -200,15 +190,38 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 			}
 		};
 	}
+	public void updateLocalplayerName(String name) {
+		scomm.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_NAME, name));
+	}
 
+	/**
+	 * 
+	 * Raw networking
+	 * 
+	 */
 	public void sendRawPacket(Packet p) {
 		scomm.sendPacket(p);
-	}
-	public void sendName(String name) {
-		scomm.sendPacket(Packet.createUpdate(EPacketIdentity.CLIENT_NAME, name));
 	}
 	public void setNetworkLag(int amount) {
 		if(amount > 0)
 			scomm.setNetworkLag(amount);
+	}
+	
+	/**
+	 * 
+	 * Instance Superclass
+	 * 
+	 */
+	@Override
+	public void add(Object p) {
+		if(p instanceof ISocketListener)
+			scomm.addClientListener((ISocketListener) p);
+		super.add(p);
+	}
+	@Override
+	public void remove(Object p) {
+		if(p instanceof ISocketListener)
+			scomm.removeClientListener((ISocketListener) p);
+		super.remove(p);
 	}
 }
