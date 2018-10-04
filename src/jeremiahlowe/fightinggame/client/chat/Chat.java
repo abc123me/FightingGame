@@ -7,6 +7,7 @@ import jeremiahlowe.fightinggame.ui.IDrawable;
 
 import net.net16.jeremiahlowe.shared.Color;
 import net.net16.jeremiahlowe.shared.Timing;
+import net.net16.jeremiahlowe.shared.math.GeneralMath;
 import net.net16.jeremiahlowe.shared.math.Vector;
 import processing.core.PApplet;
 
@@ -115,8 +116,9 @@ public class Chat implements IDrawable{
 		}
 	}
 	public void typeChar(char c) {
+		int len = typedMessage.length();
 		if(c == 8 || c == 127) 
-			typedMessage = typedMessage.substring(0, typedMessage.length() - 1);
+			typedMessage = typedMessage.substring(0, GeneralMath.clamp(0, len, len - 1));
 		else if (c >= ' ' && c <= '~') 
 			typedMessage += c;
 		else
