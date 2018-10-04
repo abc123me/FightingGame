@@ -30,7 +30,6 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 		super(applet);
 	}
 	
-	@SuppressWarnings("resource") //Will be closed by either hook or disconnect
 	public boolean connectToServer(String host, int port) {
 		try{
 			scomm = new SocketWrapperThread(0, new Socket(host, port));
