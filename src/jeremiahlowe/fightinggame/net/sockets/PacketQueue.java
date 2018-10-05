@@ -21,15 +21,18 @@ public class PacketQueue {
 		waiting++;
 	}
 	public Packet nextPacket() {
-		if(waiting >= toSend.size()) {
-			System.err.println("Invalid packets waiting value, getting last");
-			toSend.clear();
-			waiting = toSend.size();
-		}
-		if(waiting <= 0)
+		if(waiting < 0)
+			waiting = 0;
+		if(waiting == 0) 
 			return null;
 		waiting--;
-		return toSend.remove(waiting);
+		try{
+			return toSend.remove(waiting);
+		}catch(IndexOutOfBoundsException ioobe) {
+			System.err.println(ioobe);
+			ioobe.printStackTrace(System.err);
+		}
+		return null;
 	}
 	public boolean hasNextPacket() {
 		return waiting > 0;
