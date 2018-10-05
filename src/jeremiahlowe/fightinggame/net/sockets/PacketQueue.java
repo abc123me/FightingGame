@@ -22,6 +22,12 @@ public class PacketQueue {
 	public Packet nextPacket() {
 		if(waiting <= 0)
 			return null;
+		if(waiting >= toSend.size()) {
+			System.err.println("Invalid packets waiting value, dropping all");
+			toSend.clear();
+			waiting = 0;
+			return null;
+		}
 		waiting--;
 		return toSend.remove(waiting);
 	}
