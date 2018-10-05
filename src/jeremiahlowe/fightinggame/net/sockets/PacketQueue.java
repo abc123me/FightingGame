@@ -21,13 +21,13 @@ public class PacketQueue {
 		waiting++;
 	}
 	public Packet nextPacket() {
-		if(waiting <= 0)
-			return null;
 		if(waiting >= toSend.size()) {
 			System.err.println("Invalid packets waiting value, getting last");
 			toSend.clear();
 			waiting = toSend.size();
 		}
+		if(waiting <= 0)
+			return null;
 		waiting--;
 		return toSend.remove(waiting);
 	}
