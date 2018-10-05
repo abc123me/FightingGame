@@ -68,8 +68,8 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 	public void onReceiveUpdate(SocketWrapperThread cw, Packet p) {
 		if(p.identity == EPacketIdentity.PLAYER_ADD) {
 			Player pl = Meta.gson.fromJson(p.contents, Player.class);
-			System.out.println("Adding new player based off of: " + p.contents);
 			if(pl == null) throw new RuntimeException("Server sent us invalid playerdata?!");
+			pl.ignoreKeys = false;
 			if(pl.uuid == localPlayer.uuid) {
 				System.out.println("Player being added has same UUID as localPlayer, Ignoring it!");
 				return;
@@ -102,9 +102,10 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 		}
 		else if(p.identity == EPacketIdentity.PLAYER_MOVEMENT) {
 			MovementData pd = Meta.gson.fromJson(p.contents, MovementData.class);
-			if(pd == null) throw new RuntimeException("Server sent us invalid playerdata?!");
+			if(pd == null) throw new RuntimeException("Server sent us invalid player movement packet?!");
 			Player pl = getPlayerWithUUID(pd.forUUID);
-			pd.copyTo(pl);
+			if(pl != null) updatePlayerMovementData(pd, pl);
+			else throw new RuntimeException("Server sent us invalid player movement packet?!");
 		}
 		else if(p.identity == EPacketIdentity.ATTACK_UPDATE) {
 			AttackData ad = Meta.gson.fromJson(p.contents, AttackData.class);
@@ -143,6 +144,11 @@ public class GameClientInstance extends GraphicalInstance implements ISocketList
 	 * Player management
 	 * 
 	 */
+	public void updatePlayerMovementData(MovementData md, Player p) {
+		boolean keys = false;
+		boolean pos = true;
+		md.copyTo(p, pos, keys);
+	}
 	public Player getPlayerWithUUID(long uuid) {
 		return getPlayerWithUUID(uuid, true);
 	}

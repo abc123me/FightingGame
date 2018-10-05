@@ -45,10 +45,10 @@ public class ServerInstance extends Instance implements ISocketListener, IDamage
 				Logger.log("Got playerdata for a nonexistant player, Killing it now!", 1);
 				cw.killCommunications();
 				return;
+			} else {
+				updatePlayerMovementData(pmd, pl);
+				Logger.log("Updated player movement data", 4);
 			}
-			pmd.copyTo(pl);
-			updatePlayerMovementData(pmd);
-			Logger.log("Updated player movement data", 4);
 		}
 		else if(p.identity == EPacketIdentity.CLIENT_NAME) {
 			Player pl = getPlayerWithUUID(cw.UUID);
@@ -132,10 +132,9 @@ public class ServerInstance extends Instance implements ISocketListener, IDamage
 	 * Player management
 	 * 
 	 */
-	public void updatePlayerMovementData(MovementData pmd) {
-		String json = Meta.gson.toJson(pmd);
-		broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, json));
-		//broadcastAllBut(Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, json), pmd.forUUID);
+	public void updatePlayerMovementData(MovementData md, Player p) {
+		md.copyTo(p, false, true);
+		broadcast(Packet.createUpdate(EPacketIdentity.PLAYER_MOVEMENT, Meta.gson.toJson(new MovementData(p))));
 	}
 	public Player getPlayerWithName(String name) {
 		if(name == null)
@@ -180,6 +179,7 @@ public class ServerInstance extends Instance implements ISocketListener, IDamage
 		p.maxHealth = 100;
 		p.alive = true;
 		p.invincible = false;
+		p.ignoreKeys = false;
 		return p;
 	}
 	public void addPlayerListeners(Player p) {

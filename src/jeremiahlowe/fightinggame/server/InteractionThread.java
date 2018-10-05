@@ -56,7 +56,7 @@ public class InteractionThread extends Thread{
 			Player p = null;
 			Vector pos = new Vector();
 			try{ p = getPlayer(parts[1]); }catch(InvalidArgumentException e) { System.out.println(e); return; }
-			if(parts.length == 2) {
+			if(parts.length == 3) {
 				try{
 					pos = getPlayer(parts[2]).pos.copy();
 				}catch(InvalidArgumentException e) { System.out.println(e); return; }

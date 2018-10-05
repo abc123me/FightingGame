@@ -26,6 +26,8 @@ public class Fighter extends PhysicsObject implements IDrawable {
 	}
 
 	public Vector getLookVector() {
+		if(look == null)
+			look = new Vector(0, 0);
 		return look.copy().sub(pos).normalize();
 	}
 	public Vector getLookVector(float mag) {

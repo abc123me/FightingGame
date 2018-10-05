@@ -32,8 +32,8 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 	public String name = "Unnamed";
 	public int port = 1234;
 	public boolean followLocalPlayer = false;
-	public boolean syncNext = false;
-	public float syncTime = 1000000000f;
+	public boolean syncNext = false, syncEnable = false;
+	public float syncTime = 0.25f;
 	public int simulatedNetworkLag = 0;
 	
 	private Chat chat;
@@ -72,6 +72,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			instance.statistics.level = 9000;
 		frameRate(60);
 		SwingUtility.centerFrame(frame);
+		localPlayer.ignoreKeys = false;
 	}
 	@Override
 	public void draw() {
@@ -82,8 +83,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 			instance.world.x = localPlayer.pos.x;
 			instance.world.y = localPlayer.pos.y;
 		}
-		//localPlayer.ignoreKeys = true;
-		//if(syncTimer.secs() > syncTime || syncNext) sync();
+		if(syncEnable && (syncTimer.secs() > syncTime || syncNext)) sync();
 	}
 	
 	public void sync() {
@@ -116,7 +116,7 @@ public class FightingGameClient extends PApplet implements ISocketListener{
 		Vector lookPos = localPlayer.look;
 		localPlayer.setLookPosition(newLookPos);
 		localPlayer.shoot();
-		if(VectorMath.dist2(newLookPos, lookPos) > 1) 
+		if(localPlayer.shooting || VectorMath.dist2(newLookPos, lookPos) > 1) 
 			instance.updateLocalPlayer();
 	}
 	@Override
