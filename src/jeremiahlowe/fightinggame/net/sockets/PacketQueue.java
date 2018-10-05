@@ -10,6 +10,7 @@ public class PacketQueue {
 	
 	public PacketQueue() {
 		toSend = new ArrayList<Packet>();
+		waiting = 0;
 	}
 	
 	public int packetsWaiting() {
@@ -23,10 +24,9 @@ public class PacketQueue {
 		if(waiting <= 0)
 			return null;
 		if(waiting >= toSend.size()) {
-			System.err.println("Invalid packets waiting value, dropping all");
+			System.err.println("Invalid packets waiting value, getting last");
 			toSend.clear();
-			waiting = 0;
-			return null;
+			waiting = toSend.size();
 		}
 		waiting--;
 		return toSend.remove(waiting);
